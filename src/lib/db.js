@@ -8,6 +8,7 @@ if (!MONGODB_URI) {
 
 let cached = global.mongoose || { conn: null, promise: null };
 
+// Dono naam export kar rahe hain taaki koi error na aaye
 export async function connectDB() {
   if (cached.conn) return cached.conn;
 
@@ -16,6 +17,10 @@ export async function connectDB() {
   }
   cached.conn = await cached.promise;
   return cached.conn;
+}
+
+export async function dbConnect() {
+  return connectDB();
 }
 
 export default connectDB;
