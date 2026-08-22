@@ -5,8 +5,8 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: "/howtopenmyadminpanel7",
-        destination: "/admin",
+        source: "/howtoopenadminpanel7", // Yeh naya URL aap browser mein open karenge
+        destination: "/admin",    // Aapka target folder/route
       },
     ];
   },
