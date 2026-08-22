@@ -8,7 +8,7 @@ if (!MONGODB_URI) {
 
 let cached = global.mongoose || { conn: null, promise: null };
 
-export async function dbConnect() {
+export async function connectDB() {
   if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
@@ -18,4 +18,4 @@ export async function dbConnect() {
   return cached.conn;
 }
 
-export default dbConnect;
+export default connectDB;
