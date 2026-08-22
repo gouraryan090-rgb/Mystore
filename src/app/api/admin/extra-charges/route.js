@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import connectDB from "@/lib/mongodb"; // Aapke project ka jo bhi mongodb connection import ho
+import connectDB from "@/lib/db"; // Aapke project ka jo bhi mongodb connection import ho
 import mongoose from "mongoose";
 
 // Mongoose Schema for Extra Charges

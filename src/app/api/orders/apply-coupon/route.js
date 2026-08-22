@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
+import dbConnect from "@/lib/db";
 import Coupon from "@/models/Coupon";
 import Order from "@/models/Order";
 
