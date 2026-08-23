@@ -1,7 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useAdminProtect } from "@/lib/protectedRoute";
 
 export default function ManageExtraCharges() {
+  // Page security check aur lock modal
+  const lockScreen = useAdminProtect();
+
   const [charges, setCharges] = useState([]);
   const [form, setForm] = useState({
     name: "",
@@ -66,6 +70,9 @@ export default function ManageExtraCharges() {
       console.error("Error deleting charge:", error);
     }
   };
+
+  // Agar user authenticated nahi hai, toh lock modal dikhega
+  if (lockScreen) return lockScreen;
 
   return (
     <div style={{ padding: "32px 24px", maxWidth: "800px", margin: "0 auto" }}>

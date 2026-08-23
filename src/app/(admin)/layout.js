@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import "@/app/globals.css";
 
 export const metadata = {
@@ -6,7 +9,22 @@ export const metadata = {
   description: "Modern E-commerce Admin Panel",
 };
 
-export default function AdminLayout({ children }) {
+export default async function AdminLayout({ children }) {
+  const headersList = await headers();
+  const pathname = headersList.get("x-invoke-path") || headersList.get("next-url") || "";
+
+  // Agar user strictly login page (/admin) par hai, toh use layout ke andar aane do bina cookie check kiye
+  // (Note: Agar pathname check me URL match na ho, toh hum headers se current path nikal rahe hain)
+  const cookieStore = await cookies();
+  const token = cookieStore.get("admin_auth");
+
+  // Hum check karenge ki kya current path sirf "/admin" hai ya nahi
+  // Kyunki /admin login page hai, isliye wahan token ki zaroorat nahi hai
+  // Lekin agar koi /admin/orders ya aur koi andar ka page khol raha hai, toh token compulsory hai
+  
+  // Ek aur behtareen tareeqa: Agar hum headers se path nikalte hain aur wo /admin/orders jaisa hai
+  // Toh hum token check karenge.
+  
   return (
     <html lang="en">
       <body 

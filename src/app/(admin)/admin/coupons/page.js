@@ -1,8 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useAdminProtect } from "@/lib/protectedRoute";
 
 export default function AdminCouponsPage() {
+  // Page security check aur lock modal
+  const lockScreen = useAdminProtect();
+
   const [coupons, setCoupons] = useState([]);
   const [editingCoupon, setEditingCoupon] = useState(null);
 
@@ -69,6 +73,9 @@ export default function AdminCouponsPage() {
       if (res.ok) fetchCoupons();
     }
   };
+
+  // Agar user authenticated nahi hai, toh lock modal dikhega
+  if (lockScreen) return lockScreen;
 
   return (
     <div style={{ maxWidth: "900px", margin: "32px auto", padding: "0 20px" }}>

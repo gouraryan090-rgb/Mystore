@@ -3,8 +3,12 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAdminProtect } from "@/lib/protectedRoute";
 
 export default function AdminOrdersPage() {
+  // Page security check aur lock modal
+  const lockScreen = useAdminProtect();
+
   const router = useRouter();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -51,6 +55,9 @@ export default function AdminOrdersPage() {
     
     return currentStatus.toLowerCase() === activeTab.toLowerCase();
   });
+
+  // Agar user authenticated nahi hai, toh lock modal dikhega
+  if (lockScreen) return lockScreen;
 
   return (
     <div style={{ maxWidth: "1000px", margin: "32px auto", padding: "0 20px" }}>

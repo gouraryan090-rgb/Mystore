@@ -1,8 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useAdminProtect } from "@/lib/protectedRoute";
 
 export default function ProductsPage() {
+  // Page security check aur lock modal
+  const lockScreen = useAdminProtect();
+
   const [products, setProducts] = useState([]);
   const [categoriesList, setCategoriesList] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -171,6 +175,9 @@ export default function ProductsPage() {
       }
     }
   };
+
+  // Agar user authenticated nahi hai, toh lock modal dikhega
+  if (lockScreen) return lockScreen;
 
   return (
     <div style={{ maxWidth: "1100px", margin: "32px auto", padding: "0 20px" }}>

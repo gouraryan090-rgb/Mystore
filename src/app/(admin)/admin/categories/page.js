@@ -1,8 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useAdminProtect } from "@/lib/protectedRoute";
 
 export default function AdminCategoriesPage() {
+  // Naya page-level protect hook jo modal render karega agar cookie na ho
+  const lockScreen = useAdminProtect();
+
   const [categories, setCategories] = useState([]);
   const [type, setType] = useState("category"); // 'category' or 'subcategory'
   const [name, setName] = useState("");
@@ -76,6 +80,9 @@ export default function AdminCategoriesPage() {
       setLoading(false);
     }
   };
+
+  // Agar user authenticated nahi hai, toh lock modal dikhega
+  if (lockScreen) return lockScreen;
 
   return (
     <div style={{ maxWidth: "700px", margin: "40px auto", padding: "0 20px", fontFamily: "system-ui, sans-serif" }}>

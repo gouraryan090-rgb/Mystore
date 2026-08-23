@@ -3,8 +3,12 @@
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useAdminProtect } from "@/lib/protectedRoute";
 
 export default function AdminOrderDetailPage({ params }) {
+  // Page security check aur lock modal
+  const lockScreen = useAdminProtect();
+
   const resolvedParams = use(params);
   const orderId = resolvedParams.id;
   const router = useRouter();
@@ -58,6 +62,9 @@ export default function AdminOrderDetailPage({ params }) {
       setUpdating(false);
     }
   };
+
+  // Agar user authenticated nahi hai, toh lock modal dikhega
+  if (lockScreen) return lockScreen;
 
   if (loading) {
     return <div style={{ padding: "40px", textAlign: "center" }}>Loading Order Details...</div>;
