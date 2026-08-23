@@ -1198,53 +1198,98 @@ const CartContext = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project
 function CartProvider({ children }) {
     _s();
     const [cart, setCart] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
-    // LocalStorage se saved cart load karein
+    const [userEmail, setUserEmail] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    // 1. User email fetch karein aur database se cart load karein
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "CartProvider.useEffect": ()=>{
-            const savedCart = localStorage.getItem("user_cart");
-            if (savedCart) setCart(JSON.parse(savedCart));
+            try {
+                const savedUser = localStorage.getItem("customer_user");
+                if (savedUser) {
+                    const parsedUser = JSON.parse(savedUser);
+                    if (parsedUser?.email) {
+                        setUserEmail(parsedUser.email);
+                        // Backend se database cart fetch karein
+                        fetch(`/api/user/cart?email=${parsedUser.email}`).then({
+                            "CartProvider.useEffect": (res)=>res.json()
+                        }["CartProvider.useEffect"]).then({
+                            "CartProvider.useEffect": (data)=>{
+                                if (data.success && data.cart) {
+                                    setCart(data.cart);
+                                    localStorage.setItem("user_cart", JSON.stringify(data.cart));
+                                }
+                            }
+                        }["CartProvider.useEffect"]).catch({
+                            "CartProvider.useEffect": (err)=>console.error("Cart fetch error:", err)
+                        }["CartProvider.useEffect"]);
+                        return;
+                    }
+                }
+                // Agar user logged in nahi hai toh localstorage se load karein
+                const savedCart = localStorage.getItem("user_cart");
+                if (savedCart) setCart(JSON.parse(savedCart));
+            } catch (e) {
+                console.error(e);
+            }
         }
     }["CartProvider.useEffect"], []);
-    // Cart update hone par LocalStorage me sync karein
-    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
-        "CartProvider.useEffect": ()=>{
-            localStorage.setItem("user_cart", JSON.stringify(cart));
+    // 2. Cart update hone par LocalStorage aur Database dono me sync karein
+    const syncCartToBackend = async (updatedCart)=>{
+        localStorage.setItem("user_cart", JSON.stringify(updatedCart));
+        if (userEmail) {
+            try {
+                await fetch("/api/user/cart", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        email: userEmail,
+                        cart: updatedCart
+                    })
+                });
+            } catch (err) {
+                console.error("Cart sync error:", err);
+            }
         }
-    }["CartProvider.useEffect"], [
-        cart
-    ]);
+    };
     // Product Add karna (Safe duplicate check)
     const addToCart = (product)=>{
-        // Current cart array me direct duplicate check
         const isAlreadyInCart = cart.some((item)=>item._id === product._id);
         if (isAlreadyInCart) {
             alert("Yeh product pehle se cart me add hai!");
             return false;
         }
-        setCart((prevCart)=>[
-                ...prevCart,
-                {
-                    ...product,
-                    quantity: 1
-                }
-            ]);
+        const newCart = [
+            ...cart,
+            {
+                ...product,
+                quantity: 1
+            }
+        ];
+        setCart(newCart);
+        syncCartToBackend(newCart);
         return true;
     };
     // Quantity increase/decrease karna
     const updateQuantity = (id, amount)=>{
-        setCart((prevCart)=>prevCart.map((item)=>{
-                if (item._id === id) {
-                    const newQty = item.quantity + amount;
-                    return newQty > 0 ? {
-                        ...item,
-                        quantity: newQty
-                    } : null;
-                }
-                return item;
-            }).filter(Boolean));
+        const newCart = cart.map((item)=>{
+            if (item._id === id) {
+                const newQty = item.quantity + amount;
+                return newQty > 0 ? {
+                    ...item,
+                    quantity: newQty
+                } : null;
+            }
+            return item;
+        }).filter(Boolean);
+        setCart(newCart);
+        syncCartToBackend(newCart);
     };
     // Cart empty karna
-    const clearCart = ()=>setCart([]);
+    const clearCart = ()=>{
+        setCart([]);
+        syncCartToBackend([]);
+    };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(CartContext.Provider, {
         value: {
             cart,
@@ -1255,11 +1300,11 @@ function CartProvider({ children }) {
         children: children
     }, void 0, false, {
         fileName: "[project]/src/app/(customer)/context/CartContext.js",
-        lineNumber: 53,
+        lineNumber: 95,
         columnNumber: 5
     }, this);
 }
-_s(CartProvider, "gPYbNUmWK8tVVPcrFDrHV23HVlE=");
+_s(CartProvider, "MfXdBHtzX+v5ra9R8rdM9B4vNnM=");
 _c = CartProvider;
 const useCart = ()=>{
     _s1();
@@ -1307,6 +1352,12 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
             fontSize: "14px",
             fontWeight: isActive(path) ? "700" : "600"
         });
+    // Handle Logout Function
+    const handleLogout = ()=>{
+        localStorage.removeItem("customer_user"); // jo data save kiya tha use remove karein
+        setIsOpen(false);
+        window.location.href = "/"; // Home page ya login page par bhej dein
+    };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("header", {
         style: {
             backgroundColor: "#fff",
@@ -1346,13 +1397,13 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
                             children: "BAZAAR"
                         }, void 0, false, {
                             fileName: "[project]/src/app/(customer)/layout.js",
-                            lineNumber: 60,
+                            lineNumber: 67,
                             columnNumber: 17
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/(customer)/layout.js",
-                    lineNumber: 50,
+                    lineNumber: 57,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1369,7 +1420,7 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
                             children: "🏠 Home"
                         }, void 0, false, {
                             fileName: "[project]/src/app/(customer)/layout.js",
-                            lineNumber: 65,
+                            lineNumber: 72,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -1378,7 +1429,7 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
                             children: "📑 Categories"
                         }, void 0, false, {
                             fileName: "[project]/src/app/(customer)/layout.js",
-                            lineNumber: 68,
+                            lineNumber: 75,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -1387,7 +1438,7 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
                             children: "🏷️ Deals"
                         }, void 0, false, {
                             fileName: "[project]/src/app/(customer)/layout.js",
-                            lineNumber: 71,
+                            lineNumber: 78,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -1396,7 +1447,7 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
                             children: "📦 Orders"
                         }, void 0, false, {
                             fileName: "[project]/src/app/(customer)/layout.js",
-                            lineNumber: 74,
+                            lineNumber: 81,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -1405,13 +1456,13 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
                             children: "ℹ️ About Us"
                         }, void 0, false, {
                             fileName: "[project]/src/app/(customer)/layout.js",
-                            lineNumber: 77,
+                            lineNumber: 84,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/(customer)/layout.js",
-                    lineNumber: 64,
+                    lineNumber: 71,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1455,13 +1506,13 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
                                     children: totalItems
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/(customer)/layout.js",
-                                    lineNumber: 100,
+                                    lineNumber: 107,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/(customer)/layout.js",
-                            lineNumber: 84,
+                            lineNumber: 91,
                             columnNumber: 11
                         }, this),
                         user && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1506,12 +1557,12 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
                                                 }
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(customer)/layout.js",
-                                                lineNumber: 153,
+                                                lineNumber: 160,
                                                 columnNumber: 21
                                             }, this) : user.name ? user.name.charAt(0).toUpperCase() : "U"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/(customer)/layout.js",
-                                            lineNumber: 137,
+                                            lineNumber: 144,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1526,7 +1577,7 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/(customer)/layout.js",
-                                            lineNumber: 164,
+                                            lineNumber: 171,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1537,13 +1588,13 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
                                             children: "▼"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/(customer)/layout.js",
-                                            lineNumber: 167,
+                                            lineNumber: 174,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/(customer)/layout.js",
-                                    lineNumber: 124,
+                                    lineNumber: 131,
                                     columnNumber: 15
                                 }, this),
                                 isOpen && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1567,7 +1618,7 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
                                             children: "✏️ Edit Profile"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/(customer)/layout.js",
-                                            lineNumber: 185,
+                                            lineNumber: 192,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -1577,7 +1628,7 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
                                             children: "🏠 Edit Address"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/(customer)/layout.js",
-                                            lineNumber: 188,
+                                            lineNumber: 195,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -1587,7 +1638,7 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
                                             children: "📦 My Orders"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/(customer)/layout.js",
-                                            lineNumber: 191,
+                                            lineNumber: 198,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -1597,36 +1648,54 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
                                             children: "📞 Contact Us"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/(customer)/layout.js",
-                                            lineNumber: 194,
+                                            lineNumber: 201,
+                                            columnNumber: 19
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                            onClick: handleLogout,
+                                            style: {
+                                                ...linkStyle,
+                                                width: "100%",
+                                                textAlign: "left",
+                                                backgroundColor: "#fef2f2",
+                                                color: "#dc2626",
+                                                border: "none",
+                                                cursor: "pointer",
+                                                fontWeight: "750"
+                                            },
+                                            children: "🚪 Log Out"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/(customer)/layout.js",
+                                            lineNumber: 206,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/(customer)/layout.js",
-                                    lineNumber: 171,
+                                    lineNumber: 178,
                                     columnNumber: 17
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/(customer)/layout.js",
-                            lineNumber: 123,
+                            lineNumber: 130,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/(customer)/layout.js",
-                    lineNumber: 83,
+                    lineNumber: 90,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/app/(customer)/layout.js",
-            lineNumber: 37,
+            lineNumber: 44,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/app/(customer)/layout.js",
-        lineNumber: 27,
+        lineNumber: 34,
         columnNumber: 5
     }, this);
 }
@@ -1666,7 +1735,7 @@ function CustomerLayout({ children }) {
                     user: user
                 }, void 0, false, {
                     fileName: "[project]/src/app/(customer)/layout.js",
-                    lineNumber: 225,
+                    lineNumber: 249,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -1678,18 +1747,18 @@ function CustomerLayout({ children }) {
                     children: children
                 }, void 0, false, {
                     fileName: "[project]/src/app/(customer)/layout.js",
-                    lineNumber: 226,
+                    lineNumber: 250,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/app/(customer)/layout.js",
-            lineNumber: 224,
+            lineNumber: 248,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/app/(customer)/layout.js",
-        lineNumber: 223,
+        lineNumber: 247,
         columnNumber: 5
     }, this);
 }

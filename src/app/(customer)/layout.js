@@ -23,6 +23,13 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
     fontWeight: isActive(path) ? "700" : "600",
   });
 
+  // Handle Logout Function
+  const handleLogout = () => {
+    localStorage.removeItem("customer_user"); // jo data save kiya tha use remove karein
+    setIsOpen(false);
+    window.location.href = "/"; // Home page ya login page par bhej dein
+  };
+
   return (
     <header
       style={{
@@ -194,6 +201,23 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
                   <Link href="/contact-us" onClick={() => setIsOpen(false)} style={linkStyle}>
                     📞 Contact Us
                   </Link>
+                  
+                  {/* Logout Button Added Here */}
+                  <button
+                    onClick={handleLogout}
+                    style={{
+                      ...linkStyle,
+                      width: "100%",
+                      textAlign: "left",
+                      backgroundColor: "#fef2f2",
+                      color: "#dc2626",
+                      border: "none",
+                      cursor: "pointer",
+                      fontWeight: "750",
+                    }}
+                  >
+                    🚪 Log Out
+                  </button>
                 </div>
               )}
             </div>

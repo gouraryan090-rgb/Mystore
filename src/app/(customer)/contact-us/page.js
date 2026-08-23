@@ -76,7 +76,7 @@ export default function ContactUsPage() {
             <div>
               <div style={{ fontSize: "12px", color: "#6b7280", fontWeight: "600" }}>Email Support</div>
               <a
-                href="mailto:support@mystore.com"
+                href="mailto:zentrobazaar.shop@gmail.com"
                 style={{
                   color: "#2563eb",
                   fontWeight: "bold",
@@ -84,7 +84,7 @@ export default function ContactUsPage() {
                   textDecoration: "none",
                 }}
               >
-                support@mystore.com
+                zentrobazaar.shop@gmail.com
               </a>
             </div>
           </div>
@@ -105,7 +105,7 @@ export default function ContactUsPage() {
             <div>
               <div style={{ fontSize: "12px", color: "#6b7280", fontWeight: "600" }}>Phone / WhatsApp</div>
               <a
-                href="tel:+919876543210"
+                href="tel:+917378200781"
                 style={{
                   color: "#2563eb",
                   fontWeight: "bold",
@@ -113,7 +113,7 @@ export default function ContactUsPage() {
                   textDecoration: "none",
                 }}
               >
-                +91 98765 43210
+                +91 73782 00781
               </a>
             </div>
           </div>
