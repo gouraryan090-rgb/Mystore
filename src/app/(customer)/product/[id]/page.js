@@ -72,52 +72,91 @@ export default function ProductDetailPage({ params }) {
     router.push("/checkout");
   };
 
-  if (loading) return <div style={{ padding: "60px", textAlign: "center", color: "#6b7280", fontWeight: "600" }}>Loading Product Details...</div>;
-  if (!product) return <div style={{ padding: "60px", textAlign: "center", color: "#6b7280", fontWeight: "600" }}>Product Nahi Mila!</div>;
+  if (loading) return <div style={{ padding: "80px", textAlign: "center", color: "#64748b", fontWeight: "600" }}>Loading Product Details...</div>;
+  if (!product) return <div style={{ padding: "80px", textAlign: "center", color: "#ef4444", fontWeight: "600" }}>Product Nahi Mila!</div>;
 
   const productImages = product.images?.length > 0 
     ? product.images 
-    : [product.imageUrl || "https://via.placeholder.com/300"];
+    : [product.imageUrl || "https://via.placeholder.com/400"];
 
   const currentMainImage = productImages[selectedImageIndex] || productImages[0];
 
-  return (
-    <div style={{ maxWidth: "1000px", margin: "40px auto", padding: "0 20px", fontFamily: "system-ui, -apple-system, sans-serif" }}>
-      <button 
-        onClick={() => router.back()} 
-        style={{ background: "none", border: "none", color: "#2563eb", cursor: "pointer", fontWeight: "700", fontSize: "15px", marginBottom: "20px", display: "flex", alignItems: "center", gap: "6px" }}
-      >
-        ← Back to products
-      </button>
+  // Calculate Discount Percentage
+  let discountPercent = 0;
+  if (product.originalPrice && product.originalPrice > product.offerPrice) {
+    discountPercent = Math.round(((product.originalPrice - product.offerPrice) / product.originalPrice) * 100);
+  }
 
-      <div style={{ backgroundColor: "#fff", padding: "32px", borderRadius: "20px", border: "1px solid #e5e7eb", display: "flex", gap: "36px", flexWrap: "wrap", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.05)" }}>
+  return (
+    <div style={{ fontFamily: "system-ui, -apple-system, sans-serif", paddingBottom: "60px" }}>
+      
+      {/* Back Link */}
+      <div style={{ marginBottom: "24px" }}>
+        <button 
+          onClick={() => router.back()} 
+          style={{ background: "none", border: "none", color: "#6366f1", cursor: "pointer", fontWeight: "700", fontSize: "14px", display: "inline-flex", alignItems: "center", gap: "6px", padding: 0 }}
+        >
+          ← Back to products
+        </button>
+      </div>
+
+      {/* Main Container */}
+      <div 
+        style={{ 
+          backgroundColor: "#fff", 
+          borderRadius: "28px", 
+          border: "1px solid #f1f5f9", 
+          boxShadow: "0 10px 40px -10px rgba(0,0,0,0.05)",
+          padding: "40px",
+          display: "grid",
+          gridTemplateColumns: "1.1fr 1.2fr",
+          gap: "40px",
+          alignItems: "start"
+        }}
+      >
         
-        {/* --- LEFT SIDE: Thumbnails + Modern Main Image Container --- */}
-        <div style={{ display: "flex", gap: "16px", flex: "1 1 400px" }}>
+        {/* --- LEFT SIDE: Thumbnails Column + Main Featured Image --- */}
+        <div style={{ display: "flex", gap: "20px" }}>
           {productImages.length > 1 && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "380px", overflowY: "auto", paddingRight: "4px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px", width: "80px", maxHeight: "420px", overflowY: "auto" }}>
               {productImages.map((imgUrl, index) => (
-                <img
+                <div
                   key={index}
-                  src={imgUrl}
-                  alt={`Thumbnail ${index + 1}`}
                   onClick={() => setSelectedImageIndex(index)}
                   style={{
-                    width: "64px",
-                    height: "64px",
-                    objectFit: "cover",
-                    borderRadius: "10px",
+                    height: "80px",
+                    borderRadius: "14px",
+                    border: selectedImageIndex === index ? "2px solid #6366f1" : "1px solid #e2e8f0",
+                    backgroundColor: "#f8fafc",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "6px",
                     cursor: "pointer",
-                    border: selectedImageIndex === index ? "2px solid #2563eb" : "1px solid #e5e7eb",
-                    opacity: selectedImageIndex === index ? 1 : 0.6,
-                    transition: "all 0.2s ease"
+                    overflow: "hidden",
+                    transition: "all 0.2s"
                   }}
-                />
+                >
+                  <img src={imgUrl} alt="" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", mixBlendMode: "multiply" }} />
+                </div>
               ))}
             </div>
           )}
 
-          <div style={{ flex: 1, backgroundColor: "#f3f4f6", height: "380px", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", padding: "16px", position: "relative" }}>
+          <div 
+            style={{ 
+              flex: 1, 
+              backgroundColor: "#f8fafc", 
+              borderRadius: "24px", 
+              height: "450px", 
+              display: "flex", 
+              alignItems: "center", 
+              justifyContent: "center", 
+              padding: "30px",
+              position: "relative",
+              border: "1px solid #f1f5f9"
+            }}
+          >
             <img
               src={currentMainImage}
               alt={product.title}
@@ -126,34 +165,58 @@ export default function ProductDetailPage({ params }) {
           </div>
         </div>
 
-        {/* --- RIGHT SIDE: Product Info & Actions --- */}
-        <div style={{ flex: "1 1 350px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+        {/* --- RIGHT SIDE: Product Title, Pricing, Actions --- */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+          
+          {/* Category Tag */}
           <div>
-            {/* Category & Sub-Category displayed at the top */}
-            <span style={{ fontSize: "12px", color: "#2563eb", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+            <span style={{ fontSize: "12px", fontWeight: "800", color: "#6366f1", backgroundColor: "#eef2ff", padding: "6px 14px", borderRadius: "20px", textTransform: "uppercase", letterSpacing: "0.5px" }}>
               {product.category} {product.subCategory ? `> ${product.subCategory}` : ""}
             </span>
-            <h1 style={{ fontSize: "24px", fontWeight: "800", margin: "10px 0 12px 0", color: "#111827", lineHeight: "1.3" }}>
-              {product.title}
-            </h1>
-            <p style={{ fontSize: "14px", color: "#6b7280", lineHeight: "1.6", marginBottom: "20px" }}>
-              {product.description}
-            </p>
-            <div style={{ display: "flex", alignItems: "baseline", gap: "12px", marginBottom: "24px" }}>
-              <span style={{ fontSize: "28px", fontWeight: "900", color: "#059669" }}>₹{product.offerPrice}</span>
-              {product.originalPrice && (
-                <span style={{ fontSize: "16px", color: "#9ca3af", textDecoration: "line-through", fontWeight: "500" }}>
-                  ₹{product.originalPrice}
-                </span>
-              )}
-            </div>
+          </div>
+
+          {/* Product Title */}
+          <h1 style={{ fontSize: "26px", fontWeight: "900", color: "#0f172a", margin: 0, lineHeight: "1.3" }}>
+            {product.title}
+          </h1>
+
+          {/* Description Box */}
+          <div style={{ fontSize: "14px", color: "#475569", lineHeight: "1.6", backgroundColor: "#f8fafc", padding: "16px 20px", borderRadius: "16px", border: "1px solid #f1f5f9" }}>
+            <strong style={{ display: "block", color: "#0f172a", marginBottom: "4px" }}>About this item:</strong>
+            {product.description || "High quality standard item guaranteed by ZentroBazaar."}
+          </div>
+
+          {/* Pricing & Discount Badge */}
+          <div style={{ display: "flex", alignItems: "baseline", gap: "14px", marginTop: "4px" }}>
+            <span style={{ fontSize: "32px", fontWeight: "900", color: "#059669" }}>₹{product.offerPrice}</span>
+            {product.originalPrice && (
+              <span style={{ fontSize: "18px", color: "#94a3b8", textDecoration: "line-through", fontWeight: "700" }}>
+                ₹{product.originalPrice}
+              </span>
+            )}
+            {discountPercent > 0 && (
+              <span style={{ backgroundColor: "#dcfce7", color: "#16a34a", padding: "4px 10px", borderRadius: "8px", fontSize: "13px", fontWeight: "800" }}>
+                {discountPercent}% OFF
+              </span>
+            )}
           </div>
 
           {/* Action Buttons */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "10px" }}>
             <button
               onClick={handleBuyNowClick}
-              style={{ width: "100%", backgroundColor: "#2563eb", color: "#fff", border: "none", padding: "14px", borderRadius: "12px", fontWeight: "700", fontSize: "16px", cursor: "pointer", boxShadow: "0 4px 12px rgba(37,99,235,0.2)", transition: "background 0.2s" }}
+              style={{
+                width: "100%",
+                backgroundColor: "#6366f1",
+                color: "#fff",
+                border: "none",
+                padding: "16px",
+                borderRadius: "16px",
+                fontWeight: "800",
+                fontSize: "16px",
+                cursor: "pointer",
+                boxShadow: "0 4px 20px rgba(99, 102, 241, 0.4)",
+              }}
             >
               ⚡ Buy Now
             </button>
@@ -162,19 +225,69 @@ export default function ProductDetailPage({ params }) {
               onClick={handleAddToCart}
               style={{
                 width: "100%",
-                backgroundColor: added ? "#059669" : "#fff",
-                color: added ? "#fff" : "#111827",
-                border: "2px solid #111827",
-                padding: "13px",
-                borderRadius: "12px",
-                fontWeight: "700",
-                fontSize: "15px",
+                backgroundColor: added ? "#22c55e" : "#fff",
+                color: added ? "#fff" : "#0f172a",
+                border: added ? "none" : "2px solid #e2e8f0",
+                padding: "16px",
+                borderRadius: "16px",
+                fontWeight: "800",
+                fontSize: "16px",
                 cursor: "pointer",
-                transition: "all 0.2s",
+                boxShadow: "0 2px 10px rgba(0,0,0,0.02)",
+                transition: "all 0.2s"
               }}
             >
-              {added ? "✓ Added to Cart!" : "🛒 Add to Cart"}
+              {added ? "✓ Added to Cart Successfully!" : "🛒 Add to Cart"}
             </button>
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* Trust Badges Footer Grid */}
+      <div 
+        style={{ 
+          display: "grid", 
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", 
+          gap: "20px", 
+          marginTop: "40px",
+          backgroundColor: "#fff",
+          padding: "30px",
+          borderRadius: "24px",
+          boxShadow: "0 4px 20px -2px rgba(0,0,0,0.03)",
+          border: "1px solid #f1f5f9"
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <div style={{ background: "#eef2ff", padding: "14px", borderRadius: "16px", fontSize: "20px" }}>🛡️</div>
+          <div>
+            <h4 style={{ margin: "0 0 4px 0", fontSize: "14px", fontWeight: "800", color: "#0f172a" }}>1 Year Warranty</h4>
+            <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>Brand Warranty included</p>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <div style={{ background: "#f0fdf4", padding: "14px", borderRadius: "16px", fontSize: "20px" }}>🚚</div>
+          <div>
+            <h4 style={{ margin: "0 0 4px 0", fontSize: "14px", fontWeight: "800", color: "#0f172a" }}>Fast Delivery</h4>
+            <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>Delivery in 2-4 days</p>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <div style={{ background: "#fff7ed", padding: "14px", borderRadius: "16px", fontSize: "20px" }}>📦</div>
+          <div>
+            <h4 style={{ margin: "0 0 4px 0", fontSize: "14px", fontWeight: "800", color: "#0f172a" }}>7 Days Return</h4>
+            <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>Easy returns & refunds</p>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <div style={{ background: "#f0f9ff", padding: "14px", borderRadius: "16px", fontSize: "20px" }}>⭐</div>
+          <div>
+            <h4 style={{ margin: "0 0 4px 0", fontSize: "14px", fontWeight: "800", color: "#0f172a" }}>100% Original</h4>
+            <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>Genuine Products</p>
           </div>
         </div>
       </div>
@@ -182,10 +295,10 @@ export default function ProductDetailPage({ params }) {
       {/* Address Selection Modal */}
       {showAddressModal && (
         <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)", zIndex: 1000, display: "flex", justifyContent: "center", alignItems: "center", padding: "20px" }}>
-          <div style={{ backgroundColor: "#fff", width: "100%", maxWidth: "480px", borderRadius: "20px", padding: "28px", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)" }}>
+          <div style={{ backgroundColor: "#fff", width: "100%", maxWidth: "480px", borderRadius: "24px", padding: "28px", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-              <h2 style={{ fontSize: "18px", fontWeight: "800", color: "#111827", margin: 0 }}>Select Delivery Address</h2>
-              <button onClick={() => setShowAddressModal(false)} style={{ background: "none", border: "none", fontSize: "18px", cursor: "pointer", color: "#6b7280" }}>✕</button>
+              <h2 style={{ fontSize: "18px", fontWeight: "800", color: "#0f172a", margin: 0 }}>Select Delivery Address</h2>
+              <button onClick={() => setShowAddressModal(false)} style={{ background: "none", border: "none", fontSize: "18px", cursor: "pointer", color: "#64748b" }}>✕</button>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "12px", maxHeight: "260px", overflowY: "auto", marginBottom: "20px" }}>
@@ -196,9 +309,9 @@ export default function ProductDetailPage({ params }) {
                     display: "flex",
                     gap: "12px",
                     padding: "14px",
-                    borderRadius: "12px",
-                    border: `2px solid ${selectedAddressId === addr.id ? "#2563eb" : "#e5e7eb"}`,
-                    backgroundColor: selectedAddressId === addr.id ? "#eff6ff" : "#fff",
+                    borderRadius: "14px",
+                    border: `2px solid ${selectedAddressId === addr.id ? "#6366f1" : "#e2e8f0"}`,
+                    backgroundColor: selectedAddressId === addr.id ? "#eef2ff" : "#fff",
                     cursor: "pointer",
                   }}
                 >
@@ -209,7 +322,7 @@ export default function ProductDetailPage({ params }) {
                     checked={selectedAddressId === addr.id}
                     onChange={() => setSelectedAddressId(addr.id)}
                   />
-                  <div style={{ fontSize: "13px", color: "#374151", lineHeight: "1.5" }}>
+                  <div style={{ fontSize: "13px", color: "#334155", lineHeight: "1.5" }}>
                     <strong>{addr.name}</strong> ({addr.phone})<br />
                     {addr.street1}, {addr.city} - <strong>{addr.pincode}</strong>
                   </div>
@@ -217,8 +330,8 @@ export default function ProductDetailPage({ params }) {
               ))}
             </div>
 
-            <div style={{ padding: "14px", backgroundColor: "#f9fafb", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", border: "1px solid #e5e7eb" }}>
-              <span style={{ fontSize: "14px", fontWeight: "600", color: "#374151" }}>Total Bill:</span>
+            <div style={{ padding: "14px", backgroundColor: "#f8fafc", borderRadius: "14px", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", border: "1px solid #e2e8f0" }}>
+              <span style={{ fontSize: "14px", fontWeight: "600", color: "#334155" }}>Total Bill:</span>
               <span style={{ fontSize: "20px", fontWeight: "900", color: "#059669" }}>₹{product.offerPrice}</span>
             </div>
 
@@ -227,11 +340,11 @@ export default function ProductDetailPage({ params }) {
               disabled={!selectedAddressId}
               style={{
                 width: "100%",
-                backgroundColor: selectedAddressId ? "#059669" : "#9ca3af",
+                backgroundColor: selectedAddressId ? "#6366f1" : "#94a3b8",
                 color: "#fff",
                 border: "none",
                 padding: "14px",
-                borderRadius: "12px",
+                borderRadius: "14px",
                 fontWeight: "700",
                 fontSize: "15px",
                 cursor: selectedAddressId ? "pointer" : "not-allowed",
@@ -242,6 +355,7 @@ export default function ProductDetailPage({ params }) {
           </div>
         </div>
       )}
+
     </div>
   );
 }

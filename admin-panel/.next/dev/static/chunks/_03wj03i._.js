@@ -1175,6 +1175,10 @@ if ("TURBOPACK compile-time truthy", 1) {
     };
 }
 }),
+"[project]/node_modules/next/navigation.js [app-client] (ecmascript)", ((__turbopack_context__, module, exports) => {
+
+module.exports = __turbopack_context__.r("[project]/node_modules/next/dist/client/components/navigation.js [app-client] (ecmascript)");
+}),
 "[project]/src/app/(customer)/context/CartContext.js [app-client] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
@@ -1278,6 +1282,7 @@ __turbopack_context__.s([
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/client/app-dir/link.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/navigation.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f28$customer$292f$context$2f$CartContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/app/(customer)/context/CartContext.js [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.signature();
@@ -1285,10 +1290,23 @@ var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.sign
 ;
 ;
 ;
+;
 function HeaderContent({ isOpen, setIsOpen, user }) {
     _s();
     const { cart } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f28$customer$292f$context$2f$CartContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCart"])();
+    const pathname = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePathname"])();
     const totalItems = cart.reduce((sum, item)=>sum + item.quantity, 0);
+    // Helper function to check if a link is active
+    const isActive = (path)=>pathname === path;
+    const getLinkStyle = (path)=>({
+            textDecoration: "none",
+            backgroundColor: isActive(path) ? "#eef2ff" : "transparent",
+            color: isActive(path) ? "#6366f1" : "#64748b",
+            padding: "8px 16px",
+            borderRadius: "12px",
+            fontSize: "14px",
+            fontWeight: isActive(path) ? "700" : "600"
+        });
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("header", {
         style: {
             backgroundColor: "#fff",
@@ -1328,13 +1346,13 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
                             children: "BAZAAR"
                         }, void 0, false, {
                             fileName: "[project]/src/app/(customer)/layout.js",
-                            lineNumber: 45,
+                            lineNumber: 60,
                             columnNumber: 17
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/(customer)/layout.js",
-                    lineNumber: 35,
+                    lineNumber: 50,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1347,89 +1365,53 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                             href: "/",
-                            style: {
-                                textDecoration: "none",
-                                backgroundColor: "#eef2ff",
-                                color: "#6366f1",
-                                padding: "8px 16px",
-                                borderRadius: "12px",
-                                fontSize: "14px",
-                                fontWeight: "700"
-                            },
+                            style: getLinkStyle("/"),
                             children: "🏠 Home"
                         }, void 0, false, {
                             fileName: "[project]/src/app/(customer)/layout.js",
-                            lineNumber: 50,
+                            lineNumber: 65,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                             href: "/categories",
-                            style: {
-                                textDecoration: "none",
-                                color: "#64748b",
-                                padding: "8px 14px",
-                                borderRadius: "12px",
-                                fontSize: "14px",
-                                fontWeight: "600"
-                            },
+                            style: getLinkStyle("/categories"),
                             children: "📑 Categories"
                         }, void 0, false, {
                             fileName: "[project]/src/app/(customer)/layout.js",
-                            lineNumber: 64,
+                            lineNumber: 68,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                             href: "/deals",
-                            style: {
-                                textDecoration: "none",
-                                color: "#64748b",
-                                padding: "8px 14px",
-                                borderRadius: "12px",
-                                fontSize: "14px",
-                                fontWeight: "600"
-                            },
+                            style: getLinkStyle("/deals"),
                             children: "🏷️ Deals"
                         }, void 0, false, {
                             fileName: "[project]/src/app/(customer)/layout.js",
-                            lineNumber: 77,
+                            lineNumber: 71,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                             href: "/orders",
-                            style: {
-                                textDecoration: "none",
-                                color: "#64748b",
-                                padding: "8px 14px",
-                                borderRadius: "12px",
-                                fontSize: "14px",
-                                fontWeight: "600"
-                            },
+                            style: getLinkStyle("/orders"),
                             children: "📦 Orders"
                         }, void 0, false, {
                             fileName: "[project]/src/app/(customer)/layout.js",
-                            lineNumber: 90,
+                            lineNumber: 74,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                             href: "/about",
-                            style: {
-                                textDecoration: "none",
-                                color: "#64748b",
-                                padding: "8px 14px",
-                                borderRadius: "12px",
-                                fontSize: "14px",
-                                fontWeight: "600"
-                            },
+                            style: getLinkStyle("/about"),
                             children: "ℹ️ About Us"
                         }, void 0, false, {
                             fileName: "[project]/src/app/(customer)/layout.js",
-                            lineNumber: 103,
+                            lineNumber: 77,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/(customer)/layout.js",
-                    lineNumber: 49,
+                    lineNumber: 64,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1473,13 +1455,13 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
                                     children: totalItems
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/(customer)/layout.js",
-                                    lineNumber: 136,
+                                    lineNumber: 100,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/(customer)/layout.js",
-                            lineNumber: 120,
+                            lineNumber: 84,
                             columnNumber: 11
                         }, this),
                         user && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1524,12 +1506,12 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
                                                 }
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(customer)/layout.js",
-                                                lineNumber: 189,
+                                                lineNumber: 153,
                                                 columnNumber: 21
                                             }, this) : user.name ? user.name.charAt(0).toUpperCase() : "U"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/(customer)/layout.js",
-                                            lineNumber: 173,
+                                            lineNumber: 137,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1544,7 +1526,7 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/(customer)/layout.js",
-                                            lineNumber: 200,
+                                            lineNumber: 164,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1555,13 +1537,13 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
                                             children: "▼"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/(customer)/layout.js",
-                                            lineNumber: 203,
+                                            lineNumber: 167,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/(customer)/layout.js",
-                                    lineNumber: 160,
+                                    lineNumber: 124,
                                     columnNumber: 15
                                 }, this),
                                 isOpen && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1585,7 +1567,7 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
                                             children: "✏️ Edit Profile"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/(customer)/layout.js",
-                                            lineNumber: 221,
+                                            lineNumber: 185,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -1595,7 +1577,7 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
                                             children: "🏠 Edit Address"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/(customer)/layout.js",
-                                            lineNumber: 224,
+                                            lineNumber: 188,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -1605,7 +1587,7 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
                                             children: "📦 My Orders"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/(customer)/layout.js",
-                                            lineNumber: 227,
+                                            lineNumber: 191,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -1615,42 +1597,43 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
                                             children: "📞 Contact Us"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/(customer)/layout.js",
-                                            lineNumber: 230,
+                                            lineNumber: 194,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/(customer)/layout.js",
-                                    lineNumber: 207,
+                                    lineNumber: 171,
                                     columnNumber: 17
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/(customer)/layout.js",
-                            lineNumber: 159,
+                            lineNumber: 123,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/(customer)/layout.js",
-                    lineNumber: 119,
+                    lineNumber: 83,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/app/(customer)/layout.js",
-            lineNumber: 22,
+            lineNumber: 37,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/app/(customer)/layout.js",
-        lineNumber: 12,
+        lineNumber: 27,
         columnNumber: 5
     }, this);
 }
-_s(HeaderContent, "GQSP7DAu2z+QzdS9621Ip+kHB6w=", false, function() {
+_s(HeaderContent, "HrhfNJGR0lO2jgrSxlYN75VrdZQ=", false, function() {
     return [
-        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f28$customer$292f$context$2f$CartContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCart"]
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f28$customer$292f$context$2f$CartContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCart"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePathname"]
     ];
 });
 _c = HeaderContent;
@@ -1683,7 +1666,7 @@ function CustomerLayout({ children }) {
                     user: user
                 }, void 0, false, {
                     fileName: "[project]/src/app/(customer)/layout.js",
-                    lineNumber: 261,
+                    lineNumber: 225,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -1695,18 +1678,18 @@ function CustomerLayout({ children }) {
                     children: children
                 }, void 0, false, {
                     fileName: "[project]/src/app/(customer)/layout.js",
-                    lineNumber: 262,
+                    lineNumber: 226,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/app/(customer)/layout.js",
-            lineNumber: 260,
+            lineNumber: 224,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/app/(customer)/layout.js",
-        lineNumber: 259,
+        lineNumber: 223,
         columnNumber: 5
     }, this);
 }
@@ -1730,4 +1713,4 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
 }),
 ]);
 
-//# sourceMappingURL=_0xjekau._.js.map
+//# sourceMappingURL=_03wj03i._.js.map
