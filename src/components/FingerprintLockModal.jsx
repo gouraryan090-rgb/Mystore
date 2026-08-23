@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 
 export default function FingerprintLockModal({ onUnlock, onSwitchToFace, onSwitchToPin }) {
-  const [statusText, setStatusText] = useState("Fingerprint scan karne ke liye button dabayein...");
+  const [statusText, setStatusText] = useState("Fingerprint ya Passkey register/scan karein...");
 
   const handleBiometricAuth = async () => {
     try {
@@ -11,23 +11,59 @@ export default function FingerprintLockModal({ onUnlock, onSwitchToFace, onSwitc
         return;
       }
 
-      setStatusText("Fingerprint scan ho raha hai...");
-
       const challenge = new Uint8Array([21, 31, 105, 76, 34, 15, 64, 2]);
-      const publicKeyCredentialRequestOptions = {
-        challenge: challenge,
-        timeout: 60000,
-        userVerification: "required",
-      };
+      const userId = new Uint8Array([1, 2, 3, 4]);
 
-      // Sirf verification (get) hoga, koi naya creation/registration nahi
-      const credential = await navigator.credentials.get({
-        publicKey: publicKeyCredentialRequestOptions,
-      });
+      // Check karo ki kya is device par pehle se passkey registered hai ya nahi
+      const hasRegistered = localStorage.getItem("admin_fingerprint_registered");
 
-      if (credential) {
-        setStatusText("✅ Fingerprint Matched! Welcome Admin.");
-        setTimeout(() => onUnlock(), 800);
+      if (!hasRegistered) {
+        setStatusText("Passkey registration shuru ho raha hai... Please approve karein.");
+        
+        // Step 1: Register New Passkey / Biometric Credential
+        const publicKeyCredentialCreationOptions = {
+          challenge: challenge,
+          rp: { name: "Zentro Bazaar Admin", id: window.location.hostname },
+          user: {
+            id: userId,
+            name: "admin@zentrobazaar.com",
+            displayName: "Master Admin",
+          },
+          pubKeyCredParams: [{ alg: -7, type: "public-key" }],
+          timeout: 60000,
+          authenticatorSelection: {
+            authenticatorAttachment: "platform",
+            userVerification: "required",
+          },
+        };
+
+        const credential = await navigator.credentials.create({
+          publicKey: publicKeyCredentialCreationOptions,
+        });
+
+        if (credential) {
+          localStorage.setItem("admin_fingerprint_registered", "true");
+          setStatusText("🎉 Passkey successfully register ho gaya!");
+          setTimeout(() => onUnlock(), 1000);
+        }
+      } else {
+        setStatusText("Fingerprint scan ho raha hai...");
+
+        // Step 2: Authenticate existing passkey
+        const publicKeyCredentialRequestOptions = {
+          challenge: challenge,
+          timeout: 60000,
+          userVerification: "required",
+        };
+
+        const credential = await navigator.credentials.get({
+          publicKey: publicKeyCredentialRequestOptions,
+        });
+
+        if (credential) {
+          setStatusText("✅ Fingerprint Matched! Welcome Admin.");
+          setTimeout(() => onUnlock(), 800);
+        }
       }
     } catch (err) {
       console.error("Biometric error:", err);
@@ -47,7 +83,7 @@ export default function FingerprintLockModal({ onUnlock, onSwitchToFace, onSwitc
           padding: "12px", borderRadius: "8px", fontWeight: "bold", fontSize: "14px", cursor: "pointer", marginBottom: "16px"
         }}
       >
-        Scan Fingerprint
+        Scan / Register Passkey
       </button>
 
       <p style={{ color: "#38bdf8", fontSize: "13px", fontWeight: "500", marginBottom: "16px" }}>
