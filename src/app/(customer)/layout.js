@@ -29,7 +29,7 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
           fontWeight: "900",
         }}
       >
-        My Store
+        ZENTROBAZAAR
       </Link>
 
       <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>

@@ -2,7 +2,7 @@ import Link from "next/link";
 import "@/app/globals.css";
 
 export const metadata = {
-  title: "Admin Dashboard - My Store",
+  title: "Admin Dashboard - ZENTROBAZAAR",
   description: "Modern E-commerce Admin Panel",
 };
 

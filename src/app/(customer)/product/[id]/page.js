@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useCart } from "../../context/CartContext";
 
 export default function ProductDetailPage({ params }) {
-  // Promise ko unwrap karein
   const resolvedParams = use(params);
   const productId = resolvedParams.id;
 
@@ -19,17 +18,14 @@ export default function ProductDetailPage({ params }) {
   const [loading, setLoading] = useState(true);
   const [added, setAdded] = useState(false);
 
-  // Selected Main Image State for Thumbnail Slider
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   useEffect(() => {
-    // Saved Addresses fetch karein
     const saved = localStorage.getItem("customer_addresses");
     if (saved) {
       setAddresses(JSON.parse(saved));
     }
 
-    // Product Data Fetch using unwrapped productId
     const fetchProduct = async () => {
       try {
         const res = await fetch(`/api/products/${productId}`);
@@ -76,10 +72,9 @@ export default function ProductDetailPage({ params }) {
     router.push("/checkout");
   };
 
-  if (loading) return <div style={{ padding: "40px", textAlign: "center" }}>Loading Product...</div>;
-  if (!product) return <div style={{ padding: "40px", textAlign: "center" }}>Product Nahi Mila!</div>;
+  if (loading) return <div style={{ padding: "60px", textAlign: "center", color: "#6b7280", fontWeight: "600" }}>Loading Product Details...</div>;
+  if (!product) return <div style={{ padding: "60px", textAlign: "center", color: "#6b7280", fontWeight: "600" }}>Product Nahi Mila!</div>;
 
-  // Images Array handle karne ke liye (agar multiple images hain ya single imageUrl)
   const productImages = product.images?.length > 0 
     ? product.images 
     : [product.imageUrl || "https://via.placeholder.com/300"];
@@ -87,18 +82,20 @@ export default function ProductDetailPage({ params }) {
   const currentMainImage = productImages[selectedImageIndex] || productImages[0];
 
   return (
-    <div style={{ maxWidth: "800px", margin: "32px auto", padding: "0 20px" }}>
-      <button onClick={() => router.back()} style={{ background: "none", border: "none", color: "#2563eb", cursor: "pointer", fontWeight: "bold", marginBottom: "16px" }}>
-        ← Back
+    <div style={{ maxWidth: "1000px", margin: "40px auto", padding: "0 20px", fontFamily: "system-ui, -apple-system, sans-serif" }}>
+      <button 
+        onClick={() => router.back()} 
+        style={{ background: "none", border: "none", color: "#2563eb", cursor: "pointer", fontWeight: "700", fontSize: "15px", marginBottom: "20px", display: "flex", alignItems: "center", gap: "6px" }}
+      >
+        ← Back to products
       </button>
 
-      <div style={{ backgroundColor: "#fff", padding: "24px", borderRadius: "16px", border: "1px solid #e5e7eb", display: "flex", gap: "24px", flexWrap: "wrap" }}>
+      <div style={{ backgroundColor: "#fff", padding: "32px", borderRadius: "20px", border: "1px solid #e5e7eb", display: "flex", gap: "36px", flexWrap: "wrap", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.05)" }}>
         
-        {/* --- LEFT SIDE: Vertical Thumbnails + Main Image Layout --- */}
-        <div style={{ display: "flex", gap: "12px" }}>
-          {/* Vertical Thumbnails List */}
+        {/* --- LEFT SIDE: Thumbnails + Modern Main Image Container --- */}
+        <div style={{ display: "flex", gap: "16px", flex: "1 1 400px" }}>
           {productImages.length > 1 && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "300px", overflowY: "auto", paddingRight: "4px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "380px", overflowY: "auto", paddingRight: "4px" }}>
               {productImages.map((imgUrl, index) => (
                 <img
                   key={index}
@@ -106,13 +103,13 @@ export default function ProductDetailPage({ params }) {
                   alt={`Thumbnail ${index + 1}`}
                   onClick={() => setSelectedImageIndex(index)}
                   style={{
-                    width: "55px",
-                    height: "55px",
+                    width: "64px",
+                    height: "64px",
                     objectFit: "cover",
-                    borderRadius: "8px",
+                    borderRadius: "10px",
                     cursor: "pointer",
                     border: selectedImageIndex === index ? "2px solid #2563eb" : "1px solid #e5e7eb",
-                    opacity: selectedImageIndex === index ? 1 : 0.7,
+                    opacity: selectedImageIndex === index ? 1 : 0.6,
                     transition: "all 0.2s ease"
                   }}
                 />
@@ -120,27 +117,43 @@ export default function ProductDetailPage({ params }) {
             </div>
           )}
 
-          {/* Main Big Image View */}
-          <img
-            src={currentMainImage}
-            alt={product.title}
-            style={{ width: "280px", height: "300px", objectFit: "cover", borderRadius: "12px", border: "1px solid #f3f4f6" }}
-          />
+          <div style={{ flex: 1, backgroundColor: "#f3f4f6", height: "380px", borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", padding: "16px", position: "relative" }}>
+            <img
+              src={currentMainImage}
+              alt={product.title}
+              style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", mixBlendMode: "multiply" }}
+            />
+          </div>
         </div>
 
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+        {/* --- RIGHT SIDE: Product Info & Actions --- */}
+        <div style={{ flex: "1 1 350px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
           <div>
-            <span style={{ fontSize: "12px", color: "#2563eb", fontWeight: "bold", textTransform: "uppercase" }}>{product.category}</span>
-            <h1 style={{ fontSize: "22px", fontWeight: "bold", margin: "8px 0", color: "#111827" }}>{product.title}</h1>
-            <p style={{ fontSize: "14px", color: "#6b7280" }}>{product.description}</p>
-            <div style={{ fontSize: "24px", fontWeight: "bold", color: "#16a34a", margin: "16px 0" }}>₹{product.offerPrice}</div>
+            {/* Category & Sub-Category displayed at the top */}
+            <span style={{ fontSize: "12px", color: "#2563eb", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+              {product.category} {product.subCategory ? `> ${product.subCategory}` : ""}
+            </span>
+            <h1 style={{ fontSize: "24px", fontWeight: "800", margin: "10px 0 12px 0", color: "#111827", lineHeight: "1.3" }}>
+              {product.title}
+            </h1>
+            <p style={{ fontSize: "14px", color: "#6b7280", lineHeight: "1.6", marginBottom: "20px" }}>
+              {product.description}
+            </p>
+            <div style={{ display: "flex", alignItems: "baseline", gap: "12px", marginBottom: "24px" }}>
+              <span style={{ fontSize: "28px", fontWeight: "900", color: "#059669" }}>₹{product.offerPrice}</span>
+              {product.originalPrice && (
+                <span style={{ fontSize: "16px", color: "#9ca3af", textDecoration: "line-through", fontWeight: "500" }}>
+                  ₹{product.originalPrice}
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Action Buttons */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
             <button
               onClick={handleBuyNowClick}
-              style={{ width: "100%", backgroundColor: "#2563eb", color: "#fff", border: "none", padding: "14px", borderRadius: "10px", fontWeight: "bold", fontSize: "16px", cursor: "pointer" }}
+              style={{ width: "100%", backgroundColor: "#2563eb", color: "#fff", border: "none", padding: "14px", borderRadius: "12px", fontWeight: "700", fontSize: "16px", cursor: "pointer", boxShadow: "0 4px 12px rgba(37,99,235,0.2)", transition: "background 0.2s" }}
             >
               ⚡ Buy Now
             </button>
@@ -149,12 +162,12 @@ export default function ProductDetailPage({ params }) {
               onClick={handleAddToCart}
               style={{
                 width: "100%",
-                backgroundColor: added ? "#16a34a" : "#fff",
-                color: added ? "#fff" : "#374151",
-                border: "2px solid #374151",
-                padding: "12px",
-                borderRadius: "10px",
-                fontWeight: "bold",
+                backgroundColor: added ? "#059669" : "#fff",
+                color: added ? "#fff" : "#111827",
+                border: "2px solid #111827",
+                padding: "13px",
+                borderRadius: "12px",
+                fontWeight: "700",
                 fontSize: "15px",
                 cursor: "pointer",
                 transition: "all 0.2s",
@@ -168,23 +181,22 @@ export default function ProductDetailPage({ params }) {
 
       {/* Address Selection Modal */}
       {showAddressModal && (
-        <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "rgba(0,0,0,0.6)", zIndex: 1000, display: "flex", justifyContent: "center", alignItems: "center", padding: "20px" }}>
-          <div style={{ backgroundColor: "#fff", width: "100%", maxWidth: "500px", borderRadius: "16px", padding: "24px", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-              <h2 style={{ fontSize: "18px", fontWeight: "bold", margin: 0 }}>Select Delivery Address</h2>
-              <button onClick={() => setShowAddressModal(false)} style={{ background: "none", border: "none", fontSize: "18px", cursor: "pointer" }}>✕</button>
+        <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)", zIndex: 1000, display: "flex", justifyContent: "center", alignItems: "center", padding: "20px" }}>
+          <div style={{ backgroundColor: "#fff", width: "100%", maxWidth: "480px", borderRadius: "20px", padding: "28px", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+              <h2 style={{ fontSize: "18px", fontWeight: "800", color: "#111827", margin: 0 }}>Select Delivery Address</h2>
+              <button onClick={() => setShowAddressModal(false)} style={{ background: "none", border: "none", fontSize: "18px", cursor: "pointer", color: "#6b7280" }}>✕</button>
             </div>
 
-            {/* Address Options */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px", maxHeight: "250px", overflowY: "auto", marginBottom: "16px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px", maxHeight: "260px", overflowY: "auto", marginBottom: "20px" }}>
               {addresses.map((addr) => (
                 <label
                   key={addr.id}
                   style={{
                     display: "flex",
                     gap: "12px",
-                    padding: "12px",
-                    borderRadius: "8px",
+                    padding: "14px",
+                    borderRadius: "12px",
                     border: `2px solid ${selectedAddressId === addr.id ? "#2563eb" : "#e5e7eb"}`,
                     backgroundColor: selectedAddressId === addr.id ? "#eff6ff" : "#fff",
                     cursor: "pointer",
@@ -197,7 +209,7 @@ export default function ProductDetailPage({ params }) {
                     checked={selectedAddressId === addr.id}
                     onChange={() => setSelectedAddressId(addr.id)}
                   />
-                  <div style={{ fontSize: "13px", color: "#374151" }}>
+                  <div style={{ fontSize: "13px", color: "#374151", lineHeight: "1.5" }}>
                     <strong>{addr.name}</strong> ({addr.phone})<br />
                     {addr.street1}, {addr.city} - <strong>{addr.pincode}</strong>
                   </div>
@@ -205,24 +217,22 @@ export default function ProductDetailPage({ params }) {
               ))}
             </div>
 
-            {/* Total Bill Box */}
-            <div style={{ padding: "12px", backgroundColor: "#f9fafb", borderRadius: "8px", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", border: "1px solid #e5e7eb" }}>
+            <div style={{ padding: "14px", backgroundColor: "#f9fafb", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", border: "1px solid #e5e7eb" }}>
               <span style={{ fontSize: "14px", fontWeight: "600", color: "#374151" }}>Total Bill:</span>
-              <span style={{ fontSize: "18px", fontWeight: "bold", color: "#16a34a" }}>₹{product.offerPrice}</span>
+              <span style={{ fontSize: "20px", fontWeight: "900", color: "#059669" }}>₹{product.offerPrice}</span>
             </div>
 
-            {/* Proceed Button */}
             <button
               onClick={handleProceedToCheckout}
               disabled={!selectedAddressId}
               style={{
                 width: "100%",
-                backgroundColor: selectedAddressId ? "#16a34a" : "#9ca3af",
+                backgroundColor: selectedAddressId ? "#059669" : "#9ca3af",
                 color: "#fff",
                 border: "none",
-                padding: "12px",
-                borderRadius: "8px",
-                fontWeight: "bold",
+                padding: "14px",
+                borderRadius: "12px",
+                fontWeight: "700",
                 fontSize: "15px",
                 cursor: selectedAddressId ? "pointer" : "not-allowed",
               }}

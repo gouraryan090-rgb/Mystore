@@ -7,7 +7,9 @@ const ProductSchema = new mongoose.Schema(
     originalPrice: { type: Number, required: true },
     offerPrice: { type: Number, required: true },
     category: { type: String, required: true },
+    subCategory: { type: String, default: "" }, // <--- Yeh nayi field add kar di hai
     images: { type: [String], default: [] },
+    imageUrl: { type: String, default: "" },
   },
   { timestamps: true }
 );

@@ -1,7 +1,7 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "My Store",
+  title: "ZENTROBAZAAR",
   description: "E-commerce App",
 };
 

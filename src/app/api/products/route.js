@@ -29,6 +29,7 @@ export async function POST(request) {
       originalPrice: body.originalPrice,
       offerPrice: body.offerPrice,
       category: body.category,
+      subCategory: body.subCategory, // <-- Yahan subCategory add kar di gayi hai
       images: body.images,
       imageUrl: body.images?.[0] || "", // Fallback ke liye
     });

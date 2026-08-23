@@ -1308,7 +1308,7 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
                     fontSize: "24px",
                     fontWeight: "900"
                 },
-                children: "My Store"
+                children: "ZENTROBAZAAR"
             }, void 0, false, {
                 fileName: "[project]/src/app/(customer)/layout.js",
                 lineNumber: 23,

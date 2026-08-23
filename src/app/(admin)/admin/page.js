@@ -3,9 +3,6 @@ import { useState } from "react";
 import Link from "next/link";
 
 export default function AdminDashboardPage() {
-  // Hum shuru mein isAuthenticated false rakh rahe hain. 
-  // Agar aap chaho toh server component bana kar initial state bhej sakte ho, 
-  // ya fir yahan simple login form se handle hoga.
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -158,6 +155,15 @@ export default function AdminDashboardPage() {
                 <div style={{ fontSize: "36px", marginBottom: "12px" }}>🏷️</div>
                 <h3 style={cardTitleStyle}>Manage Products</h3>
                 <p style={cardDescStyle}>Add, edit, or delete store products and stock.</p>
+              </div>
+            </Link>
+
+            {/* Naya Manage Categories Card */}
+            <Link href="/admin/categories" style={{ textDecoration: "none" }}>
+              <div style={cardStyle}>
+                <div style={{ fontSize: "36px", marginBottom: "12px" }}>📂</div>
+                <h3 style={cardTitleStyle}>Manage Categories</h3>
+                <p style={cardDescStyle}>Create new main categories or sub-categories.</p>
               </div>
             </Link>
 

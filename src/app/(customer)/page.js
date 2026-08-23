@@ -6,9 +6,11 @@ import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 export default function HomePage() {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedSubCategory, setSelectedSubCategory] = useState("All");
   const [loading, setLoading] = useState(true);
 
   // User & Auth State
@@ -55,7 +57,7 @@ export default function HomePage() {
 
       setUser(loggedUser);
       localStorage.setItem("customer_user", JSON.stringify(loggedUser));
-      window.location.reload(); // Refresh to update layout state
+      window.location.reload();
     } catch (error) {
       console.error("Login Error:", error);
       setAuthError("Login fail ho gaya! Firebase Console me Google Provider check karein.");
@@ -64,25 +66,53 @@ export default function HomePage() {
     }
   };
 
+  // Products aur Database wali Categories fetch karna
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch("/api/products");
-        const data = await res.json();
-        if (data.success) {
-          setProducts(data.data);
-          setFilteredProducts(data.data);
+        const [prodRes, catRes] = await Promise.all([
+          fetch("/api/products"),
+          fetch("/api/categories")
+        ]);
+
+        const prodData = await prodRes.json();
+        const catData = await catRes.json();
+
+        if (prodData.success) {
+          setProducts(prodData.data);
+          setFilteredProducts(prodData.data);
+        }
+
+        if (catData.success) {
+          // Sirf main categories filter karein jo admin ne banayi hain
+          const mainCats = catData.data.filter(c => c.type === "category");
+          setCategories(mainCats);
         }
       } catch (err) {
-        console.error("Error fetching products:", err);
+        console.error("Error fetching data:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProducts();
+    fetchData();
   }, []);
 
+  // Sub-categories nikalna jo selected main category ke under aati hain
+  const [allCategoriesList, setAllCategoriesList] = useState([]);
+  useEffect(() => {
+    fetch("/api/categories")
+      .then(res => res.json())
+      .then(data => {
+        if(data.success) setAllCategoriesList(data.data);
+      }).catch(err => console.error(err));
+  }, []);
+
+  const subCategories = allCategoriesList.filter(
+    c => c.type === "subcategory" && c.parentCategory === selectedCategory
+  );
+
+  // Filter Logic for Search, Category & Sub-Category
   useEffect(() => {
     let result = products;
 
@@ -96,24 +126,23 @@ export default function HomePage() {
       result = result.filter((p) => p.category === selectedCategory);
     }
 
-    setFilteredProducts(result);
-  }, [search, selectedCategory, products]);
+    if (selectedSubCategory !== "All") {
+      result = result.filter((p) => p.subCategory === selectedSubCategory);
+    }
 
-  const categories = [
-    "All",
-    ...new Set(products.map((p) => p.category).filter(Boolean)),
-  ];
+    setFilteredProducts(result);
+  }, [search, selectedCategory, selectedSubCategory, products]);
 
   if (isCheckingAuth) {
     return (
-      <div style={{ padding: "40px", textAlign: "center", fontWeight: "bold" }}>
-        Checking Login Status...
+      <div style={{ padding: "60px", textAlign: "center", fontSize: "16px", fontWeight: "600", color: "#4b5563" }}>
+        Loading ZentoBazaar...
       </div>
     );
   }
 
   return (
-    <div style={{ fontFamily: "sans-serif" }}>
+    <div style={{ fontFamily: "system-ui, -apple-system, sans-serif", backgroundColor: "#f9fafb", minHeight: "100vh", paddingBottom: "40px" }}>
       {/* MANDATORY LOGIN POPUP */}
       {!user && (
         <div
@@ -124,6 +153,7 @@ export default function HomePage() {
             width: "100vw",
             height: "100vh",
             backgroundColor: "rgba(0,0,0,0.75)",
+            backdropFilter: "blur(5px)",
             zIndex: 99999,
             display: "flex",
             alignItems: "center",
@@ -136,23 +166,23 @@ export default function HomePage() {
               backgroundColor: "#fff",
               width: "100%",
               maxWidth: "400px",
-              borderRadius: "16px",
-              padding: "32px",
+              borderRadius: "20px",
+              padding: "36px",
               textAlign: "center",
-              boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)",
+              boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
               border: "1px solid #e5e7eb",
             }}
           >
-            <div style={{ fontSize: "40px", marginBottom: "12px" }}>🛍️</div>
+            <div style={{ fontSize: "48px", marginBottom: "16px" }}>🛍️</div>
             <h2 style={{ fontSize: "24px", fontWeight: "800", color: "#111827", margin: "0 0 8px 0" }}>
-              Welcome to My Store
+              Welcome to ZENTROBAZAAR
             </h2>
             <p style={{ fontSize: "14px", color: "#6b7280", marginBottom: "24px" }}>
               Shopping start karne ke liye Google account se login karein.
             </p>
 
             {authError && (
-              <div style={{ backgroundColor: "#fef2f2", color: "#dc2626", fontSize: "12px", padding: "10px", borderRadius: "8px", marginBottom: "16px", border: "1px solid #fecaca" }}>
+              <div style={{ backgroundColor: "#fef2f2", color: "#dc2626", fontSize: "13px", padding: "10px", borderRadius: "10px", marginBottom: "16px", border: "1px solid #fecaca" }}>
                 {authError}
               </div>
             )}
@@ -167,16 +197,18 @@ export default function HomePage() {
                 color: "#1f2937",
                 fontWeight: "bold",
                 padding: "12px 16px",
-                borderRadius: "12px",
+                borderRadius: "14px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 gap: "12px",
                 cursor: "pointer",
                 fontSize: "15px",
+                transition: "all 0.2s",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
               }}
             >
-              <svg style={{ width: "20px", height: "20px", minWidth: "20px", maxWidth: "20px" }} viewBox="0 0 24 24">
+              <svg style={{ width: "20px", height: "20px" }} viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
@@ -188,76 +220,194 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Search & Categories */}
-      <div style={{ display: "flex", gap: "12px", marginBottom: "24px" }}>
-        <input
-          type="text"
-          placeholder="Search products..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{ flex: 1, padding: "12px", border: "1px solid #d1d5db", borderRadius: "8px", fontSize: "14px" }}
-        />
+      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginBottom: "24px" }}>
+          <input
+            type="text"
+            placeholder="Search premium products..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "14px 18px",
+              border: "1px solid #d1d5db",
+              borderRadius: "14px",
+              fontSize: "15px",
+              backgroundColor: "#fff",
+              boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+              outline: "none",
+              boxSizing: "border-box"
+            }}
+          />
 
-        <div style={{ display: "flex", gap: "8px" }}>
-          {categories.map((cat) => (
+          {/* Main Categories Dynamic Buttons */}
+          <div style={{ display: "flex", gap: "10px", overflowX: "auto", paddingBottom: "4px" }}>
             <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
+              onClick={() => {
+                setSelectedCategory("All");
+                setSelectedSubCategory("All");
+              }}
               style={{
-                padding: "10px 16px",
-                borderRadius: "8px",
-                border: "1px solid #d1d5db",
-                backgroundColor: selectedCategory === cat ? "#2563eb" : "#fff",
-                color: selectedCategory === cat ? "#fff" : "#374151",
+                padding: "10px 20px",
+                borderRadius: "30px",
+                border: selectedCategory === "All" ? "none" : "1px solid #e5e7eb",
+                backgroundColor: selectedCategory === "All" ? "#111827" : "#fff",
+                color: selectedCategory === "All" ? "#fff" : "#4b5563",
                 cursor: "pointer",
-                fontWeight: "500",
+                fontWeight: "600",
+                fontSize: "14px",
+                whiteSpace: "nowrap",
+                boxShadow: selectedCategory === "All" ? "0 4px 12px rgba(0,0,0,0.15)" : "none",
               }}
             >
-              {cat}
+              All
             </button>
-          ))}
-        </div>
-      </div>
 
-      {/* Products Grid */}
-      {loading ? (
-        <div style={{ textAlign: "center", padding: "40px", color: "#6b7280" }}>Loading Products...</div>
-      ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "20px" }}>
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((p) => (
-              <Link key={p._id} href={`/product/${p._id}`} style={{ textDecoration: "none" }}>
-                <div style={{ backgroundColor: "#fff", border: "1px solid #e5e7eb", borderRadius: "12px", overflow: "hidden", display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%" }}>
-                  <div>
-                    <img
-                      src={p.images && p.images.length > 0 ? p.images[0] : p.imageUrl || "https://via.placeholder.com/150"}
-                      alt={p.title}
-                      style={{ width: "100%", height: "180px", objectFit: "cover" }}
-                    />
-                    <div style={{ padding: "16px" }}>
-                      <span style={{ fontSize: "11px", color: "#2563eb", fontWeight: "bold", textTransform: "uppercase" }}>{p.category}</span>
-                      <h2 style={{ fontSize: "16px", fontWeight: "bold", color: "#1f2937", margin: "4px 0 12px 0" }}>{p.title}</h2>
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <span style={{ fontSize: "18px", fontWeight: "bold", color: "#16a34a" }}>₹{p.offerPrice}</span>
-                        {p.originalPrice && <span style={{ fontSize: "13px", color: "#9ca3af", textDecoration: "line-through" }}>₹{p.originalPrice}</span>}
-                      </div>
-                    </div>
-                  </div>
-                  <div style={{ padding: "0 16px 16px 16px" }}>
-                    <button style={{ width: "100%", backgroundColor: "#2563eb", color: "#fff", border: "none", padding: "10px", borderRadius: "8px", fontWeight: "bold", cursor: "pointer" }}>
-                      View Details
-                    </button>
-                  </div>
-                </div>
-              </Link>
-            ))
-          ) : (
-            <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "40px", color: "#6b7280" }}>
-              Koi product nahi mila!
+            {categories.map((cat) => (
+              <button
+                key={cat._id}
+                onClick={() => {
+                  setSelectedCategory(cat.name);
+                  setSelectedSubCategory("All"); // Reset subcategory when main changes
+                }}
+                style={{
+                  padding: "10px 20px",
+                  borderRadius: "30px",
+                  border: selectedCategory === cat.name ? "none" : "1px solid #e5e7eb",
+                  backgroundColor: selectedCategory === cat.name ? "#111827" : "#fff",
+                  color: selectedCategory === cat.name ? "#fff" : "#4b5563",
+                  cursor: "pointer",
+                  fontWeight: "600",
+                  fontSize: "14px",
+                  whiteSpace: "nowrap",
+                  boxShadow: selectedCategory === cat.name ? "0 4px 12px rgba(0,0,0,0.15)" : "none",
+                }}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
+
+          {/* Sub-Categories Filter (Appears if selected category has subcategories) */}
+          {subCategories.length > 0 && (
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", overflowX: "auto", paddingBottom: "4px", backgroundColor: "#f3f4f6", padding: "10px 14px", borderRadius: "12px" }}>
+              <span style={{ fontSize: "12px", fontWeight: "700", color: "#4b5563", whiteSpace: "nowrap" }}>Sub-Categories:</span>
+              <button
+                onClick={() => setSelectedSubCategory("All")}
+                style={{
+                  padding: "6px 14px",
+                  borderRadius: "20px",
+                  border: "none",
+                  backgroundColor: selectedSubCategory === "All" ? "#2563eb" : "#e5e7eb",
+                  color: selectedSubCategory === "All" ? "#fff" : "#374151",
+                  cursor: "pointer",
+                  fontWeight: "600",
+                  fontSize: "13px",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                All {selectedCategory}
+              </button>
+              {subCategories.map((sub) => (
+                <button
+                  key={sub._id}
+                  onClick={() => setSelectedSubCategory(sub.name)}
+                  style={{
+                    padding: "6px 14px",
+                    borderRadius: "20px",
+                    border: "none",
+                    backgroundColor: selectedSubCategory === sub.name ? "#2563eb" : "#e5e7eb",
+                    color: selectedSubCategory === sub.name ? "#fff" : "#374151",
+                    cursor: "pointer",
+                    fontWeight: "600",
+                    fontSize: "13px",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {sub.name}
+                </button>
+              ))}
             </div>
           )}
         </div>
-      )}
+
+        {/* Products Grid */}
+        {loading ? (
+          <div style={{ textAlign: "center", padding: "60px", color: "#6b7280", fontSize: "16px" }}>Loading Products...</div>
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "24px" }}>
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map((p) => (
+                <Link key={p._id} href={`/product/${p._id}`} style={{ textDecoration: "none" }}>
+                  <div
+                    style={{
+                      backgroundColor: "#fff",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: "16px",
+                      overflow: "hidden",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      height: "100%",
+                      boxShadow: "0 4px 6px -1px rgba(0,0,0,0.02)",
+                      transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                    }}
+                  >
+                    <div>
+                      <div style={{ backgroundColor: "#f3f4f6", height: "220px", display: "flex", alignItems: "center", justifyContent: "center", padding: "12px", position: "relative" }}>
+                        <img
+                          src={p.images && p.images.length > 0 ? p.images[0] : p.imageUrl || "https://via.placeholder.com/150"}
+                          alt={p.title}
+                          style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", mixBlendMode: "multiply" }}
+                        />
+                      </div>
+
+                      <div style={{ padding: "20px" }}>
+                        <span style={{ fontSize: "11px", color: "#2563eb", fontWeight: "700", textTransform: "uppercase" }}>
+                          {p.category} {p.subCategory ? `> ${p.subCategory}` : ""}
+                        </span>
+                        <h2 style={{ fontSize: "16px", fontWeight: "700", color: "#111827", margin: "6px 0 12px 0", lineHeight: "1.4", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                          {p.title}
+                        </h2>
+                        <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
+                          <span style={{ fontSize: "20px", fontWeight: "800", color: "#059669" }}>₹{p.offerPrice}</span>
+                          {p.originalPrice && (
+                            <span style={{ fontSize: "13px", color: "#9ca3af", textDecoration: "line-through", fontWeight: "500" }}>
+                              ₹{p.originalPrice}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ padding: "0 20px 20px 20px" }}>
+                      <button
+                        style={{
+                          width: "100%",
+                          backgroundColor: "#111827",
+                          color: "#fff",
+                          border: "none",
+                          padding: "12px",
+                          borderRadius: "12px",
+                          fontWeight: "700",
+                          fontSize: "14px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        View Details
+                      </button>
+                    </div>
+                  </div>
+                </Link>
+              ))
+            ) : (
+              <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "60px", color: "#6b7280", fontSize: "15px" }}>
+                Is category me koi product nahi mila!
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
