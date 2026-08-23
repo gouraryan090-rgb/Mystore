@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
 import Product from "@/models/Product";
 
-// GET: Sabhi products fetch karne ke liye
+// GET: Fetch all products
 export async function GET() {
   try {
     await dbConnect();
@@ -17,7 +17,7 @@ export async function GET() {
   }
 }
 
-// POST: Naya product add karne ke liye
+// POST: Add a new product
 export async function POST(request) {
   try {
     await dbConnect();
@@ -29,9 +29,9 @@ export async function POST(request) {
       originalPrice: body.originalPrice,
       offerPrice: body.offerPrice,
       category: body.category,
-      subCategory: body.subCategory, // <-- Yahan subCategory add kar di gayi hai
+      subCategory: body.subCategory, // <-- subCategory is added here
       images: body.images,
-      imageUrl: body.images?.[0] || "", // Fallback ke liye
+      imageUrl: body.images?.[0] || "", // For fallback
     });
 
     return NextResponse.json(
@@ -47,7 +47,7 @@ export async function POST(request) {
   }
 }
 
-// PUT: Existing product update karne ke liye
+// PUT: Update an existing product
 export async function PUT(request) {
   try {
     await dbConnect();
@@ -61,7 +61,7 @@ export async function PUT(request) {
       );
     }
 
-    // Agar images update ho rahi hain toh imageUrl bhi update kar dein
+    // If images are being updated, update imageUrl as well
     if (updateData.images && updateData.images.length > 0) {
       updateData.imageUrl = updateData.images[0];
     }
@@ -73,7 +73,7 @@ export async function PUT(request) {
 
     if (!updatedProduct) {
       return NextResponse.json(
-        { success: false, error: "Product nahi mila!" },
+        { success: false, error: "Product not found!" },
         { status: 404 }
       );
     }
@@ -91,7 +91,7 @@ export async function PUT(request) {
   }
 }
 
-// DELETE: Product delete karne ke liye
+// DELETE: Delete a product
 export async function DELETE(request) {
   try {
     await dbConnect();

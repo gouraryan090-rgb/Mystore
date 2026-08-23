@@ -9,29 +9,29 @@ export async function POST(request) {
     const { code, totalAmount, userEmail } = await request.json();
 
     if (!code) {
-      return NextResponse.json({ success: false, message: "Kripya coupon code darj karein." }, { status: 400 });
+      return NextResponse.json({ success: false, message: "Please enter a coupon code." }, { status: 400 });
     }
 
-    // 1. Coupon database me check karein
+    // 1. Check coupon in database
     const coupon = await Coupon.findOne({ code: code.toUpperCase(), isActive: true });
     if (!coupon) {
-      return NextResponse.json({ success: false, message: "Amanya (Invalid) coupon code!" }, { status: 400 });
+      return NextResponse.json({ success: false, message: "Invalid coupon code!" }, { status: 400 });
     }
 
-    // 2. Expiry date check karein
+    // 2. Check expiry date
     if (coupon.validTill && new Date() > new Date(coupon.validTill)) {
-      return NextResponse.json({ success: false, message: "Yeh coupon expire ho chuka hai!" }, { status: 400 });
+      return NextResponse.json({ success: false, message: "This coupon has expired!" }, { status: 400 });
     }
 
-    // 3. Min Order Amount check karein
+    // 3. Check Minimum Order Amount
     if (totalAmount < coupon.minOrderAmount) {
       return NextResponse.json({ 
         success: false, 
-        message: `Yeh coupon kam se kam ₹${coupon.minOrderAmount} ke order par hi lag sakta hai!` 
+        message: `This coupon is only applicable on orders of ₹${coupon.minOrderAmount} or more!` 
       }, { status: 400 });
     }
 
-    // 4. Safe User Order Count Check (Agar email na ho toh 0 maan lo)
+    // 4. Safe User Order Count Check
     let userOrderCount = 0;
     if (userEmail && userEmail !== "customer@example.com") {
       try {
@@ -46,24 +46,24 @@ export async function POST(request) {
     if (coupon.couponFor === "new" && userOrderCount > 0) {
       return NextResponse.json({ 
         success: false, 
-        message: "Yeh coupon sirf naye users ke liye hai (Aapka pehle order ho chuka hai)." 
+        message: "This coupon is only for new users (You have already placed an order)." 
       }, { status: 400 });
     }
 
     if (coupon.couponFor === "old" && userOrderCount === 0) {
       return NextResponse.json({ 
         success: false, 
-        message: "Yeh coupon sirf purane/existing users ke liye hai." 
+        message: "This coupon is only for existing users." 
       }, { status: 400 });
     }
 
-    // Sabhi conditions pass hone par discount calculate karein
+    // Calculate discount when all conditions pass
     const discountAmount = Math.round((totalAmount * coupon.discountPercentage) / 100);
     const finalAmount = totalAmount - discountAmount;
 
     return NextResponse.json({
       success: true,
-      message: `${coupon.discountPercentage}% discount lag gaya hai!`,
+      message: `${coupon.discountPercentage}% discount applied successfully!`,
       discountPercentage: coupon.discountPercentage,
       discountAmount,
       finalAmount,
@@ -71,6 +71,6 @@ export async function POST(request) {
 
   } catch (error) {
     console.error("Apply Coupon Error:", error);
-    return NextResponse.json({ success: false, message: error.message || "Server error ho gaya." }, { status: 500 });
+    return NextResponse.json({ success: false, message: error.message || "A server error occurred." }, { status: 500 });
   }
 }

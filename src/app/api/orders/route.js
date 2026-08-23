@@ -10,7 +10,7 @@ export async function POST(req) {
 
     if (!customerName || !phone || !address || !productId) {
       return NextResponse.json(
-        { success: false, error: "Saari details bharna zaroori hai!" },
+        { success: false, error: "All details are required!" },
         { status: 400 }
       );
     }

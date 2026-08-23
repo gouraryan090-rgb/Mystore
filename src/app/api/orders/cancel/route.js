@@ -9,7 +9,7 @@ export async function POST(request) {
 
     if (!orderId) {
       return NextResponse.json(
-        { success: false, message: "Order ID nahi mili." },
+        { success: false, message: "Order ID not found." },
         { status: 400 }
       );
     }
@@ -18,14 +18,14 @@ export async function POST(request) {
 
     if (!order) {
       return NextResponse.json(
-        { success: false, message: "Database me order nahi mila." },
+        { success: false, message: "Order not found in the database." },
         { status: 404 }
       );
     }
 
     if (order.orderStatus === "Cancelled") {
       return NextResponse.json(
-        { success: false, message: "Order pehle se cancel ho chuka hai." },
+        { success: false, message: "Order is already cancelled." },
         { status: 400 }
       );
     }
@@ -36,7 +36,7 @@ export async function POST(request) {
     await order.save();
 
     return NextResponse.json(
-      { success: true, message: "Order successfully cancel ho gaya hai!" },
+      { success: true, message: "Order successfully cancelled!" },
       { status: 200 }
     );
   } catch (error) {

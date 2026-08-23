@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Category from "@/models/Category";
 
-// GET: Saari categories fetch karne ke liye
+// GET: Fetch all categories
 export async function GET() {
   try {
     await connectDB();
@@ -13,14 +13,14 @@ export async function GET() {
   }
 }
 
-// POST: Nayi Category ya Sub-category create karne ke liye
+// POST: Create a new Category or Sub-category
 export async function POST(req) {
   try {
     await connectDB();
     const { name, type, parentCategory } = await req.json();
 
     if (!name || !type) {
-      return NextResponse.json({ success: false, error: "Name aur Type dena zaroori hai!" }, { status: 400 });
+      return NextResponse.json({ success: false, error: "Name and type are required!" }, { status: 400 });
     }
 
     const newCategory = new Category({
