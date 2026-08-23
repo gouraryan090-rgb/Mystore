@@ -1,19 +1,15 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 
 export default function AdminDashboardPage() {
+  // Hum shuru mein isAuthenticated false rakh rahe hain. 
+  // Agar aap chaho toh server component bana kar initial state bhej sakte ho, 
+  // ya fir yahan simple login form se handle hoga.
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const authStatus = sessionStorage.getItem("admin_auth");
-    if (authStatus === "true") {
-      setIsAuthenticated(true);
-    }
-  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -29,9 +25,8 @@ export default function AdminDashboardPage() {
 
       const data = await res.json();
 
-      if (data.success) {
+      if (res.ok && data.success) {
         setIsAuthenticated(true);
-        sessionStorage.setItem("admin_auth", "true");
       } else {
         setError(data.error || "Galat password! Dobara koshish karein.");
       }
@@ -41,11 +36,6 @@ export default function AdminDashboardPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleLogout = () => {
-    sessionStorage.removeItem("admin_auth");
-    setIsAuthenticated(false);
   };
 
   return (
@@ -106,6 +96,7 @@ export default function AdminDashboardPage() {
                 marginBottom: "16px",
                 fontSize: "14px",
                 boxSizing: "border-box",
+                outline: "none",
               }}
             />
 
@@ -138,7 +129,7 @@ export default function AdminDashboardPage() {
               <p style={{ color: "#6b7280", margin: "4px 0 0 0" }}>Manage your store options below</p>
             </div>
             <button
-              onClick={handleLogout}
+              onClick={() => setIsAuthenticated(false)}
               style={{
                 backgroundColor: "#ef4444",
                 color: "#fff",
