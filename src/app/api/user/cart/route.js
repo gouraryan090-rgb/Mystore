@@ -5,7 +5,7 @@ import Customer from "@/models/Customer";
 // MongoDB connection helper (agar aapke project me pehle se hai toh aap use import bhi kar sakte hain)
 const connectDB = async () => {
   if (mongoose.connections[0].readyState) return;
-  await mongoose.connect(process.env.MONGO_URI);
+  await mongoose.connect(process.env.MONGODB_URI);
 };
 
 // 1. GET: User ka saved cart fetch karne ke liye
