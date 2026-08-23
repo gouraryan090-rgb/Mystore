@@ -36,7 +36,7 @@ export default function AdminLayout({ children }) {
           }}
         >
           <Link
-            href="/howtoopenadminpanel7"
+            href="/admin"
             style={{
               color: "#0f172a",
               textDecoration: "none",
