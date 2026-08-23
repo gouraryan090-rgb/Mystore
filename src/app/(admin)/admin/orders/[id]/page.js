@@ -11,6 +11,8 @@ export default function AdminOrderDetailPage({ params }) {
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     async function fetchOrderDetail() {
@@ -19,6 +21,7 @@ export default function AdminOrderDetailPage({ params }) {
         const data = await res.json();
         if (data.success) {
           setOrder(data.data);
+          setSelectedStatus(data.data.status || data.data.orderStatus || "Pending");
         }
       } catch (err) {
         console.error("Error fetching order detail:", err);
@@ -32,6 +35,30 @@ export default function AdminOrderDetailPage({ params }) {
     }
   }, [orderId]);
 
+  // Status update function (Fixed URL to use dynamic [id] route)
+  const handleStatusUpdate = async () => {
+    try {
+      setUpdating(true);
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ newStatus: selectedStatus }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Order status updated successfully!");
+        setOrder((prev) => ({ ...prev, status: selectedStatus, orderStatus: selectedStatus }));
+      } else {
+        alert(data.message || "Failed to update status");
+      }
+    } catch (err) {
+      console.error("Error updating status:", err);
+      alert("Something went wrong!");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   if (loading) {
     return <div style={{ padding: "40px", textAlign: "center" }}>Loading Order Details...</div>;
   }
@@ -41,6 +68,7 @@ export default function AdminOrderDetailPage({ params }) {
   }
 
   const addr = order.shippingAddress || {};
+  const currentStatus = order.status || order.orderStatus || "Pending";
 
   return (
     <div style={{ maxWidth: "800px", margin: "32px auto", padding: "0 20px" }}>
@@ -66,7 +94,7 @@ export default function AdminOrderDetailPage({ params }) {
             <div><strong>Mobile Number:</strong> {addr.phone || "N/A"}</div>
             <div><strong>Email:</strong> {order.userEmail || addr.email || "N/A"}</div>
             <div>
-              <strong>Full Address:</strong> {addr.street1 || ""} {addr.street2 ? `, ${addr.street2}` : ""}, {addr.city || ""} - <strong>{addr.pincode || ""}</strong>
+              <strong>Full Address:</strong> {addr.street1 || addr.address || ""} {addr.street2 ? `, ${addr.street2}` : ""}, {addr.city || ""} - <strong>{addr.pincode || ""}</strong>
             </div>
           </div>
         </div>
@@ -96,11 +124,40 @@ export default function AdminOrderDetailPage({ params }) {
           </div>
         </div>
 
+        {/* Status Update Control Box */}
+        <div style={{ backgroundColor: "#fff", padding: "20px", borderRadius: "12px", border: "1px solid #e5e7eb", display: "flex", flexDirection: "column", gap: "12px" }}>
+          <h2 style={{ fontSize: "15px", fontWeight: "bold", color: "#4b5563", textTransform: "uppercase" }}>
+            Update Order Status
+          </h2>
+          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              style={{ padding: "8px 12px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "14px", flex: 1 }}
+            >
+              <option value="Pending">Pending (All Orders / Placed)</option>
+              <option value="Processing">Order in Preparation (Processing)</option>
+              <option value="In Transit">Order in Transit</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+            <button
+              onClick={handleStatusUpdate}
+              disabled={updating}
+              style={{ padding: "8px 16px", backgroundColor: "#2563eb", color: "#fff", border: "none", borderRadius: "6px", fontWeight: "bold", cursor: "pointer" }}
+            >
+              {updating ? "Updating..." : "Update Status"}
+            </button>
+          </div>
+        </div>
+
         {/* Payment & Status Summary */}
         <div style={{ backgroundColor: "#f9fafb", padding: "20px", borderRadius: "12px", border: "1px solid #e5e7eb", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
             <div style={{ fontSize: "13px", color: "#6b7280" }}>Payment Method: <strong>{order.paymentMethod}</strong></div>
-            <div style={{ fontSize: "13px", color: "#6b7280", marginTop: "4px" }}>Order Status: <strong style={{ color: "#166534" }}>{order.orderStatus || "Placed"}</strong></div>
+            <div style={{ fontSize: "13px", color: "#6b7280", marginTop: "4px" }}>
+              Current Status: <strong style={{ color: currentStatus === "Cancelled" ? "#dc2626" : "#166534" }}>{currentStatus}</strong>
+            </div>
           </div>
           <div style={{ textAlign: "right" }}>
             <div style={{ fontSize: "13px", color: "#6b7280" }}>Total Bill</div>

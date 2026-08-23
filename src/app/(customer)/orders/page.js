@@ -3,6 +3,18 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
+// Status translation function
+const getCustomerStatus = (dbStatus) => {
+  switch (dbStatus) {
+    case "Pending": return "Placed";
+    case "Processing": return "Order in Preparation";
+    case "In Transit": return "Order in Transit";
+    case "Delivered": return "Delivered";
+    case "Cancelled": return "Cancelled";
+    default: return dbStatus || "Placed";
+  }
+};
+
 export default function YourOrdersPage() {
   const router = useRouter();
   const [orders, setOrders] = useState([]);
@@ -32,9 +44,18 @@ export default function YourOrdersPage() {
   }
 
   // Check function: 24 Hours time check with fallback for old test orders
-  const isCancellable = (createdAt, orderStatus) => {
-    const currentStatus = (orderStatus || "Placed").toLowerCase();
-    if (currentStatus === "cancelled" || currentStatus === "delivered") return false;
+  const isCancellable = (createdAt, orderStatus, dbStatus) => {
+    const currentStatus = (orderStatus || dbStatus || "Placed").toLowerCase();
+    
+    // Agar order Cancelled ho ya Processing se aage badh chuka ho (In Transit, Delivered) toh cancel allow na karein
+    if (
+      currentStatus === "cancelled" || 
+      currentStatus === "delivered" || 
+      currentStatus === "in transit" || 
+      currentStatus === "processing"
+    ) {
+      return false;
+    }
 
     // Fallback: Agar purane test orders me createdAt field miss ho, tab bhi button dikhega
     if (!createdAt) return true;
@@ -141,8 +162,8 @@ export default function YourOrdersPage() {
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           {orders.map((order) => {
-            const cancellable = isCancellable(order.createdAt, order.orderStatus);
-            const isCancelled = order.orderStatus === "Cancelled";
+            const cancellable = isCancellable(order.createdAt, order.orderStatus, order.status);
+            const isCancelled = order.orderStatus === "Cancelled" || order.status === "Cancelled";
 
             return (
               <div
@@ -176,7 +197,7 @@ export default function YourOrdersPage() {
                         border: isCancelled ? "1px solid #f87171" : "none",
                       }}
                     >
-                      {isCancelled ? "CANCELLED" : order.orderStatus || "Placed"}
+                      {getCustomerStatus(order.status || order.orderStatus)}
                     </span>
                   </div>
                 </div>

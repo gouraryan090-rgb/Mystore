@@ -8,6 +8,16 @@ export default function AdminOrdersPage() {
   const router = useRouter();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("All");
+
+  const tabs = [
+    { label: "All Orders", value: "All" },
+    { label: "Pending (Unmarked)", value: "Pending" },
+    { label: "Processing (In Preparation)", value: "Processing" },
+    { label: "In Transit", value: "In Transit" },
+    { label: "Delivered", value: "Delivered" },
+    { label: "Cancelled", value: "Cancelled" },
+  ];
 
   useEffect(() => {
     fetchAdminOrders();
@@ -15,6 +25,7 @@ export default function AdminOrdersPage() {
 
   async function fetchAdminOrders() {
     try {
+      setLoading(true);
       const res = await fetch("/api/admin/orders");
       const data = await res.json();
       if (data.success) {
@@ -27,9 +38,19 @@ export default function AdminOrdersPage() {
     }
   }
 
-  if (loading) {
-    return <div style={{ padding: "40px", textAlign: "center" }}>Loading All Customer Orders...</div>;
-  }
+  // 100% accurate client-side filtering for each tab
+  const filteredOrders = orders.filter((order) => {
+    const isCancelled = order.orderStatus === "Cancelled" || order.status === "Cancelled";
+    const currentStatus = order.status || order.orderStatus || "Pending";
+
+    if (activeTab === "All") return true;
+    if (activeTab === "Cancelled") return isCancelled;
+    
+    // Agar order cancelled hai toh use doosri tabs mein mat dikhao
+    if (isCancelled) return false;
+    
+    return currentStatus.toLowerCase() === activeTab.toLowerCase();
+  });
 
   return (
     <div style={{ maxWidth: "1000px", margin: "32px auto", padding: "0 20px" }}>
@@ -54,14 +75,40 @@ export default function AdminOrdersPage() {
         </Link>
       </div>
 
-      {orders.length === 0 ? (
+      {/* Filter Tabs */}
+      <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "24px" }}>
+        {tabs.map((tab) => (
+          <button
+            key={tab.value}
+            onClick={() => setActiveTab(tab.value)}
+            style={{
+              padding: "8px 14px",
+              borderRadius: "8px",
+              border: "none",
+              fontWeight: "bold",
+              fontSize: "13px",
+              cursor: "pointer",
+              backgroundColor: activeTab === tab.value ? "#2563eb" : "#e5e7eb",
+              color: activeTab === tab.value ? "#fff" : "#374151",
+              transition: "background-color 0.2s"
+            }}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {loading ? (
+        <div style={{ padding: "40px", textAlign: "center" }}>Loading Orders...</div>
+      ) : filteredOrders.length === 0 ? (
         <div style={{ textAlign: "center", padding: "40px", backgroundColor: "#f9fafb", borderRadius: "12px" }}>
-          <p style={{ color: "#6b7280" }}>Abhi tak koi order nahi aaya hai.</p>
+          <p style={{ color: "#6b7280" }}>Is category mein koi order nahi hai.</p>
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          {orders.map((order) => {
-            const isCancelled = order.orderStatus === "Cancelled";
+          {filteredOrders.map((order) => {
+            const isCancelled = order.orderStatus === "Cancelled" || order.status === "Cancelled";
+            const currentStatus = isCancelled ? "Cancelled" : (order.status || order.orderStatus || "Pending");
 
             return (
               <div
@@ -94,7 +141,7 @@ export default function AdminOrdersPage() {
                         borderRadius: "12px",
                       }}
                     >
-                      {order.orderStatus || "Placed"}
+                      {currentStatus}
                     </span>
                   </div>
                 </div>
@@ -108,7 +155,9 @@ export default function AdminOrdersPage() {
                       style={{ width: "50px", height: "50px", objectFit: "cover", borderRadius: "6px" }}
                     />
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: "bold", fontSize: "14px" }}>{item.title}</div>
+                      <div style={{ fontWeight: "bold", fontSize: "14px", textDecoration: isCancelled ? "line-through" : "none" }}>
+                        {item.title}
+                      </div>
                       <div style={{ fontSize: "12px", color: "#6b7280" }}>
                         Qty: {item.quantity || 1} | Price: ₹{item.offerPrice || item.price}
                       </div>
@@ -116,12 +165,19 @@ export default function AdminOrdersPage() {
                   </div>
                 ))}
 
+                {/* Cancellation Reason Display if cancelled */}
+                {isCancelled && order.cancellationReason && (
+                  <div style={{ fontSize: "12px", color: "#dc2626", marginBottom: "8px", fontStyle: "italic", backgroundColor: "#fef2f2", padding: "6px 10px", borderRadius: "6px" }}>
+                    Reason: {order.cancellationReason}
+                  </div>
+                )}
+
                 {/* Shipping Details */}
                 <div style={{ borderTop: "1px solid #f3f4f6", marginTop: "12px", paddingTop: "12px", display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
                   <div>
                     <strong>Customer:</strong> {order.shippingAddress?.name || "N/A"} <br />
                     <strong>Phone:</strong> {order.shippingAddress?.phone || "N/A"} <br />
-                    <strong>Address:</strong> {order.shippingAddress?.address || "N/A"}, {order.shippingAddress?.city || ""}
+                    <strong>Address:</strong> {order.shippingAddress?.address || order.shippingAddress?.street1 || "N/A"}, {order.shippingAddress?.city || ""}
                   </div>
                   <div style={{ textAlign: "right" }}>
                     <div style={{ color: "#6b7280" }}>Payment: {order.paymentMethod}</div>

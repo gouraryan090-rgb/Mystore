@@ -1,12 +1,17 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   async rewrites() {
     return [
       {
-        source: "/howtoopenadminpanel7", // Yeh naya URL aap browser mein open karenge
-        destination: "/admin",    // Aapka target folder/route
+        // Jab user /howtoopenadminpanel7 access kare
+        source: "/howtoopenadminpanel7",
+        destination: "/admin",
+      },
+      {
+        // Jab user /howtoopenadminpanel7 ke aage ka koi bhi path access kare
+        source: "/howtoopenadminpanel7/:path*",
+        destination: "/admin/:path*",
       },
     ];
   },
