@@ -75,7 +75,7 @@ function HomePage() {
             window.location.reload();
         } catch (error) {
             console.error("Login Error:", error);
-            setAuthError("Login fail ho gaya! Firebase Console me Google Provider check karein.");
+            setAuthError("Login failed! Please check Google Provider in Firebase Console.");
         } finally{
             setAuthLoading(false);
         }
@@ -230,7 +230,7 @@ function HomePage() {
                                 color: "#64748b",
                                 marginBottom: "24px"
                             },
-                            children: "Shopping start karne ke liye Google account se login karein."
+                            children: "Please login with your Google account to start shopping."
                         }, void 0, false, {
                             fileName: "[project]/src/app/(customer)/page.js",
                             lineNumber: 177,
@@ -818,7 +818,7 @@ function HomePage() {
                                 color: "#64748b",
                                 fontSize: "15px"
                             },
-                            children: "Is category me koi product nahi mila!"
+                            children: "No products found in this category!"
                         }, void 0, false, {
                             fileName: "[project]/src/app/(customer)/page.js",
                             lineNumber: 462,

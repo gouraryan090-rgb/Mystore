@@ -45,7 +45,7 @@ export default function ProductDetailPage({ params }) {
 
   const handleBuyNowClick = () => {
     if (addresses.length === 0) {
-      alert("Pehle 'Edit Address' section me jaakar kam se kam 1 address save karein!");
+      alert("Please go to the 'Edit Address' section and save at least one address!");
       router.push("/edit-address");
       return;
     }
@@ -73,7 +73,7 @@ export default function ProductDetailPage({ params }) {
   };
 
   if (loading) return <div style={{ padding: "80px", textAlign: "center", color: "#64748b", fontWeight: "600" }}>Loading Product Details...</div>;
-  if (!product) return <div style={{ padding: "80px", textAlign: "center", color: "#ef4444", fontWeight: "600" }}>Product Nahi Mila!</div>;
+  if (!product) return <div style={{ padding: "80px", textAlign: "center", color: "#ef4444", fontWeight: "600" }}>Product Not Found!</div>;
 
   const productImages = product.images?.length > 0 
     ? product.images 

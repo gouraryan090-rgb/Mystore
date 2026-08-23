@@ -31,7 +31,7 @@ export default function EditAddressPage() {
         return;
       }
 
-      // Existing saved addresses load karein
+      // Load existing saved addresses
       const savedAddresses = localStorage.getItem("customer_addresses");
       if (savedAddresses) {
         setAddresses(JSON.parse(savedAddresses));
@@ -46,7 +46,7 @@ export default function EditAddressPage() {
   // Open Modal and Pre-fill user data
   const handleOpenModal = () => {
     if (addresses.length >= 3) {
-      alert("Aap maximum 3 addresses hi add kar sakte hain!");
+      alert("You can add a maximum of 3 addresses!");
       return;
     }
 
@@ -146,7 +146,7 @@ export default function EditAddressPage() {
           ))
         ) : (
           <div style={{ textAlign: "center", padding: "40px 20px", backgroundColor: "#fff", borderRadius: "12px", border: "1px dashed #d1d5db", color: "#6b7280" }}>
-            Koi address saved nahi hai. Niche Floating Button se naya address add karein.
+            No address saved yet. Please add a new address using the floating button below.
           </div>
         )}
       </div>

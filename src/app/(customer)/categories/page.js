@@ -59,7 +59,7 @@ export default function CategoriesPage() {
           Shop by Category
         </h1>
         <p style={{ fontSize: "14px", color: "#64748b", margin: 0 }}>
-          Categories aur sub-categories select karke apne pasandida products turant dekhein.
+          Select categories and sub-categories to instantly view your favorite products.
         </p>
       </div>
 
@@ -219,8 +219,8 @@ export default function CategoriesPage() {
           </div>
         ) : (
           <div style={{ textAlign: "center", padding: "50px", backgroundColor: "#fff", borderRadius: "20px", border: "1px solid #f1f5f9", color: "#64748b" }}>
-            <p style={{ fontSize: "16px", fontWeight: "700", margin: "0 0 6px 0" }}>Koi product nahi mila!</p>
-            <p style={{ fontSize: "13px", margin: 0 }}>Is category ya sub-category ke andar abhi koi items added nahi hain.</p>
+            <p style={{ fontSize: "16px", fontWeight: "700", margin: "0 0 6px 0" }}>No products found!</p>
+            <p style={{ fontSize: "13px", margin: 0 }}>There are currently no items added under this category or sub-category.</p>
           </div>
         )}
       </div>

@@ -7,7 +7,7 @@ export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
   const [userEmail, setUserEmail] = useState(null);
 
-  // 1. User email fetch karein aur database se cart load karein
+  // 1. Fetch user email and load cart from database
   useEffect(() => {
     try {
       const savedUser = localStorage.getItem("customer_user");
@@ -15,7 +15,7 @@ export function CartProvider({ children }) {
         const parsedUser = JSON.parse(savedUser);
         if (parsedUser?.email) {
           setUserEmail(parsedUser.email);
-          // Backend se database cart fetch karein
+          // Fetch database cart from backend
           fetch(`/api/user/cart?email=${parsedUser.email}`)
             .then((res) => res.json())
             .then((data) => {
@@ -29,7 +29,7 @@ export function CartProvider({ children }) {
         }
       }
       
-      // Agar user logged in nahi hai toh localstorage se load karein
+      // If user is not logged in, load from localstorage
       const savedCart = localStorage.getItem("user_cart");
       if (savedCart) setCart(JSON.parse(savedCart));
     } catch (e) {
@@ -37,7 +37,7 @@ export function CartProvider({ children }) {
     }
   }, []);
 
-  // 2. Cart update hone par LocalStorage aur Database dono me sync karein
+  // 2. Sync cart to both LocalStorage and Database upon update
   const syncCartToBackend = async (updatedCart) => {
     localStorage.setItem("user_cart", JSON.stringify(updatedCart));
 
@@ -54,12 +54,12 @@ export function CartProvider({ children }) {
     }
   };
 
-  // Product Add karna (Safe duplicate check)
+  // Add product to cart (Safe duplicate check)
   const addToCart = (product) => {
     const isAlreadyInCart = cart.some((item) => item._id === product._id);
 
     if (isAlreadyInCart) {
-      alert("Yeh product pehle se cart me add hai!");
+      alert("This product is already added to your cart!");
       return false;
     }
 
@@ -69,7 +69,7 @@ export function CartProvider({ children }) {
     return true;
   };
 
-  // Quantity increase/decrease karna
+  // Increase/decrease quantity
   const updateQuantity = (id, amount) => {
     const newCart = cart
       .map((item) => {
@@ -85,7 +85,7 @@ export function CartProvider({ children }) {
     syncCartToBackend(newCart);
   };
 
-  // Cart empty karna
+  // Clear cart
   const clearCart = () => {
     setCart([]);
     syncCartToBackend([]);

@@ -11,7 +11,7 @@ export async function GET(request, { params }) {
 
     if (!product) {
       return NextResponse.json(
-        { success: false, message: "Product nahi mila" },
+        { success: false, message: "Product not found" },
         { status: 404 }
       );
     }

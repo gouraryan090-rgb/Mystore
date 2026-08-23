@@ -68,7 +68,7 @@ export default function YourOrdersPage() {
 
   const handleCancelSubmit = async () => {
     if (!cancelReason) {
-      alert("Kripya cancellation ka reason select karein.");
+      alert("Please select a reason for cancellation.");
       return;
     }
 
@@ -92,7 +92,7 @@ export default function YourOrdersPage() {
       }
     } catch (error) {
       console.error("Cancel Order Error:", error);
-      alert("Order cancel nahi ho saka.");
+      alert("Unable to cancel the order.");
     } finally {
       setActionLoading(null);
     }
@@ -162,7 +162,7 @@ export default function YourOrdersPage() {
         <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "rgba(0,0,0,0.5)", zIndex: 999, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
           <div style={{ backgroundColor: "#fff", padding: "28px", borderRadius: "24px", width: "100%", maxWidth: "420px", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)" }}>
             <h3 style={{ margin: "0 0 8px 0", fontSize: "18px", fontWeight: "900", color: "#0f172a" }}>Cancel Order</h3>
-            <p style={{ fontSize: "14px", color: "#475569", marginBottom: "16px" }}>Kripya order cancel karne ka reason chuney:</p>
+            <p style={{ fontSize: "14px", color: "#475569", marginBottom: "16px" }}>Please select a reason for cancelling this order:</p>
 
             <select
               value={cancelReason}
@@ -170,10 +170,10 @@ export default function YourOrdersPage() {
               style={{ width: "100%", padding: "12px", borderRadius: "12px", border: "1px solid #cbd5e1", marginBottom: "20px", fontSize: "14px", outline: "none", backgroundColor: "#f8fafc", color: "#0f172a", fontWeight: "600" }}
             >
               <option value="">-- Select Reason --</option>
-              <option value="Galti se order ho gaya">Galti se order ho gaya</option>
-              <option value="Delivery time zyada hai">Delivery time zyada hai</option>
-              <option value="Sahi address enter nahi kiya">Sahi address enter nahi kiya</option>
-              <option value="Kahi aur se sasta mil raha hai">Kahi aur se sasta mil raha hai</option>
+              <option value="Ordered by mistake">Ordered by mistake</option>
+              <option value="Delivery time is too long">Delivery time is too long</option>
+              <option value="Incorrect address entered">Incorrect address entered</option>
+              <option value="Found a better price elsewhere">Found a better price elsewhere</option>
               <option value="Other Reason">Other Reason</option>
             </select>
 
@@ -199,7 +199,7 @@ export default function YourOrdersPage() {
       {/* ORDERS LIST */}
       {filteredOrders.length === 0 ? (
         <div style={{ textAlign: "center", padding: "60px", backgroundColor: "#fff", borderRadius: "24px", border: "1px solid #f1f5f9" }}>
-          <p style={{ color: "#64748b", fontWeight: "600", fontSize: "15px", marginBottom: "16px" }}>Aapne is category me koi order nahi kiya hai.</p>
+          <p style={{ color: "#64748b", fontWeight: "600", fontSize: "15px", marginBottom: "16px" }}>You have no orders placed in this category.</p>
           <button
             onClick={() => router.push("/")}
             style={{ padding: "12px 24px", backgroundColor: "#6366f1", color: "#fff", border: "none", borderRadius: "14px", cursor: "pointer", fontWeight: "800", fontSize: "14px" }}

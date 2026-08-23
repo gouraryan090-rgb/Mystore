@@ -54,8 +54,6 @@ export default function DealsPage() {
         if (!p.originalPrice || p.originalPrice <= p.offerPrice) return false;
         const disc = Math.round(((p.originalPrice - p.offerPrice) / p.originalPrice) * 100);
         
-        // Agar user ne "Up to 10% off" select kiya toh 0 se 10% tak
-        // Agar "Up to 20% off" select kiya toh 11% se 20% tak (ya agar strict range chahiye toh yeh logic perfect hai)
         if (upperLimit === 10) {
           return disc >= 0 && disc <= 10;
         } else {
@@ -92,7 +90,7 @@ export default function DealsPage() {
           🔥 Hot Deals & Discounts
         </h1>
         <p style={{ fontSize: "14px", color: "#64748b", margin: 0 }}>
-          Apne pasand ka discount aur category select karke sabse badiya offers grab karein!
+          Select your preferred discount and category to grab the best offers!
         </p>
       </div>
 
@@ -157,7 +155,7 @@ export default function DealsPage() {
           </div>
         </div>
 
-        {/* Categories Options (Same as Homepage) */}
+        {/* Categories Options */}
         <div>
           <span style={{ fontSize: "12px", fontWeight: "700", color: "#64748b", display: "block", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.5px" }}>
             Filter by Category:
@@ -292,7 +290,7 @@ export default function DealsPage() {
           })
         ) : (
           <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "60px", color: "#64748b", fontSize: "15px", backgroundColor: "#fff", borderRadius: "24px", border: "1px solid #f1f5f9" }}>
-            Is range ya category mein koi deal available nahi hai!
+            No deals available in this range or category!
           </div>
         )}
       </div>

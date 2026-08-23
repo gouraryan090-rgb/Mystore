@@ -53,7 +53,7 @@ export default function ContactUsPage() {
             marginBottom: "28px",
           }}
         >
-          Aapki shopping experience hamare liye sabse zaroori hai! Agar aapko kisi product ke baare me koi query hai, order tracking me madad chahiye, payment ya refund se judi koi pareshani hai, ya fir aap hume koi suggestion dena chahte hain, toh bejhijhak humse sampark karein. Hamari support team aapki poori madad karne ke liye hamesha ready hai. Aap niche diye gaye email ya phone number ke zariye humse direct connect kar sakte hain, hum jald se jald aapko reply karne ki koshish karenge.
+          Your shopping experience is our top priority! If you have any queries about a product, need help with order tracking, face any issues regarding payments or refunds, or want to share a suggestion with us, please feel free to reach out. Our support team is always ready to assist you completely. You can connect with us directly via the email or phone number provided below, and we will try to reply to you as soon as possible.
         </p>
 
         <hr style={{ border: "none", borderTop: "1px solid #f3f4f6", marginBottom: "24px" }} />

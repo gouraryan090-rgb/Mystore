@@ -1199,7 +1199,7 @@ function CartProvider({ children }) {
     _s();
     const [cart, setCart] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
     const [userEmail, setUserEmail] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
-    // 1. User email fetch karein aur database se cart load karein
+    // 1. Fetch user email and load cart from database
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "CartProvider.useEffect": ()=>{
             try {
@@ -1208,7 +1208,7 @@ function CartProvider({ children }) {
                     const parsedUser = JSON.parse(savedUser);
                     if (parsedUser?.email) {
                         setUserEmail(parsedUser.email);
-                        // Backend se database cart fetch karein
+                        // Fetch database cart from backend
                         fetch(`/api/user/cart?email=${parsedUser.email}`).then({
                             "CartProvider.useEffect": (res)=>res.json()
                         }["CartProvider.useEffect"]).then({
@@ -1224,7 +1224,7 @@ function CartProvider({ children }) {
                         return;
                     }
                 }
-                // Agar user logged in nahi hai toh localstorage se load karein
+                // If user is not logged in, load from localstorage
                 const savedCart = localStorage.getItem("user_cart");
                 if (savedCart) setCart(JSON.parse(savedCart));
             } catch (e) {
@@ -1232,7 +1232,7 @@ function CartProvider({ children }) {
             }
         }
     }["CartProvider.useEffect"], []);
-    // 2. Cart update hone par LocalStorage aur Database dono me sync karein
+    // 2. Sync cart to both LocalStorage and Database upon update
     const syncCartToBackend = async (updatedCart)=>{
         localStorage.setItem("user_cart", JSON.stringify(updatedCart));
         if (userEmail) {
@@ -1252,11 +1252,11 @@ function CartProvider({ children }) {
             }
         }
     };
-    // Product Add karna (Safe duplicate check)
+    // Add product to cart (Safe duplicate check)
     const addToCart = (product)=>{
         const isAlreadyInCart = cart.some((item)=>item._id === product._id);
         if (isAlreadyInCart) {
-            alert("Yeh product pehle se cart me add hai!");
+            alert("This product is already added to your cart!");
             return false;
         }
         const newCart = [
@@ -1270,7 +1270,7 @@ function CartProvider({ children }) {
         syncCartToBackend(newCart);
         return true;
     };
-    // Quantity increase/decrease karna
+    // Increase/decrease quantity
     const updateQuantity = (id, amount)=>{
         const newCart = cart.map((item)=>{
             if (item._id === id) {
@@ -1285,7 +1285,7 @@ function CartProvider({ children }) {
         setCart(newCart);
         syncCartToBackend(newCart);
     };
-    // Cart empty karna
+    // Clear cart
     const clearCart = ()=>{
         setCart([]);
         syncCartToBackend([]);
@@ -1354,9 +1354,9 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
         });
     // Handle Logout Function
     const handleLogout = ()=>{
-        localStorage.removeItem("customer_user"); // jo data save kiya tha use remove karein
+        localStorage.removeItem("customer_user"); // Remove stored user data
         setIsOpen(false);
-        window.location.href = "/"; // Home page ya login page par bhej dein
+        window.location.href = "/"; // Redirect to home or login page
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("header", {
         style: {

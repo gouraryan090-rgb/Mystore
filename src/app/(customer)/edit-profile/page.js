@@ -19,7 +19,7 @@ export default function EditProfilePage() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    // LocalStorage se logged-in user details fetch karein
+    // Fetch logged-in user details from LocalStorage
     try {
       const savedUser = localStorage.getItem("customer_user");
       if (savedUser) {
@@ -32,7 +32,7 @@ export default function EditProfilePage() {
           altPhone: parsed.altPhone || "",
         });
       } else {
-        // User logged in nahi hai toh home page par redirect karein
+        // Redirect to home page if user is not logged in
         router.push("/");
       }
     } catch (err) {
@@ -48,7 +48,7 @@ export default function EditProfilePage() {
     setMessage("");
 
     try {
-      // LocalStorage update karein
+      // Update LocalStorage
       const savedUser = localStorage.getItem("customer_user");
       const existingData = savedUser ? JSON.parse(savedUser) : {};
 
@@ -61,10 +61,10 @@ export default function EditProfilePage() {
       };
 
       localStorage.setItem("customer_user", JSON.stringify(updatedUser));
-      setMessage("Profile successfully update ho gayi! 🎉");
+      setMessage("Profile successfully updated! 🎉");
     } catch (err) {
       console.error(err);
-      setMessage("Update karne me dikkat aayi!");
+      setMessage("Error occurred while updating profile!");
     } finally {
       setSaving(false);
     }

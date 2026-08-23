@@ -25,9 +25,9 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
 
   // Handle Logout Function
   const handleLogout = () => {
-    localStorage.removeItem("customer_user"); // jo data save kiya tha use remove karein
+    localStorage.removeItem("customer_user"); // Remove stored user data
     setIsOpen(false);
-    window.location.href = "/"; // Home page ya login page par bhej dein
+    window.location.href = "/"; // Redirect to home or login page
   };
 
   return (

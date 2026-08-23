@@ -60,7 +60,7 @@ export default function HomePage() {
       window.location.reload();
     } catch (error) {
       console.error("Login Error:", error);
-      setAuthError("Login fail ho gaya! Firebase Console me Google Provider check karein.");
+      setAuthError("Login failed! Please check Google Provider in Firebase Console.");
     } finally {
       setAuthLoading(false);
     }
@@ -175,7 +175,7 @@ export default function HomePage() {
               Welcome to ZENTROBAZAAR
             </h2>
             <p style={{ fontSize: "14px", color: "#64748b", marginBottom: "24px" }}>
-              Shopping start karne ke liye Google account se login karein.
+              Please login with your Google account to start shopping.
             </p>
 
             {authError && (
@@ -460,7 +460,7 @@ export default function HomePage() {
               })
             ) : (
               <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "60px", color: "#64748b", fontSize: "15px" }}>
-                Is category me koi product nahi mila!
+                No products found in this category!
               </div>
             )}
           </div>

@@ -12,7 +12,7 @@ export default function CartPage() {
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [showAddressModal, setShowAddressModal] = useState(false);
 
-  // Saved Addresses fetch karein
+  // Fetch saved addresses
   useEffect(() => {
     const saved = localStorage.getItem("customer_addresses");
     if (saved) {
@@ -27,7 +27,7 @@ export default function CartPage() {
 
   const handleCheckoutClick = () => {
     if (addresses.length === 0) {
-      alert("Pehle 'Edit Address' section me jaakar kam se kam 1 address save karein!");
+      alert("Please go to the 'Edit Address' section and save at least one address!");
       router.push("/edit-address");
       return;
     }
@@ -53,10 +53,10 @@ export default function CartPage() {
   if (cart.length === 0) {
     return (
       <div style={{ textAlign: "center", padding: "40px", backgroundColor: "#fff", borderRadius: "12px", border: "1px solid #e5e7eb" }}>
-        <h2 style={{ fontSize: "20px", fontWeight: "bold", marginBottom: "8px" }}>Aapka Cart Khali Hai 🛒</h2>
-        <p style={{ color: "#6b7280", marginBottom: "20px" }}>Pehle kuch products add karein!</p>
+        <h2 style={{ fontSize: "20px", fontWeight: "bold", marginBottom: "8px" }}>Your Cart is Empty 🛒</h2>
+        <p style={{ color: "#6b7280", marginBottom: "20px" }}>Please add some products first!</p>
         <Link href="/" style={{ backgroundColor: "#2563eb", color: "#fff", padding: "10px 20px", borderRadius: "8px", textDecoration: "none", fontWeight: "bold" }}>
-          Shopping Karein
+          Start Shopping
         </Link>
       </div>
     );
@@ -64,7 +64,7 @@ export default function CartPage() {
 
   return (
     <div style={{ maxWidth: "800px", margin: "0 auto", padding: "20px" }}>
-      <h1 style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "20px" }}>Aapka Shopping Cart ({cart.length})</h1>
+      <h1 style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "20px" }}>Your Shopping Cart ({cart.length})</h1>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
         {cart.map((item) => (

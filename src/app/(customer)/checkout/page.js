@@ -66,7 +66,7 @@ export default function CheckoutPage() {
   // Handle Apply Coupon
   const handleApplyCoupon = async () => {
     if (!couponCode) {
-      setCouponMessage("Kripya coupon code enter karein.");
+      setCouponMessage("Please enter a coupon code.");
       return;
     }
 
@@ -82,7 +82,7 @@ export default function CheckoutPage() {
       });
 
       const data = await res.json();
-      setCouponMessage(data.message || "Agyat error aayi hai.");
+      setCouponMessage(data.message || "An unknown error occurred.");
 
       if (data.success) {
         setDiscountAmount(data.discountAmount);
@@ -93,13 +93,13 @@ export default function CheckoutPage() {
       }
     } catch (err) {
       console.error(err);
-      setCouponMessage("Network error: Server se connect nahi ho pa raha.");
+      setCouponMessage("Network error: Unable to connect to the server.");
     }
   };
 
   const handleFinalSubmit = async () => {
     if (!selectedPayment) {
-      alert("Kripya ek payment method select karein!");
+      alert("Please select a payment method!");
       return;
     }
 
@@ -139,7 +139,7 @@ export default function CheckoutPage() {
           router.push("/");
         }, 2500);
       } else if (selectedPayment === "RAZORPAY") {
-        alert("Razorpay feature upcoming hai! Abhi ke liye Cash on Delivery (COD) select karein.");
+        alert("The Razorpay feature is coming soon! For now, please select Cash on Delivery (COD).");
         setLoading(false);
       }
     } catch (error) {
