@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 
 export default function FingerprintLockModal({ onUnlock, onSwitchToFace, onSwitchToPin }) {
-  const [statusText, setStatusText] = useState("Fingerprint ya Biometric se login karein...");
+  const [statusText, setStatusText] = useState("Fingerprint scan karne ke liye button dabayein...");
 
   const handleBiometricAuth = async () => {
     try {
@@ -11,63 +11,27 @@ export default function FingerprintLockModal({ onUnlock, onSwitchToFace, onSwitc
         return;
       }
 
+      setStatusText("Fingerprint scan ho raha hai...");
+
       const challenge = new Uint8Array([21, 31, 105, 76, 34, 15, 64, 2]);
-      const userId = new Uint8Array([1, 2, 3, 4]);
+      const publicKeyCredentialRequestOptions = {
+        challenge: challenge,
+        timeout: 60000,
+        userVerification: "required",
+      };
 
-      // Check karo ki kya pehle se credential registered hai ya nahi
-      const hasRegistered = localStorage.getItem("admin_fingerprint_registered");
+      // Sirf verification (get) hoga, koi naya creation/registration nahi
+      const credential = await navigator.credentials.get({
+        publicKey: publicKeyCredentialRequestOptions,
+      });
 
-      if (!hasRegistered) {
-        setStatusText("Biometric registration shuru ho raha hai... Apna fingerprint dein.");
-        
-        // Step 1: Register New Biometric Credential (Registration Enabled)
-        const publicKeyCredentialCreationOptions = {
-          challenge: challenge,
-          rp: { name: "Admin Security Panel", id: window.location.hostname },
-          user: {
-            id: userId,
-            name: "admin@example.com",
-            displayName: "Master Admin",
-          },
-          pubKeyCredParams: [{ alg: -7, type: "public-key" }],
-          timeout: 60000,
-          authenticatorSelection: {
-            authenticatorAttachment: "platform",
-            userVerification: "required",
-          },
-        };
-
-        const credential = await navigator.credentials.create({
-          publicKey: publicKeyCredentialCreationOptions,
-        });
-
-        if (credential) {
-          localStorage.setItem("admin_fingerprint_registered", "true");
-          setStatusText("🎉 Fingerprint successfully register ho gaya!");
-          setTimeout(() => onUnlock(), 1000);
-        }
-      } else {
-        setStatusText("Fingerprint scan ho raha hai...");
-
-        // Step 2: Authenticate existing credential
-        const publicKeyCredentialRequestOptions = {
-          challenge: challenge,
-          timeout: 60000,
-          userVerification: "required",
-        };
-
-        const credential = await navigator.credentials.get({
-          publicKey: publicKeyCredentialRequestOptions,
-        });
-
-        if (credential) {
-          setStatusText("✅ Fingerprint Matched! Welcome Admin.");
-          setTimeout(() => onUnlock(), 800);
-        }
+      if (credential) {
+        setStatusText("✅ Fingerprint Matched! Welcome Admin.");
+        setTimeout(() => onUnlock(), 800);
       }
     } catch (err) {
       console.error("Biometric error:", err);
-      setStatusText("❌ Biometric verification cancel ho gaya ya fail hua.");
+      setStatusText("❌ Verification fail ho gaya ya cancel kiya gaya.");
     }
   };
 
@@ -83,7 +47,7 @@ export default function FingerprintLockModal({ onUnlock, onSwitchToFace, onSwitc
           padding: "12px", borderRadius: "8px", fontWeight: "bold", fontSize: "14px", cursor: "pointer", marginBottom: "16px"
         }}
       >
-        Scan / Register Fingerprint
+        Scan Fingerprint
       </button>
 
       <p style={{ color: "#38bdf8", fontSize: "13px", fontWeight: "500", marginBottom: "16px" }}>
@@ -96,13 +60,13 @@ export default function FingerprintLockModal({ onUnlock, onSwitchToFace, onSwitc
           onClick={onSwitchToFace}
           style={{ flex: 1, backgroundColor: "#334155", color: "#fff", border: "none", padding: "10px", borderRadius: "6px", cursor: "pointer", fontSize: "12px" }}
         >
-          👤 Face ID Use Karein
+          👤 Face ID
         </button>
         <button
           onClick={onSwitchToPin}
           style={{ flex: 1, backgroundColor: "#334155", color: "#fff", border: "none", padding: "10px", borderRadius: "6px", cursor: "pointer", fontSize: "12px" }}
         >
-          🔑 PIN Use Karein
+          🔑 PIN
         </button>
       </div>
     </div>
