@@ -1,14 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
-import FingerprintLockModal from "@/components/FingerprintLockModal";
-import FaceLockModal from "@/components/FaceLockModal";
 
 export function useAdminProtect() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [currentMode, setCurrentMode] = useState("select"); // "select" | "fingerprint" | "face" | "pin"
   const [pinInput, setPinInput] = useState("");
+  const [passInput, setPassInput] = useState("");
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const authStatus = sessionStorage.getItem("admin_auth");
@@ -18,20 +17,31 @@ export function useAdminProtect() {
     setLoading(false);
   }, []);
 
-  const handleUnlock = () => {
-    sessionStorage.setItem("admin_auth", "true");
-    setIsAuthenticated(true);
-    setError("");
-  };
-
-  const handlePinSubmit = (e) => {
+  const handleAuthSubmit = async (e) => {
     e.preventDefault();
-    const ADMIN_SECRET = "123456" || process.env.NEXT_PUBLIC_ADMIN_PIN; 
+    setError("");
+    setIsSubmitting(true);
 
-    if (pinInput === ADMIN_SECRET) {
-      handleUnlock();
-    } else {
-      setError("Galat PIN ya Password hai! Dobara koshish karein.");
+    try {
+      const response = await fetch("/api/admin/verify-pages", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ pinInput, passInput }),
+});
+
+      const data = await response.json();
+
+      if (data.success) {
+        sessionStorage.setItem("admin_auth", "true");
+        setIsAuthenticated(true);
+      } else {
+        setError(data.message || "Verification fail ho gaya!");
+      }
+    } catch (err) {
+      console.error("Verification error:", err);
+      setError("Network error. Dobara koshish karein.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -46,127 +56,61 @@ export function useAdminProtect() {
       }}>
         <div style={{
           backgroundColor: "#1e293b", padding: "32px", borderRadius: "16px",
-          width: "100%", maxWidth: "420px", textAlign: "center", boxShadow: "0 10px 25px rgba(0,0,0,0.3)"
+          width: "100%", maxWidth: "400px", textAlign: "center", boxShadow: "0 10px 25px rgba(0,0,0,0.3)"
         }}>
-          <div style={{ fontSize: "36px", marginBottom: "8px" }}>🛡️</div>
-          <h2 style={{ color: "#fff", fontSize: "20px", fontWeight: "bold", marginBottom: "4px" }}>
+          <div style={{ fontSize: "36px", marginBottom: "12px" }}>🔐</div>
+          <h2 style={{ color: "#fff", fontSize: "20px", fontWeight: "bold", marginBottom: "8px" }}>
             Admin Security Portal
           </h2>
           <p style={{ color: "#94a3b8", fontSize: "13px", marginBottom: "20px" }}>
-            Kripya login karne ke liye apna tarika chunein.
+            Secure access ke liye apna PIN aur Password dono darj karein.
           </p>
 
-          {/* Step 1: Jab tak mode select na ho, teeno main buttons dikhenge */}
-          {currentMode === "select" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              <button
-                onClick={() => setCurrentMode("face")}
-                style={{
-                  backgroundColor: "#2563eb", color: "#fff", border: "none",
-                  padding: "14px", borderRadius: "8px", fontWeight: "bold", fontSize: "14px", cursor: "pointer",
-                  display: "flex", alignItems: "center", justifyContent: "center", gap: "8px"
-                }}
-              >
-                👤 Face Recognition
-              </button>
+          <form onSubmit={handleAuthSubmit} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            {/* PIN Input */}
+            <input
+              type="password"
+              placeholder="Enter PIN"
+              value={pinInput}
+              onChange={(e) => setPinInput(e.target.value)}
+              style={{
+                padding: "12px", borderRadius: "8px", border: "1px solid #475569",
+                backgroundColor: "#0f172a", color: "#fff", fontSize: "16px", outline: "none", textAlign: "center", letterSpacing: "2px"
+              }}
+              required
+              autoFocus
+            />
 
-              <button
-                onClick={() => setCurrentMode("pin")}
-                style={{
-                  backgroundColor: "#334155", color: "#fff", border: "none",
-                  padding: "14px", borderRadius: "8px", fontWeight: "bold", fontSize: "14px", cursor: "pointer",
-                  display: "flex", alignItems: "center", justifyContent: "center", gap: "8px"
-                }}
-              >
-                🔑 Enter Password & PIN
-              </button>
+            {/* Password Input */}
+            <input
+              type="password"
+              placeholder="Enter Password"
+              value={passInput}
+              onChange={(e) => setPassInput(e.target.value)}
+              style={{
+                padding: "12px", borderRadius: "8px", border: "1px solid #475569",
+                backgroundColor: "#0f172a", color: "#fff", fontSize: "16px", outline: "none", textAlign: "center"
+              }}
+              required
+            />
 
-              <button
-                onClick={() => setCurrentMode("fingerprint")}
-                style={{
-                  backgroundColor: "#475569", color: "#fff", border: "none",
-                  padding: "14px", borderRadius: "8px", fontWeight: "bold", fontSize: "14px", cursor: "pointer",
-                  display: "flex", alignItems: "center", justifyContent: "center", gap: "8px"
-                }}
-              >
-                👆 Fingerprint Recognition
-              </button>
-            </div>
-          )}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              style={{
+                backgroundColor: "#2563eb", color: "#fff", border: "none",
+                padding: "12px", borderRadius: "8px", fontWeight: "bold", fontSize: "15px", cursor: "pointer",
+                opacity: isSubmitting ? 0.7 : 1, marginTop: "4px"
+              }}
+            >
+              {isSubmitting ? "Verifying..." : "Verify & Unlock"}
+            </button>
+          </form>
 
-          {/* Mode 2: Face Recognition Screen */}
-          {currentMode === "face" && (
-            <div>
-              <FaceLockModal 
-                onUnlock={handleUnlock}
-                onSwitchToFingerprint={() => setCurrentMode("fingerprint")}
-                onSwitchToPin={() => setCurrentMode("pin")}
-              />
-              <button
-                onClick={() => setCurrentMode("select")}
-                style={{ marginTop: "16px", background: "none", border: "none", color: "#38bdf8", fontSize: "13px", cursor: "pointer", textDecoration: "underline" }}
-              >
-                ← Sabhi Options par wapas jayein
-              </button>
-            </div>
-          )}
-
-          {/* Mode 3: Fingerprint Screen */}
-          {currentMode === "fingerprint" && (
-            <div>
-              <FingerprintLockModal 
-                onUnlock={handleUnlock}
-                onSwitchToFace={() => setCurrentMode("face")}
-                onSwitchToPin={() => setCurrentMode("pin")}
-              />
-              <button
-                onClick={() => setCurrentMode("select")}
-                style={{ marginTop: "16px", background: "none", border: "none", color: "#38bdf8", fontSize: "13px", cursor: "pointer", textDecoration: "underline" }}
-              >
-                ← Sabhi Options par wapas jayein
-              </button>
-            </div>
-          )}
-
-          {/* Mode 4: PIN / Password Screen */}
-          {currentMode === "pin" && (
-            <div>
-              <form onSubmit={handlePinSubmit} style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "16px" }}>
-                <input
-                  type="password"
-                  placeholder="Enter PIN / Password"
-                  value={pinInput}
-                  onChange={(e) => setPinInput(e.target.value)}
-                  style={{
-                    padding: "12px", borderRadius: "8px", border: "1px solid #475569",
-                    backgroundColor: "#0f172a", color: "#fff", fontSize: "16px", outline: "none", textAlign: "center", letterSpacing: "2px"
-                  }}
-                  required
-                />
-                <button
-                  type="submit"
-                  style={{
-                    backgroundColor: "#2563eb", color: "#fff", border: "none",
-                    padding: "12px", borderRadius: "8px", fontWeight: "bold", fontSize: "15px", cursor: "pointer"
-                  }}
-                >
-                  Verify PIN
-                </button>
-              </form>
-
-              {error && (
-                <p style={{ color: "#f87171", fontSize: "13px", marginBottom: "12px", backgroundColor: "#7f1d1d", padding: "6px", borderRadius: "6px" }}>
-                  {error}
-                </p>
-              )}
-
-              <button
-                onClick={() => setCurrentMode("select")}
-                style={{ background: "none", border: "none", color: "#38bdf8", fontSize: "13px", cursor: "pointer", textDecoration: "underline" }}
-              >
-                ← Sabhi Options par wapas jayein
-              </button>
-            </div>
+          {error && (
+            <p style={{ color: "#f87171", fontSize: "13px", marginTop: "12px", backgroundColor: "#7f1d1d", padding: "8px", borderRadius: "6px" }}>
+              {error}
+            </p>
           )}
         </div>
       </div>

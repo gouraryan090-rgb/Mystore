@@ -1,36 +1,32 @@
 import { NextResponse } from "next/server";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
-const PASSWORD_HASH = "$2a$12$YUvmYcPhRoXkIIiXH7tfAuVTBB7QMX2xMVqe3Snve8PHP16ORmOrO";
-const PIN_HASH = "$2a$12$e7A5ci6HZwzeXMSMCiuDPuLRJiw0/4fAx5.fqENJ4vnycjHcSQRwy";
+const ADMIN_PIN_HASH = "$2a$12$JOzehmMVDT5BeBbXwWgKdejdlZXVBKW4M3OOLw7g3LBmyyhZ8K7zO";
+const ADMIN_PASS_HASH = "$2a$12$zZRl0JNuDCjB/yevzMTkhOwwzSgVzVJx2mKYYfeDbV47eDZkq84va";
 
 export async function POST(req) {
   try {
-    const { password, pin } = await req.json();
+    const { pinInput, passInput } = await req.json();
 
-    if (!password || !pin) {
-      return NextResponse.json({ success: false, error: "Password aur PIN dono chahiye!" }, { status: 400 });
+    if (!pinInput || !passInput) {
+      return NextResponse.json({ success: false, message: "PIN aur Password dono bharna zaroori hai!" }, { status: 400 });
     }
 
-    // Bcrypt se compare karein
-    const isPasswordValid = await bcrypt.compare(password, PASSWORD_HASH);
-    const isPinValid = await bcrypt.compare(pin, PIN_HASH);
+    // Dono ko unke respective hashes ke sath verify karo
+    const isPinMatch = await bcrypt.compare(pinInput, ADMIN_PIN_HASH);
+    const isPassMatch = await bcrypt.compare(passInput, ADMIN_PASS_HASH);
 
-    if (!isPasswordValid || !isPinValid) {
-      return NextResponse.json({ success: false, error: "Galat Password ya PIN!" }, { status: 401 });
+    if (isPinMatch && isPassMatch) {
+      return NextResponse.json({ success: true });
+    } else if (!isPinMatch && isPassMatch) {
+      return NextResponse.json({ success: false, message: "Galat PIN hai!" }, { status: 401 });
+    } else if (isPinMatch && !isPassMatch) {
+      return NextResponse.json({ success: false, message: "Galat Password hai!" }, { status: 401 });
+    } else {
+      return NextResponse.json({ success: false, message: "PIN aur Password dono galat hain!" }, { status: 401 });
     }
-
-    // Agar dono sahi hain, toh ek secure cookie set kar do pages ke liye
-    const response = NextResponse.json({ success: true, message: "Verified!" });
-    response.cookies.set("page_auth_token", "authorized", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 2, // 2 Hours
-      path: "/",
-    });
-
-    return response;
   } catch (error) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    console.error("Auth API Error:", error);
+    return NextResponse.json({ success: false, message: "Server error" }, { status: 500 });
   }
 }
