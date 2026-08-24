@@ -142,6 +142,16 @@ export default function AdminDashboardPage() {
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "20px" }}>
+            
+            {/* Finance & Analytics Card */}
+            <Link href="/admin/finance" style={{ textDecoration: "none" }}>
+              <div style={cardStyle}>
+                <div style={{ fontSize: "36px", marginBottom: "12px" }}>📊</div>
+                <h3 style={cardTitleStyle}>Finance & Analytics</h3>
+                <p style={cardDescStyle}>Track revenue, estimated profit, and monthly/category sales.</p>
+              </div>
+            </Link>
+
             <Link href="/admin/orders" style={{ textDecoration: "none" }}>
               <div style={cardStyle}>
                 <div style={{ fontSize: "36px", marginBottom: "12px" }}>📦</div>
@@ -158,7 +168,6 @@ export default function AdminDashboardPage() {
               </div>
             </Link>
 
-            {/* Naya Manage Categories Card */}
             <Link href="/admin/categories" style={{ textDecoration: "none" }}>
               <div style={cardStyle}>
                 <div style={{ fontSize: "36px", marginBottom: "12px" }}>📂</div>

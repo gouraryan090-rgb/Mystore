@@ -13,6 +13,7 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("All");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const tabs = [
     { label: "All Orders", value: "All" },
@@ -42,18 +43,30 @@ export default function AdminOrdersPage() {
     }
   }
 
-  // 100% accurate client-side filtering for each tab
+  // 100% accurate client-side filtering for each tab + Search by Order ID (bina # ke)
   const filteredOrders = orders.filter((order) => {
     const isCancelled = order.orderStatus === "Cancelled" || order.status === "Cancelled";
     const currentStatus = order.status || order.orderStatus || "Pending";
 
-    if (activeTab === "All") return true;
-    if (activeTab === "Cancelled") return isCancelled;
-    
-    // Agar order cancelled hai toh use doosri tabs mein mat dikhao
-    if (isCancelled) return false;
-    
-    return currentStatus.toLowerCase() === activeTab.toLowerCase();
+    // Tab filtering logic
+    let matchesTab = true;
+    if (activeTab === "Cancelled") {
+      matchesTab = isCancelled;
+    } else if (activeTab !== "All") {
+      if (isCancelled) {
+        matchesTab = false;
+      } else {
+        matchesTab = currentStatus.toLowerCase() === activeTab.toLowerCase();
+      }
+    }
+
+    // Search filtering logic (Order ID bina # ke match karega)
+    const orderIdStr = order.orderId || order._id || "";
+    const cleanOrderId = orderIdStr.toString().replace("#", "").toLowerCase();
+    const cleanSearchQuery = searchTerm.trim().replace("#", "").toLowerCase();
+    const matchesSearch = cleanOrderId.includes(cleanSearchQuery);
+
+    return matchesTab && matchesSearch;
   });
 
   // Agar user authenticated nahi hai, toh lock modal dikhega
@@ -80,6 +93,26 @@ export default function AdminOrdersPage() {
         >
           ← Back to Dashboard
         </Link>
+      </div>
+
+      {/* --- SEARCH INPUT BOX --- */}
+      <div style={{ marginBottom: "20px" }}>
+        <input
+          type="text"
+          placeholder="Search by Order ID (e.g. 12345 bina # ke)..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{
+            width: "100%",
+            padding: "12px 16px",
+            borderRadius: "10px",
+            border: "1px solid #d1d5db",
+            fontSize: "14px",
+            outline: "none",
+            backgroundColor: "#fff",
+            boxShadow: "0 1px 2px rgba(0,0,0,0.02)"
+          }}
+        />
       </div>
 
       {/* Filter Tabs */}
@@ -109,7 +142,7 @@ export default function AdminOrdersPage() {
         <div style={{ padding: "40px", textAlign: "center" }}>Loading Orders...</div>
       ) : filteredOrders.length === 0 ? (
         <div style={{ textAlign: "center", padding: "40px", backgroundColor: "#f9fafb", borderRadius: "12px" }}>
-          <p style={{ color: "#6b7280" }}>Is category mein koi order nahi hai.</p>
+          <p style={{ color: "#6b7280" }}>Koi order nahi mila.</p>
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -135,7 +168,7 @@ export default function AdminOrdersPage() {
                 <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #f3f4f6", paddingBottom: "12px", marginBottom: "12px" }}>
                   <div>
                     <div style={{ fontSize: "12px", color: "#6b7280" }}>ORDER ID (Click for Full Details)</div>
-                    <div style={{ fontSize: "14px", fontWeight: "bold", color: "#2563eb" }}>#{order._id}</div>
+                    <div style={{ fontSize: "14px", fontWeight: "bold", color: "#2563eb" }}>#{order.orderId || order._id}</div>
                   </div>
                   <div>
                     <span
