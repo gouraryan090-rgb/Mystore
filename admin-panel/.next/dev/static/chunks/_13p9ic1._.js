@@ -1179,144 +1179,6 @@ if ("TURBOPACK compile-time truthy", 1) {
 
 module.exports = __turbopack_context__.r("[project]/node_modules/next/dist/client/components/navigation.js [app-client] (ecmascript)");
 }),
-"[project]/src/app/(customer)/context/CartContext.js [app-client] (ecmascript)", ((__turbopack_context__) => {
-"use strict";
-
-__turbopack_context__.s([
-    "CartProvider",
-    ()=>CartProvider,
-    "useCart",
-    ()=>useCart
-]);
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
-;
-var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.signature();
-"use client";
-;
-const CartContext = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createContext"])();
-function CartProvider({ children }) {
-    _s();
-    const [cart, setCart] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
-    const [userEmail, setUserEmail] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
-    // 1. Fetch user email and load cart from database
-    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
-        "CartProvider.useEffect": ()=>{
-            try {
-                const savedUser = localStorage.getItem("customer_user");
-                if (savedUser) {
-                    const parsedUser = JSON.parse(savedUser);
-                    if (parsedUser?.email) {
-                        setUserEmail(parsedUser.email);
-                        // Fetch database cart from backend
-                        fetch(`/api/user/cart?email=${parsedUser.email}`).then({
-                            "CartProvider.useEffect": (res)=>res.json()
-                        }["CartProvider.useEffect"]).then({
-                            "CartProvider.useEffect": (data)=>{
-                                if (data.success && data.cart) {
-                                    setCart(data.cart);
-                                    localStorage.setItem("user_cart", JSON.stringify(data.cart));
-                                }
-                            }
-                        }["CartProvider.useEffect"]).catch({
-                            "CartProvider.useEffect": (err)=>console.error("Cart fetch error:", err)
-                        }["CartProvider.useEffect"]);
-                        return;
-                    }
-                }
-                // If user is not logged in, load from localstorage
-                const savedCart = localStorage.getItem("user_cart");
-                if (savedCart) setCart(JSON.parse(savedCart));
-            } catch (e) {
-                console.error(e);
-            }
-        }
-    }["CartProvider.useEffect"], []);
-    // 2. Sync cart to both LocalStorage and Database upon update
-    const syncCartToBackend = async (updatedCart)=>{
-        localStorage.setItem("user_cart", JSON.stringify(updatedCart));
-        if (userEmail) {
-            try {
-                await fetch("/api/user/cart", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        email: userEmail,
-                        cart: updatedCart
-                    })
-                });
-            } catch (err) {
-                console.error("Cart sync error:", err);
-            }
-        }
-    };
-    // Add product to cart (Safe duplicate check)
-    const addToCart = (product)=>{
-        const isAlreadyInCart = cart.some((item)=>item._id === product._id);
-        if (isAlreadyInCart) {
-            alert("This product is already added to your cart!");
-            return false;
-        }
-        const newCart = [
-            ...cart,
-            {
-                ...product,
-                quantity: 1
-            }
-        ];
-        setCart(newCart);
-        syncCartToBackend(newCart);
-        return true;
-    };
-    // Increase/decrease quantity
-    const updateQuantity = (id, amount)=>{
-        const newCart = cart.map((item)=>{
-            if (item._id === id) {
-                const newQty = item.quantity + amount;
-                return newQty > 0 ? {
-                    ...item,
-                    quantity: newQty
-                } : null;
-            }
-            return item;
-        }).filter(Boolean);
-        setCart(newCart);
-        syncCartToBackend(newCart);
-    };
-    // Clear cart
-    const clearCart = ()=>{
-        setCart([]);
-        syncCartToBackend([]);
-    };
-    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(CartContext.Provider, {
-        value: {
-            cart,
-            addToCart,
-            updateQuantity,
-            clearCart
-        },
-        children: children
-    }, void 0, false, {
-        fileName: "[project]/src/app/(customer)/context/CartContext.js",
-        lineNumber: 95,
-        columnNumber: 5
-    }, this);
-}
-_s(CartProvider, "MfXdBHtzX+v5ra9R8rdM9B4vNnM=");
-_c = CartProvider;
-const useCart = ()=>{
-    _s1();
-    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useContext"])(CartContext);
-};
-_s1(useCart, "gDsCjeeItUuvgOWf1v4qoK9RF6k=");
-var _c;
-__turbopack_context__.k.register(_c, "CartProvider");
-if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
-    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
-}
-}),
 "[project]/src/app/(customer)/layout.js [app-client] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
@@ -1328,7 +1190,11 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/client/app-dir/link.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/navigation.js [app-client] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f28$customer$292f$context$2f$CartContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/app/(customer)/context/CartContext.js [app-client] (ecmascript)");
+(()=>{
+    const e = new Error("Cannot find module '../context/CartContext'");
+    e.code = 'MODULE_NOT_FOUND';
+    throw e;
+})();
 ;
 var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.signature();
 "use client";
@@ -1338,7 +1204,7 @@ var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.sign
 ;
 function HeaderContent({ user }) {
     _s();
-    const { cart } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f28$customer$292f$context$2f$CartContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCart"])();
+    const { cart } = useCart();
     const pathname = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePathname"])();
     const totalItems = cart.reduce((sum, item)=>sum + item.quantity, 0);
     // Helper function to check if a link is active
@@ -1509,7 +1375,7 @@ function HeaderContent({ user }) {
                             lineNumber: 84,
                             columnNumber: 11
                         }, this),
-                        user && /* 👇 Yeh direct Link /profile par redirect karega jo src/app/(customer)/profile/page.js ko open karega */ /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                        user && /* 👇 Direct link to /profile which triggers src/app/(customer)/profile/page.js */ /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                             href: "/profile",
                             style: {
                                 textDecoration: "none",
@@ -1596,7 +1462,7 @@ function HeaderContent({ user }) {
 }
 _s(HeaderContent, "HrhfNJGR0lO2jgrSxlYN75VrdZQ=", false, function() {
     return [
-        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f28$customer$292f$context$2f$CartContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCart"],
+        useCart,
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePathname"]
     ];
 });
@@ -1616,7 +1482,7 @@ function CustomerLayout({ children }) {
             }
         }
     }["CustomerLayout.useEffect"], []);
-    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f28$customer$292f$context$2f$CartContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CartProvider"], {
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(CartProvider, {
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             style: {
                 minHeight: "100vh",
@@ -1665,4 +1531,4 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
 }),
 ]);
 
-//# sourceMappingURL=_03wj03i._.js.map
+//# sourceMappingURL=_13p9ic1._.js.map

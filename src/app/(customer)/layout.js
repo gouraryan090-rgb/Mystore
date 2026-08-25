@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CartProvider, useCart } from "./context/CartContext";
 
-function HeaderContent({ isOpen, setIsOpen, user }) {
+function HeaderContent({ user }) {
   const { cart } = useCart();
   const pathname = usePathname();
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -22,13 +22,6 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
     fontSize: "14px",
     fontWeight: isActive(path) ? "700" : "600",
   });
-
-  // Handle Logout Function
-  const handleLogout = () => {
-    localStorage.removeItem("customer_user"); // Remove stored user data
-    setIsOpen(false);
-    window.location.href = "/"; // Redirect to home or login page
-  };
 
   return (
     <header
@@ -86,7 +79,7 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
           </Link>
         </div>
 
-        {/* Right Section (Cart & User Profile Dropdown) */}
+        {/* Right Section (Cart & Direct Profile Link) */}
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <Link
             href="/cart"
@@ -127,100 +120,52 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
           </Link>
 
           {user && (
-            <div style={{ position: "relative" }}>
-              <button
-                onClick={() => setIsOpen(!isOpen)}
+            /* 👇 Yeh direct Link /profile par redirect karega jo src/app/(customer)/profile/page.js ko open karega */
+            <Link
+              href="/profile"
+              style={{
+                textDecoration: "none",
+                background: "#f8fafc",
+                border: "1px solid #e2e8f0",
+                padding: "6px 14px 6px 6px",
+                borderRadius: "30px",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                cursor: "pointer",
+              }}
+            >
+              <div
                 style={{
-                  background: "#f8fafc",
-                  border: "1px solid #e2e8f0",
-                  padding: "6px 14px 6px 6px",
-                  borderRadius: "30px",
-                  cursor: "pointer",
+                  width: "28px",
+                  height: "28px",
+                  borderRadius: "50%",
+                  backgroundColor: "#6366f1",
+                  color: "#fff",
                   display: "flex",
                   alignItems: "center",
-                  gap: "8px",
+                  justifyContent: "center",
+                  overflow: "hidden",
+                  fontSize: "12px",
+                  fontWeight: "bold",
                 }}
               >
-                <div
-                  style={{
-                    width: "28px",
-                    height: "28px",
-                    borderRadius: "50%",
-                    backgroundColor: "#6366f1",
-                    color: "#fff",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    overflow: "hidden",
-                    fontSize: "12px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {user.photo ? (
-                    <img
-                      src={user.photo}
-                      alt={user.name}
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                    />
-                  ) : user.name ? (
-                    user.name.charAt(0).toUpperCase()
-                  ) : (
-                    "U"
-                  )}
-                </div>
-                <span style={{ fontSize: "13px", fontWeight: "700", color: "#0f172a" }}>
-                  Hi, {user.name?.split(" ")[0]}
-                </span>
-                <span style={{ fontSize: "10px", color: "#64748b" }}>▼</span>
-              </button>
-
-              {isOpen && (
-                <div
-                  style={{
-                    position: "absolute",
-                    right: 0,
-                    top: "44px",
-                    backgroundColor: "#fff",
-                    boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
-                    borderRadius: "16px",
-                    border: "1px solid #e2e8f0",
-                    width: "180px",
-                    overflow: "hidden",
-                    zIndex: 1000,
-                  }}
-                >
-                  <Link href="/edit-profile" onClick={() => setIsOpen(false)} style={linkStyle}>
-                    ✏️ Edit Profile
-                  </Link>
-                  <Link href="/edit-address" onClick={() => setIsOpen(false)} style={linkStyle}>
-                    🏠 Edit Address
-                  </Link>
-                  <Link href="/orders" onClick={() => setIsOpen(false)} style={linkStyle}>
-                    📦 My Orders
-                  </Link>
-                  <Link href="/contact-us" onClick={() => setIsOpen(false)} style={linkStyle}>
-                    📞 Contact Us
-                  </Link>
-                  
-                  {/* Logout Button Added Here */}
-                  <button
-                    onClick={handleLogout}
-                    style={{
-                      ...linkStyle,
-                      width: "100%",
-                      textAlign: "left",
-                      backgroundColor: "#fef2f2",
-                      color: "#dc2626",
-                      border: "none",
-                      cursor: "pointer",
-                      fontWeight: "750",
-                    }}
-                  >
-                    🚪 Log Out
-                  </button>
-                </div>
-              )}
-            </div>
+                {user.photo ? (
+                  <img
+                    src={user.photo}
+                    alt={user.name}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                ) : user.name ? (
+                  user.name.charAt(0).toUpperCase()
+                ) : (
+                  "U"
+                )}
+              </div>
+              <span style={{ fontSize: "13px", fontWeight: "700", color: "#0f172a" }}>
+                Hi, {user.name?.split(" ")[0]}
+              </span>
+            </Link>
           )}
         </div>
       </div>
@@ -229,7 +174,6 @@ function HeaderContent({ isOpen, setIsOpen, user }) {
 }
 
 export default function CustomerLayout({ children }) {
-  const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -246,7 +190,7 @@ export default function CustomerLayout({ children }) {
   return (
     <CartProvider>
       <div style={{ minHeight: "100vh", backgroundColor: "#f8fafc" }}>
-        <HeaderContent isOpen={isOpen} setIsOpen={setIsOpen} user={user} />
+        <HeaderContent user={user} />
         <main style={{ maxWidth: "1280px", margin: "0 auto", padding: "24px 20px" }}>
           {children}
         </main>
@@ -254,13 +198,3 @@ export default function CustomerLayout({ children }) {
     </CartProvider>
   );
 }
-
-const linkStyle = {
-  display: "block",
-  padding: "12px 16px",
-  color: "#334155",
-  textDecoration: "none",
-  fontSize: "14px",
-  fontWeight: "600",
-  borderBottom: "1px solid #f1f5f9",
-};
