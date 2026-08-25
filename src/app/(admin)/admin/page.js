@@ -143,6 +143,15 @@ export default function AdminDashboardPage() {
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "20px" }}>
             
+            {/* Customer Messages Card */}
+            <Link href="/admin/messages" style={{ textDecoration: "none" }}>
+              <div style={cardStyle}>
+                <div style={{ fontSize: "36px", marginBottom: "12px" }}>📬</div>
+                <h3 style={cardTitleStyle}>Customer Messages</h3>
+                <p style={cardDescStyle}>View and manage customer complaints and support queries.</p>
+              </div>
+            </Link>
+
             {/* Finance & Analytics Card */}
             <Link href="/admin/finance" style={{ textDecoration: "none" }}>
               <div style={cardStyle}>

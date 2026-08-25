@@ -53,12 +53,16 @@
   display: none;
 }
 
+.inline-block {
+  display: inline-block;
+}
+
 .inline-flex {
   display: inline-flex;
 }
 
-.border-collapse {
-  border-collapse: collapse;
+.resize {
+  resize: both;
 }
 
 .border {
