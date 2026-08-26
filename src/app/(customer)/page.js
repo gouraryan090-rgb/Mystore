@@ -523,7 +523,7 @@ export default function HomePage() {
                             boxShadow: "0 4px 12px rgba(99, 102, 241, 0.2)"
                           }}
                         >
-                          Add to Cart
+                          View details
                         </button>
                       </div>
                     </div>
