@@ -4,18 +4,20 @@ import Link from "next/link";
 import { useAdminProtect } from "@/lib/protectedRoute";
 
 export default function AdminCategoriesPage() {
-  // Naya page-level protect hook jo modal render karega agar cookie na ho
   const lockScreen = useAdminProtect();
 
   const [categories, setCategories] = useState([]);
-  const [type, setType] = useState("category"); // 'category' or 'subcategory'
-  const [name, setName] = useState("");
-  const [parentCategory, setParentCategory] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    type: "category",
+    parentCategory: "",
+    image: ""
+  });
+  const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  // Saari categories fetch karein taaki dropdown ke liye use ho sakein
   const fetchCategories = async () => {
     try {
       const res = await fetch("/api/categories");
@@ -32,20 +34,32 @@ export default function AdminCategoriesPage() {
     fetchCategories();
   }, []);
 
-  // Sirf main categories filter karne ke liye (jo sub-category banane ke liye parent ban sakein)
   const mainCategories = categories.filter((cat) => cat.type === "category");
 
+  // Image Upload handler (Local file to base64)
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, image: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Create or Update Handler (Ab yeh single /api/categories route par bhejega sath me ID)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
     setError("");
 
-    if (!name.trim()) {
+    if (!formData.name.trim()) {
       setError("Naam dalna zaroori hai!");
       return;
     }
 
-    if (type === "subcategory" && !parentCategory) {
+    if (formData.type === "subcategory" && !formData.parentCategory) {
       setError("Kripya parent category select karein!");
       return;
     }
@@ -53,23 +67,24 @@ export default function AdminCategoriesPage() {
     setLoading(true);
 
     try {
+      const method = editingId ? "PUT" : "POST";
+
       const res = await fetch("/api/categories", {
-        method: "POST",
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name,
-          type,
-          parentCategory: type === "subcategory" ? parentCategory : null,
+          id: editingId, // Update ke liye ID body me jayegi
+          ...formData
         }),
       });
 
       const data = await res.json();
 
       if (data.success) {
-        setMessage("Successfully created!");
-        setName("");
-        setParentCategory("");
-        fetchCategories(); // List refresh karein
+        setMessage(editingId ? "Successfully updated!" : "Successfully created!");
+        setFormData({ name: "", type: "category", parentCategory: "", image: "" });
+        setEditingId(null);
+        fetchCategories();
       } else {
         setError(data.error || "Kuch gadbad ho gayi!");
       }
@@ -81,21 +96,56 @@ export default function AdminCategoriesPage() {
     }
   };
 
-  // Agar user authenticated nahi hai, toh lock modal dikhega
+  // Edit Button Click Handler
+  const handleEdit = (cat) => {
+    setEditingId(cat._id);
+    setFormData({
+      name: cat.name,
+      type: cat.type || "category",
+      parentCategory: cat.parentCategory || "",
+      image: cat.image || ""
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Delete Handler (Ab yeh bhi single /api/categories route par ID bhejega)
+  const handleDelete = async (id) => {
+    if (!confirm("Kya aap sach mein is category ko delete karna chahte hain?")) return;
+
+    try {
+      const res = await fetch("/api/categories", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setMessage("Successfully deleted!");
+        fetchCategories();
+      } else {
+        setError(data.error || "Delete nahi ho paya!");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Server error ho gaya.");
+    }
+  };
+
   if (lockScreen) return lockScreen;
 
   return (
-    <div style={{ maxWidth: "700px", margin: "40px auto", padding: "0 20px", fontFamily: "system-ui, sans-serif" }}>
+    <div style={{ maxWidth: "800px", margin: "40px auto", padding: "0 20px", fontFamily: "system-ui, sans-serif" }}>
       <Link href="/admin" style={{ color: "#2563eb", textDecoration: "none", fontWeight: "bold", fontSize: "14px" }}>
         ← Back to Admin Dashboard
       </Link>
 
       <div style={{ backgroundColor: "#fff", padding: "32px", borderRadius: "16px", border: "1px solid #e5e7eb", marginTop: "20px", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)" }}>
         <h1 style={{ fontSize: "22px", fontWeight: "800", color: "#111827", marginBottom: "8px" }}>
-          Create Category / Sub-Category
+          {editingId ? "Edit Category / Sub-Category" : "Create Category / Sub-Category"}
         </h1>
         <p style={{ fontSize: "14px", color: "#6b7280", marginBottom: "24px" }}>
-          Nayi categories ya unke andar sub-categories add karein.
+          Nayi categories add karein ya purani categories ko manage karein.
         </p>
 
         {message && (
@@ -112,17 +162,14 @@ export default function AdminCategoriesPage() {
 
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
           
-          {/* Select Type: Category or Sub-category */}
+          {/* Select Type */}
           <div>
             <label style={{ display: "block", fontSize: "14px", fontWeight: "700", color: "#374151", marginBottom: "8px" }}>
               Create Type:
             </label>
             <select
-              value={type}
-              onChange={(e) => {
-                setType(e.target.value);
-                setParentCategory("");
-              }}
+              value={formData.type}
+              onChange={(e) => setFormData({ ...formData, type: e.target.value, parentCategory: "" })}
               style={{ width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "14px", backgroundColor: "#fff" }}
             >
               <option value="category">Main Category</option>
@@ -130,15 +177,15 @@ export default function AdminCategoriesPage() {
             </select>
           </div>
 
-          {/* If Sub-Category is selected, show Parent Category Dropdown */}
-          {type === "subcategory" && (
+          {/* Parent Category if Sub-Category */}
+          {formData.type === "subcategory" && (
             <div>
               <label style={{ display: "block", fontSize: "14px", fontWeight: "700", color: "#374151", marginBottom: "8px" }}>
-                Select Parent Category (Jisme sub-category banani hai):
+                Select Parent Category:
               </label>
               <select
-                value={parentCategory}
-                onChange={(e) => setParentCategory(e.target.value)}
+                value={formData.parentCategory}
+                onChange={(e) => setFormData({ ...formData, parentCategory: e.target.value })}
                 style={{ width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "14px", backgroundColor: "#fff" }}
               >
                 <option value="">-- Choose Category --</option>
@@ -154,47 +201,126 @@ export default function AdminCategoriesPage() {
           {/* Name Input */}
           <div>
             <label style={{ display: "block", fontSize: "14px", fontWeight: "700", color: "#374151", marginBottom: "8px" }}>
-              {type === "category" ? "Category Name:" : "Sub-Category Name:"}
+              {formData.type === "category" ? "Category Name:" : "Sub-Category Name:"}
             </label>
             <input
               type="text"
-              placeholder={type === "category" ? "jaise: Electronics, Clothing" : "jaise: Smartphones, T-Shirts"}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              placeholder={formData.type === "category" ? "jaise: Electronics" : "jaise: Smartphones"}
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               style={{ width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "14px", boxSizing: "border-box" }}
             />
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              backgroundColor: "#2563eb",
-              color: "#fff",
-              border: "none",
-              padding: "14px",
-              borderRadius: "8px",
-              fontWeight: "bold",
-              fontSize: "15px",
-              cursor: "pointer",
-            }}
-          >
-            {loading ? "Creating..." : "Create Now"}
-          </button>
+          {/* Image Input (URL + File Upload) */}
+          <div>
+            <label style={{ display: "block", fontSize: "14px", fontWeight: "700", color: "#374151", marginBottom: "8px" }}>
+              Category Image:
+            </label>
+            <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+              <input
+                type="text"
+                placeholder="Paste Image URL here..."
+                value={formData.image && !formData.image.startsWith("data:") ? formData.image : ""}
+                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                style={{ flex: 1, padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "13px" }}
+              />
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <span style={{ fontSize: "12px", color: "#64748b" }}>Or Upload File:</span>
+              <input type="file" accept="image/*" onChange={handleImageUpload} style={{ fontSize: "12px" }} />
+            </div>
+
+            {formData.image && (
+              <div style={{ marginTop: "10px", width: "50px", height: "50px", borderRadius: "8px", overflow: "hidden", border: "1px solid #cbd5e1" }}>
+                <img src={formData.image} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              </div>
+            )}
+          </div>
+
+          <div style={{ display: "flex", gap: "10px" }}>
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                flex: 1,
+                backgroundColor: "#2563eb",
+                color: "#fff",
+                border: "none",
+                padding: "14px",
+                borderRadius: "8px",
+                fontWeight: "bold",
+                fontSize: "15px",
+                cursor: "pointer",
+              }}
+            >
+              {loading ? "Saving..." : editingId ? "Update Category" : "Create Now"}
+            </button>
+
+            {editingId && (
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingId(null);
+                  setFormData({ name: "", type: "category", parentCategory: "", image: "" });
+                }}
+                style={{
+                  backgroundColor: "#6b7280",
+                  color: "#fff",
+                  border: "none",
+                  padding: "14px 20px",
+                  borderRadius: "8px",
+                  fontWeight: "bold",
+                  fontSize: "15px",
+                  cursor: "pointer",
+                }}
+              >
+                Cancel
+              </button>
+            )}
+          </div>
         </form>
 
-        {/* Existing Categories List */}
+        {/* Existing Categories List with Edit & Delete */}
         <div style={{ marginTop: "40px" }}>
           <h2 style={{ fontSize: "18px", fontWeight: "700", color: "#111827", marginBottom: "16px" }}>
             Existing Categories & Sub-Categories
           </h2>
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "250px", overflowY: "auto" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "300px", overflowY: "auto" }}>
             {categories.map((item) => (
-              <div key={item._id} style={{ display: "flex", justifyContent: "space-between", padding: "10px 14px", backgroundColor: "#f9fafb", borderRadius: "8px", border: "1px solid #e5e7eb", fontSize: "14px" }}>
-                <span style={{ fontWeight: "600", color: "#1f2937" }}>{item.name}</span>
-                <span style={{ fontSize: "12px", color: item.type === "category" ? "#2563eb" : "#059669", fontWeight: "bold" }}>
-                  {item.type === "category" ? "Main Category" : `Sub of: ${item.parentCategory}`}
-                </span>
+              <div key={item._id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", backgroundColor: "#f9fafb", borderRadius: "8px", border: "1px solid #e5e7eb", fontSize: "14px" }}>
+                
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <div style={{ width: "36px", height: "36px", borderRadius: "6px", backgroundColor: "#e2e8f0", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {item.image ? (
+                      <img src={item.image} alt={item.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      <span>📦</span>
+                    )}
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: "600", color: "#1f2937" }}>{item.name}</div>
+                    <div style={{ fontSize: "11px", color: item.type === "category" ? "#2563eb" : "#059669", fontWeight: "bold" }}>
+                      {item.type === "category" ? "Main Category" : `Sub of: ${item.parentCategory}`}
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <button
+                    onClick={() => handleEdit(item)}
+                    style={{ backgroundColor: "#fef3c7", color: "#d97706", border: "none", padding: "6px 12px", borderRadius: "6px", fontSize: "12px", fontWeight: "bold", cursor: "pointer" }}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(item._id)}
+                    style={{ backgroundColor: "#fee2e2", color: "#dc2626", border: "none", padding: "6px 12px", borderRadius: "6px", fontSize: "12px", fontWeight: "bold", cursor: "pointer" }}
+                  >
+                    Delete
+                  </button>
+                </div>
+
               </div>
             ))}
           </div>

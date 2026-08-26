@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 
 export default function CategoriesPage() {
+  const [isMounted, setIsMounted] = useState(false);
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -10,6 +11,7 @@ export default function CategoriesPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setIsMounted(true);
     const fetchData = async () => {
       try {
         const [catRes, prodRes] = await Promise.all([
@@ -29,6 +31,11 @@ export default function CategoriesPage() {
     };
     fetchData();
   }, []);
+
+  // Prevent hydration error
+  if (!isMounted) {
+    return null;
+  }
 
   const mainCategories = categories.filter((c) => c.type === "category");
   const subCategories = categories.filter(
@@ -51,7 +58,7 @@ export default function CategoriesPage() {
   }
 
   return (
-    <div style={{ fontFamily: "system-ui, -apple-system, sans-serif", paddingBottom: "80px" }}>
+    <div style={{ fontFamily: "system-ui, -apple-system, sans-serif", paddingBottom: "80px", maxWidth: "1280px", margin: "0 auto", paddingLeft: "20px", paddingRight: "20px", paddingTop: "20px" }}>
       
       {/* Header Banner */}
       <div style={{ marginBottom: "24px" }}>

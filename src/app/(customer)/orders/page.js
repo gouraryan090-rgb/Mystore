@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { jsPDF } from "jspdf";
 
 // Status translation function
 const getCustomerStatus = (dbStatus) => {
@@ -103,6 +104,124 @@ export default function YourOrdersPage() {
     alert("Order ID copied to clipboard!");
   };
 
+  // PDF Generator Function
+  const generateReceiptPDF = (order) => {
+    const doc = new jsPDF();
+    
+    const primaryColor = [99, 102, 241]; // Indigo
+    const textColor = [15, 23, 42];      // Slate 900
+    const grayColor = [100, 116, 139];   // Slate 500
+
+    // Header - Company Name
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.setTextColor(...primaryColor);
+    doc.text("ZENTROBAZAAR", 14, 20);
+
+    // Subtitle / Tagline
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(...grayColor);
+    doc.text("Digital Tax Invoice / Receipt", 14, 26);
+
+    // Company Details (Right side)
+    doc.setFontSize(9);
+    doc.text("Nawa City, Rajasthan - 341509", 200, 20, { align: "right" });
+    doc.text("Email: zentrobazaar.shop@gmail.com", 200, 25, { align: "right" });
+    doc.text("Mobile: +91 7378200781", 200, 30, { align: "right" });
+    doc.text("GSTIN: N/A", 200, 35, { align: "right" });
+
+    // Divider Line
+    doc.setDrawColor(226, 232, 240);
+    doc.setLineWidth(0.5);
+    doc.line(14, 42, 196, 42);
+
+    // Order & Customer Meta Info
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(...textColor);
+    doc.text("Order Details:", 14, 52);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text(`Order ID: #${order._id}`, 14, 59);
+    doc.text(`Date: ${order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "Recent"}`, 14, 66);
+    doc.text(`Payment Method: ${order.paymentMethod || "COD"}`, 14, 73);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Shipping Address:", 110, 52);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Name: ${order.shippingAddress?.name || "Customer"}`, 110, 59);
+    doc.text(`Phone: ${order.shippingAddress?.phone || "N/A"}`, 110, 66);
+    doc.text(`Address: ${order.shippingAddress?.address || "Nawa City"}`, 110, 73, { maxWidth: 85 });
+
+    // Table Header Background
+    doc.setFillColor(241, 245, 249);
+    doc.rect(14, 85, 182, 8, "F");
+
+    // Table Headers
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(...textColor);
+    doc.text("Item Description", 18, 91);
+    doc.text("Qty", 120, 91);
+    doc.text("Price", 145, 91);
+    doc.text("Total", 175, 91);
+
+    // Table Items Loop
+    let startY = 99;
+    doc.setFont("helvetica", "normal");
+    
+    const items = order.items || [];
+    items.forEach((item) => {
+      const title = item.title || "Product Item";
+      const qty = item.quantity || item.qty || 1;
+      const price = item.offerPrice || item.price || 0;
+      const itemTotal = qty * price;
+
+      doc.text(title, 18, startY, { maxWidth: 95 });
+      doc.text(String(qty), 120, startY);
+      doc.text(`Rs. ${price}`, 145, startY);
+      doc.text(`Rs. ${itemTotal}`, 175, startY);
+
+      startY += 10;
+    });
+
+    // Divider Line before Totals
+    doc.line(14, startY + 2, 196, startY + 2);
+    startY += 10;
+
+    const subtotal = order.totalAmount || items.reduce((acc, item) => acc + (item.quantity || item.qty || 1) * (item.offerPrice || item.price || 0), 0);
+    const shipping = order.shippingFee || 0;
+    const grandTotal = subtotal + shipping;
+
+    // Totals Section
+    doc.setFont("helvetica", "normal");
+    doc.text("Subtotal:", 130, startY);
+    doc.text(`Rs. ${subtotal}`, 175, startY);
+
+    startY += 7;
+    doc.text("Shipping Fee:", 130, startY);
+    doc.text(`Rs. ${shipping}`, 175, startY);
+
+    startY += 8;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(...primaryColor);
+    doc.text("Grand Total:", 130, startY);
+    doc.text(`Rs. ${grandTotal}`, 175, startY);
+
+    // Footer Note
+    startY += 25;
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(9);
+    doc.setTextColor(...grayColor);
+    doc.text("Thank you for shopping with ZENTROBAZAAR! This is a computer-generated receipt.", 14, startY);
+
+    // Save PDF
+    doc.save(`ZentroBazaar-Invoice-${order._id}.pdf`);
+  };
+
   const tabs = ["All Orders", "Processing", "Shipped", "Delivered", "Cancelled"];
 
   const filteredOrders = orders.filter((order) => {
@@ -122,10 +241,10 @@ export default function YourOrdersPage() {
   }
 
   return (
-    <div style={{ maxWidth: "800px", margin: "0 auto", paddingBottom: "60px", fontFamily: "system-ui, -apple-system, sans-serif" }}>
+    <div style={{ maxWidth: "800px", margin: "0 auto", paddingBottom: "60px", fontFamily: "system-ui, -apple-system, sans-serif", paddingLeft: "20px", paddingRight: "20px" }}>
       
       {/* Page Header */}
-      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "24px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "24px", paddingTop: "20px" }}>
         <span style={{ fontSize: "24px" }}>🛍️</span>
         <h1 style={{ fontSize: "26px", fontWeight: "900", color: "#0f172a", margin: 0 }}>
           Your Orders
@@ -301,16 +420,34 @@ export default function YourOrdersPage() {
                   </div>
                 )}
 
-                {/* Order Footer: Deliver To, Total Bill & Cancel Action */}
+                {/* Order Footer: Deliver To, Total Bill, Cancel Action & Download Receipt Button */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: "#f8fafc", padding: "14px 20px", borderRadius: "16px", border: "1px solid #f1f5f9", marginTop: "4px", flexWrap: "wrap", gap: "15px" }}>
                   <span style={{ fontSize: "13px", color: "#475569", fontWeight: "600", lineHeight: "1.5" }}>
                     Deliver To: <strong style={{ color: "#0f172a" }}>{order.shippingAddress?.name} ({order.shippingAddress?.phone})</strong>
                   </span>
 
-                  <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap" }}>
                     <span style={{ fontSize: "14px", fontWeight: "700", color: "#475569" }}>
                       Total: <strong style={{ fontSize: "18px", color: "#059669" }}>₹{order.totalAmount}</strong>
                     </span>
+
+                    {/* Download Receipt Button */}
+                    <button
+                      onClick={() => generateReceiptPDF(order)}
+                      style={{
+                        backgroundColor: "#0f172a",
+                        color: "#fff",
+                        border: "none",
+                        padding: "8px 14px",
+                        borderRadius: "10px",
+                        fontSize: "12px",
+                        fontWeight: "800",
+                        cursor: "pointer",
+                        boxShadow: "0 2px 8px rgba(15, 23, 42, 0.2)"
+                      }}
+                    >
+                      📄 Download Receipt
+                    </button>
 
                     {cancellable && (
                       <button

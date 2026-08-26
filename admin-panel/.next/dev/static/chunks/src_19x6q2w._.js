@@ -11,8 +11,6 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/client/app-dir/link.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$firebase$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/firebase.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$firebase$2f$auth$2f$dist$2f$esm$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/node_modules/firebase/auth/dist/esm/index.esm.js [app-client] (ecmascript) <locals>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$auth$2f$dist$2f$esm$2f$index$2d$CvXU3_1x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__f__as__GoogleAuthProvider$3e$__ = __turbopack_context__.i("[project]/node_modules/@firebase/auth/dist/esm/index-CvXU3_1x.js [app-client] (ecmascript) <export f as GoogleAuthProvider>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$auth$2f$dist$2f$esm$2f$index$2d$CvXU3_1x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__ai__as__signInWithPopup$3e$__ = __turbopack_context__.i("[project]/node_modules/@firebase/auth/dist/esm/index-CvXU3_1x.js [app-client] (ecmascript) <export ai as signInWithPopup>");
 ;
 var _s = __turbopack_context__.k.signature();
 "use client";
@@ -32,8 +30,6 @@ function HomePage() {
     // User & Auth State
     const [user, setUser] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     const [isCheckingAuth, setIsCheckingAuth] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(true);
-    const [authLoading, setAuthLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
-    const [authError, setAuthError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "HomePage.useEffect": ()=>{
             if ("TURBOPACK compile-time truthy", 1) {
@@ -59,27 +55,6 @@ function HomePage() {
             }
         }
     }["HomePage.useEffect"], []);
-    const handleGoogleLogin = async ()=>{
-        setAuthError("");
-        setAuthLoading(true);
-        const provider = new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$auth$2f$dist$2f$esm$2f$index$2d$CvXU3_1x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__f__as__GoogleAuthProvider$3e$__["GoogleAuthProvider"]();
-        try {
-            const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$auth$2f$dist$2f$esm$2f$index$2d$CvXU3_1x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__ai__as__signInWithPopup$3e$__["signInWithPopup"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$firebase$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["auth"], provider);
-            const loggedUser = {
-                name: result.user.displayName,
-                email: result.user.email,
-                photo: result.user.photoURL
-            };
-            setUser(loggedUser);
-            localStorage.setItem("customer_user", JSON.stringify(loggedUser));
-            window.location.reload();
-        } catch (error) {
-            console.error("Login Error:", error);
-            setAuthError("Login failed! Please check Google Provider in Firebase Console.");
-        } finally{
-            setAuthLoading(false);
-        }
-    };
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "HomePage.useEffect": ()=>{
             const fetchData = {
@@ -164,186 +139,656 @@ function HomePage() {
             children: "Loading ZentoBazaar..."
         }, void 0, false, {
             fileName: "[project]/src/app/(customer)/page.js",
-            lineNumber: 134,
+            lineNumber: 108,
             columnNumber: 7
         }, this);
     }
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         style: {
-            fontFamily: "system-ui, -apple-system, sans-serif"
+            fontFamily: "system-ui, -apple-system, sans-serif",
+            backgroundColor: "#f8fafc",
+            minHeight: "100vh",
+            paddingBottom: "60px"
         },
         children: [
-            !user && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 style: {
-                    position: "fixed",
-                    top: 0,
-                    left: 0,
-                    width: "100vw",
-                    height: "100vh",
-                    backgroundColor: "rgba(0,0,0,0.75)",
-                    backdropFilter: "blur(6px)",
-                    zIndex: 99999,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: "16px"
+                    maxWidth: "1280px",
+                    margin: "20px auto",
+                    padding: "0 20px"
                 },
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     style: {
-                        backgroundColor: "#fff",
-                        width: "100%",
-                        maxWidth: "400px",
-                        borderRadius: "24px",
-                        padding: "32px 24px",
-                        textAlign: "center",
-                        boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
-                        border: "1px solid #f1f5f9"
+                        background: "linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%)",
+                        borderRadius: "28px",
+                        padding: "50px 40px",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        flexWrap: "wrap",
+                        gap: "30px",
+                        border: "1px solid #e2e8f0"
                     },
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             style: {
-                                fontSize: "44px",
-                                marginBottom: "14px"
-                            },
-                            children: "🛍️"
-                        }, void 0, false, {
-                            fileName: "[project]/src/app/(customer)/page.js",
-                            lineNumber: 173,
-                            columnNumber: 13
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
-                            style: {
-                                fontSize: "24px",
-                                fontWeight: "800",
-                                color: "#0f172a",
-                                margin: "0 0 8px 0"
-                            },
-                            children: "Welcome to ZENTROBAZAAR"
-                        }, void 0, false, {
-                            fileName: "[project]/src/app/(customer)/page.js",
-                            lineNumber: 174,
-                            columnNumber: 13
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                            style: {
-                                fontSize: "14px",
-                                color: "#64748b",
-                                marginBottom: "24px"
-                            },
-                            children: "Please login with your Google account to start shopping."
-                        }, void 0, false, {
-                            fileName: "[project]/src/app/(customer)/page.js",
-                            lineNumber: 177,
-                            columnNumber: 13
-                        }, this),
-                        authError && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            style: {
-                                backgroundColor: "#fef2f2",
-                                color: "#dc2626",
-                                fontSize: "12px",
-                                padding: "10px",
-                                borderRadius: "10px",
-                                marginBottom: "16px",
-                                border: "1px solid #fecaca"
-                            },
-                            children: authError
-                        }, void 0, false, {
-                            fileName: "[project]/src/app/(customer)/page.js",
-                            lineNumber: 182,
-                            columnNumber: 15
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                            onClick: handleGoogleLogin,
-                            disabled: authLoading,
-                            style: {
-                                width: "100%",
-                                backgroundColor: "#fff",
-                                border: "2px solid #e2e8f0",
-                                color: "#1e293b",
-                                fontWeight: "700",
-                                padding: "12px 16px",
-                                borderRadius: "14px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                gap: "12px",
-                                cursor: "pointer",
-                                fontSize: "15px",
-                                boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
-                                transition: "background-color 0.2s"
+                                flex: "1",
+                                minWidth: "280px"
                             },
                             children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                     style: {
-                                        width: "20px",
-                                        height: "20px"
+                                        backgroundColor: "#dbeafe",
+                                        color: "#1e40af",
+                                        padding: "6px 14px",
+                                        borderRadius: "20px",
+                                        fontSize: "12px",
+                                        fontWeight: "800",
+                                        textTransform: "uppercase"
                                     },
-                                    viewBox: "0 0 24 24",
+                                    children: "Welcome to ZENTROBAZAAR"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/(customer)/page.js",
+                                    lineNumber: 131,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
+                                    style: {
+                                        fontSize: "42px",
+                                        fontWeight: "900",
+                                        color: "#0f172a",
+                                        margin: "16px 0",
+                                        lineHeight: "1.2"
+                                    },
                                     children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
-                                            fill: "#4285F4",
-                                            d: "M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                                        }, void 0, false, {
+                                        "Everything You Need, ",
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
                                             fileName: "[project]/src/app/(customer)/page.js",
-                                            lineNumber: 209,
-                                            columnNumber: 17
+                                            lineNumber: 135,
+                                            columnNumber: 36
                                         }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
-                                            fill: "#34A853",
-                                            d: "M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                            style: {
+                                                color: "#6366f1"
+                                            },
+                                            children: "All in One Place."
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/(customer)/page.js",
-                                            lineNumber: 210,
-                                            columnNumber: 17
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
-                                            fill: "#FBBC05",
-                                            d: "M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                                        }, void 0, false, {
-                                            fileName: "[project]/src/app/(customer)/page.js",
-                                            lineNumber: 211,
-                                            columnNumber: 17
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
-                                            fill: "#EA4335",
-                                            d: "M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                                        }, void 0, false, {
-                                            fileName: "[project]/src/app/(customer)/page.js",
-                                            lineNumber: 212,
-                                            columnNumber: 17
+                                            lineNumber: 136,
+                                            columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/(customer)/page.js",
-                                    lineNumber: 208,
-                                    columnNumber: 15
+                                    lineNumber: 134,
+                                    columnNumber: 13
                                 }, this),
-                                authLoading ? "Logging in..." : "Continue with Google"
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                    style: {
+                                        fontSize: "15px",
+                                        color: "#475569",
+                                        marginBottom: "24px",
+                                        lineHeight: "1.6"
+                                    },
+                                    children: "Discover top quality products at best prices. Fast delivery, secure payments & hassle-free returns."
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/(customer)/page.js",
+                                    lineNumber: 138,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                    onClick: ()=>window.scrollTo({
+                                            top: 600,
+                                            behavior: "smooth"
+                                        }),
+                                    style: {
+                                        backgroundColor: "#6366f1",
+                                        color: "#fff",
+                                        border: "none",
+                                        padding: "14px 28px",
+                                        borderRadius: "14px",
+                                        fontWeight: "700",
+                                        fontSize: "15px",
+                                        cursor: "pointer",
+                                        boxShadow: "0 4px 14px rgba(99, 102, 241, 0.4)"
+                                    },
+                                    children: "Shop Now →"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/(customer)/page.js",
+                                    lineNumber: 141,
+                                    columnNumber: 13
+                                }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/(customer)/page.js",
-                            lineNumber: 187,
-                            columnNumber: 13
+                            lineNumber: 130,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            style: {
+                                flex: "1",
+                                textAlign: "center",
+                                minWidth: "280px"
+                            },
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    fontSize: "80px"
+                                },
+                                children: "🛍️✨"
+                            }, void 0, false, {
+                                fileName: "[project]/src/app/(customer)/page.js",
+                                lineNumber: 159,
+                                columnNumber: 13
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/(customer)/page.js",
+                            lineNumber: 158,
+                            columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/(customer)/page.js",
-                    lineNumber: 161,
-                    columnNumber: 11
+                    lineNumber: 119,
+                    columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/app/(customer)/page.js",
-                lineNumber: 145,
-                columnNumber: 9
+                lineNumber: 118,
+                columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                style: {
+                    maxWidth: "1280px",
+                    margin: "0 auto",
+                    padding: "0 20px"
+                },
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         style: {
+                            display: "grid",
+                            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                            gap: "20px",
+                            margin: "30px 0",
                             backgroundColor: "#fff",
+                            padding: "24px",
+                            borderRadius: "20px",
+                            boxShadow: "0 4px 20px -2px rgba(0,0,0,0.03)",
+                            border: "1px solid #f1f5f9"
+                        },
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "16px"
+                                },
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        style: {
+                                            background: "#eef2ff",
+                                            padding: "12px",
+                                            borderRadius: "14px",
+                                            fontSize: "18px"
+                                        },
+                                        children: "🛡️"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/(customer)/page.js",
+                                        lineNumber: 182,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
+                                                style: {
+                                                    margin: "0 0 2px 0",
+                                                    fontSize: "13px",
+                                                    fontWeight: "800",
+                                                    color: "#0f172a"
+                                                },
+                                                children: "100% Secure"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/app/(customer)/page.js",
+                                                lineNumber: 184,
+                                                columnNumber: 15
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                style: {
+                                                    margin: 0,
+                                                    fontSize: "11px",
+                                                    color: "#64748b"
+                                                },
+                                                children: "Your payments are safe"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/app/(customer)/page.js",
+                                                lineNumber: 185,
+                                                columnNumber: 15
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/src/app/(customer)/page.js",
+                                        lineNumber: 183,
+                                        columnNumber: 13
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/app/(customer)/page.js",
+                                lineNumber: 181,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "16px"
+                                },
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        style: {
+                                            background: "#f0fdf4",
+                                            padding: "12px",
+                                            borderRadius: "14px",
+                                            fontSize: "18px"
+                                        },
+                                        children: "🚚"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/(customer)/page.js",
+                                        lineNumber: 190,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
+                                                style: {
+                                                    margin: "0 0 2px 0",
+                                                    fontSize: "13px",
+                                                    fontWeight: "800",
+                                                    color: "#0f172a"
+                                                },
+                                                children: "Fast Delivery"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/app/(customer)/page.js",
+                                                lineNumber: 192,
+                                                columnNumber: 15
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                style: {
+                                                    margin: 0,
+                                                    fontSize: "11px",
+                                                    color: "#64748b"
+                                                },
+                                                children: "Delivered quickly"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/app/(customer)/page.js",
+                                                lineNumber: 193,
+                                                columnNumber: 15
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/src/app/(customer)/page.js",
+                                        lineNumber: 191,
+                                        columnNumber: 13
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/app/(customer)/page.js",
+                                lineNumber: 189,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "16px"
+                                },
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        style: {
+                                            background: "#fff7ed",
+                                            padding: "12px",
+                                            borderRadius: "14px",
+                                            fontSize: "18px"
+                                        },
+                                        children: "📦"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/(customer)/page.js",
+                                        lineNumber: 198,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
+                                                style: {
+                                                    margin: "0 0 2px 0",
+                                                    fontSize: "13px",
+                                                    fontWeight: "800",
+                                                    color: "#0f172a"
+                                                },
+                                                children: "Easy Returns"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/app/(customer)/page.js",
+                                                lineNumber: 200,
+                                                columnNumber: 15
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                style: {
+                                                    margin: 0,
+                                                    fontSize: "11px",
+                                                    color: "#64748b"
+                                                },
+                                                children: "7 days return policy"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/app/(customer)/page.js",
+                                                lineNumber: 201,
+                                                columnNumber: 15
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/src/app/(customer)/page.js",
+                                        lineNumber: 199,
+                                        columnNumber: 13
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/app/(customer)/page.js",
+                                lineNumber: 197,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "16px"
+                                },
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        style: {
+                                            background: "#f0f9ff",
+                                            padding: "12px",
+                                            borderRadius: "14px",
+                                            fontSize: "18px"
+                                        },
+                                        children: "🎧"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/(customer)/page.js",
+                                        lineNumber: 206,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
+                                                style: {
+                                                    margin: "0 0 2px 0",
+                                                    fontSize: "13px",
+                                                    fontWeight: "800",
+                                                    color: "#0f172a"
+                                                },
+                                                children: "24/7 Support"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/app/(customer)/page.js",
+                                                lineNumber: 208,
+                                                columnNumber: 15
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                style: {
+                                                    margin: 0,
+                                                    fontSize: "11px",
+                                                    color: "#64748b"
+                                                },
+                                                children: "Dedicated help"
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/app/(customer)/page.js",
+                                                lineNumber: 209,
+                                                columnNumber: 15
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/src/app/(customer)/page.js",
+                                        lineNumber: 207,
+                                        columnNumber: 13
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/app/(customer)/page.js",
+                                lineNumber: 205,
+                                columnNumber: 11
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/app/(customer)/page.js",
+                        lineNumber: 168,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        style: {
+                            margin: "40px 0 20px 0"
+                        },
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    marginBottom: "20px"
+                                },
+                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                                    style: {
+                                        fontSize: "20px",
+                                        fontWeight: "800",
+                                        color: "#0f172a",
+                                        margin: 0
+                                    },
+                                    children: "Shop By Categories"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/(customer)/page.js",
+                                    lineNumber: 217,
+                                    columnNumber: 13
+                                }, this)
+                            }, void 0, false, {
+                                fileName: "[project]/src/app/(customer)/page.js",
+                                lineNumber: 216,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    display: "grid",
+                                    gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+                                    gap: "16px"
+                                },
+                                children: categories.map((cat)=>{
+                                    const catImg = cat.image && cat.image.trim() !== "" ? cat.image : cat.imageUrl;
+                                    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        onClick: ()=>{
+                                            setSelectedCategory(cat.name);
+                                            setSelectedSubCategory("All");
+                                            window.scrollTo({
+                                                top: 600,
+                                                behavior: "smooth"
+                                            });
+                                        },
+                                        style: {
+                                            backgroundColor: "#fff",
+                                            border: selectedCategory === cat.name ? "2px solid #6366f1" : "1px solid #f1f5f9",
+                                            borderRadius: "20px",
+                                            padding: "20px",
+                                            textAlign: "center",
+                                            cursor: "pointer",
+                                            boxShadow: "0 4px 12px rgba(0,0,0,0.02)",
+                                            transition: "all 0.2s ease"
+                                        },
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                style: {
+                                                    width: "70px",
+                                                    height: "70px",
+                                                    margin: "0 auto 12px auto",
+                                                    borderRadius: "50%",
+                                                    backgroundColor: "#f8fafc",
+                                                    overflow: "hidden",
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    justifyContent: "center",
+                                                    border: "1px solid #e2e8f0"
+                                                },
+                                                children: catImg ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
+                                                    src: catImg,
+                                                    alt: cat.name,
+                                                    style: {
+                                                        width: "100%",
+                                                        height: "100%",
+                                                        objectFit: "cover"
+                                                    },
+                                                    onError: (e)=>{
+                                                        e.target.style.display = 'none';
+                                                    }
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/(customer)/page.js",
+                                                    lineNumber: 245,
+                                                    columnNumber: 23
+                                                }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                    style: {
+                                                        fontSize: "24px"
+                                                    },
+                                                    children: "🏷️"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/(customer)/page.js",
+                                                    lineNumber: 254,
+                                                    columnNumber: 23
+                                                }, this)
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/app/(customer)/page.js",
+                                                lineNumber: 243,
+                                                columnNumber: 19
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                style: {
+                                                    fontSize: "14px",
+                                                    fontWeight: "700",
+                                                    color: "#1e293b"
+                                                },
+                                                children: cat.name
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/app/(customer)/page.js",
+                                                lineNumber: 257,
+                                                columnNumber: 19
+                                            }, this)
+                                        ]
+                                    }, cat._id, true, {
+                                        fileName: "[project]/src/app/(customer)/page.js",
+                                        lineNumber: 225,
+                                        columnNumber: 17
+                                    }, this);
+                                })
+                            }, void 0, false, {
+                                fileName: "[project]/src/app/(customer)/page.js",
+                                lineNumber: 220,
+                                columnNumber: 11
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/app/(customer)/page.js",
+                        lineNumber: 215,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        style: {
+                            background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)",
                             borderRadius: "24px",
+                            padding: "30px 40px",
+                            color: "#fff",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            flexWrap: "wrap",
+                            gap: "20px",
+                            margin: "40px 0",
+                            boxShadow: "0 10px 25px -5px rgba(79, 70, 229, 0.4)"
+                        },
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                        style: {
+                                            backgroundColor: "rgba(255,255,255,0.2)",
+                                            padding: "4px 12px",
+                                            borderRadius: "20px",
+                                            fontSize: "11px",
+                                            fontWeight: "700",
+                                            textTransform: "uppercase"
+                                        },
+                                        children: "Limited Time Offer"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/(customer)/page.js",
+                                        lineNumber: 279,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                                        style: {
+                                            fontSize: "26px",
+                                            fontWeight: "900",
+                                            margin: "10px 0 6px 0"
+                                        },
+                                        children: "Deals of the Day"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/(customer)/page.js",
+                                        lineNumber: 282,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                        style: {
+                                            margin: 0,
+                                            fontSize: "14px",
+                                            opacity: 0.9
+                                        },
+                                        children: "Huge discounts on top products. Don't miss out!"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/(customer)/page.js",
+                                        lineNumber: 283,
+                                        columnNumber: 13
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/app/(customer)/page.js",
+                                lineNumber: 278,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                onClick: ()=>{
+                                    setSelectedCategory("All");
+                                    setSelectedSubCategory("All");
+                                    window.scrollTo({
+                                        top: 600,
+                                        behavior: "smooth"
+                                    });
+                                },
+                                style: {
+                                    backgroundColor: "#fff",
+                                    color: "#4f46e5",
+                                    border: "none",
+                                    padding: "12px 24px",
+                                    borderRadius: "14px",
+                                    fontWeight: "800",
+                                    fontSize: "14px",
+                                    cursor: "pointer",
+                                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+                                },
+                                children: "Explore Deals →"
+                            }, void 0, false, {
+                                fileName: "[project]/src/app/(customer)/page.js",
+                                lineNumber: 285,
+                                columnNumber: 11
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/app/(customer)/page.js",
+                        lineNumber: 265,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        style: {
+                            backgroundColor: "#fff",
+                            borderRadius: "20px",
                             padding: "20px",
-                            boxShadow: "0 4px 20px -2px rgba(0,0,0,0.05)",
+                            boxShadow: "0 4px 20px -2px rgba(0,0,0,0.03)",
                             border: "1px solid #f1f5f9",
                             marginBottom: "30px",
                             display: "flex",
@@ -359,22 +804,21 @@ function HomePage() {
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                                         type: "text",
-                                        placeholder: "Search premium products...",
+                                        placeholder: "Search products...",
                                         value: search,
                                         onChange: (e)=>setSearch(e.target.value),
                                         style: {
                                             flex: 1,
-                                            padding: "16px 20px",
+                                            padding: "14px 18px",
                                             border: "1px solid #e2e8f0",
-                                            borderRadius: "16px",
-                                            fontSize: "15px",
+                                            borderRadius: "14px",
+                                            fontSize: "14px",
                                             backgroundColor: "#fff",
-                                            outline: "none",
-                                            boxSizing: "border-box"
+                                            outline: "none"
                                         }
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 239,
+                                        lineNumber: 322,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -382,96 +826,80 @@ function HomePage() {
                                             backgroundColor: "#6366f1",
                                             color: "#fff",
                                             border: "none",
-                                            padding: "0 28px",
-                                            borderRadius: "16px",
+                                            padding: "0 24px",
+                                            borderRadius: "14px",
                                             fontWeight: "700",
-                                            fontSize: "15px",
-                                            cursor: "pointer",
-                                            boxShadow: "0 4px 12px rgba(99, 102, 241, 0.3)"
+                                            fontSize: "14px",
+                                            cursor: "pointer"
                                         },
                                         children: "Search"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 255,
+                                        lineNumber: 337,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(customer)/page.js",
-                                lineNumber: 238,
+                                lineNumber: 321,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 style: {
                                     display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center",
-                                    flexWrap: "wrap",
-                                    gap: "12px"
+                                    gap: "10px",
+                                    overflowX: "auto",
+                                    paddingBottom: "4px"
                                 },
-                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    style: {
-                                        display: "flex",
-                                        gap: "10px",
-                                        overflowX: "auto",
-                                        paddingBottom: "4px"
-                                    },
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                        onClick: ()=>{
+                                            setSelectedCategory("All");
+                                            setSelectedSubCategory("All");
+                                        },
+                                        style: {
+                                            padding: "8px 18px",
+                                            borderRadius: "12px",
+                                            border: selectedCategory === "All" ? "none" : "1px solid #e2e8f0",
+                                            backgroundColor: selectedCategory === "All" ? "#6366f1" : "#fff",
+                                            color: selectedCategory === "All" ? "#fff" : "#475569",
+                                            cursor: "pointer",
+                                            fontWeight: "700",
+                                            fontSize: "13px",
+                                            whiteSpace: "nowrap"
+                                        },
+                                        children: "All Products"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/(customer)/page.js",
+                                        lineNumber: 354,
+                                        columnNumber: 13
+                                    }, this),
+                                    categories.map((cat)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                             onClick: ()=>{
-                                                setSelectedCategory("All");
+                                                setSelectedCategory(cat.name);
                                                 setSelectedSubCategory("All");
                                             },
                                             style: {
-                                                padding: "10px 22px",
-                                                borderRadius: "14px",
-                                                border: selectedCategory === "All" ? "none" : "1px solid #e2e8f0",
-                                                backgroundColor: selectedCategory === "All" ? "#6366f1" : "#fff",
-                                                color: selectedCategory === "All" ? "#fff" : "#475569",
+                                                padding: "8px 18px",
+                                                borderRadius: "12px",
+                                                border: selectedCategory === cat.name ? "none" : "1px solid #e2e8f0",
+                                                backgroundColor: selectedCategory === cat.name ? "#6366f1" : "#fff",
+                                                color: selectedCategory === cat.name ? "#fff" : "#475569",
                                                 cursor: "pointer",
                                                 fontWeight: "700",
                                                 fontSize: "13px",
-                                                whiteSpace: "nowrap",
-                                                boxShadow: selectedCategory === "All" ? "0 4px 12px rgba(99, 102, 241, 0.2)" : "none"
+                                                whiteSpace: "nowrap"
                                             },
-                                            children: "All Products"
-                                        }, void 0, false, {
+                                            children: cat.name
+                                        }, cat._id, false, {
                                             fileName: "[project]/src/app/(customer)/page.js",
-                                            lineNumber: 275,
+                                            lineNumber: 375,
                                             columnNumber: 15
-                                        }, this),
-                                        categories.map((cat)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                                onClick: ()=>{
-                                                    setSelectedCategory(cat.name);
-                                                    setSelectedSubCategory("All");
-                                                },
-                                                style: {
-                                                    padding: "10px 22px",
-                                                    borderRadius: "14px",
-                                                    border: selectedCategory === cat.name ? "none" : "1px solid #e2e8f0",
-                                                    backgroundColor: selectedCategory === cat.name ? "#6366f1" : "#fff",
-                                                    color: selectedCategory === cat.name ? "#fff" : "#475569",
-                                                    cursor: "pointer",
-                                                    fontWeight: "700",
-                                                    fontSize: "13px",
-                                                    whiteSpace: "nowrap",
-                                                    boxShadow: selectedCategory === cat.name ? "0 4px 12px rgba(99, 102, 241, 0.2)" : "none"
-                                                },
-                                                children: cat.name
-                                            }, cat._id, false, {
-                                                fileName: "[project]/src/app/(customer)/page.js",
-                                                lineNumber: 297,
-                                                columnNumber: 17
-                                            }, this))
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/src/app/(customer)/page.js",
-                                    lineNumber: 274,
-                                    columnNumber: 13
-                                }, this)
-                            }, void 0, false, {
+                                        }, this))
+                                ]
+                            }, void 0, true, {
                                 fileName: "[project]/src/app/(customer)/page.js",
-                                lineNumber: 273,
+                                lineNumber: 353,
                                 columnNumber: 11
                             }, this),
                             subCategories.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -481,8 +909,8 @@ function HomePage() {
                                     gap: "8px",
                                     overflowX: "auto",
                                     backgroundColor: "#f8fafc",
-                                    padding: "10px 14px",
-                                    borderRadius: "14px"
+                                    padding: "8px 12px",
+                                    borderRadius: "12px"
                                 },
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -495,14 +923,14 @@ function HomePage() {
                                         children: "Sub:"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 325,
+                                        lineNumber: 400,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                         onClick: ()=>setSelectedSubCategory("All"),
                                         style: {
-                                            padding: "6px 14px",
-                                            borderRadius: "12px",
+                                            padding: "6px 12px",
+                                            borderRadius: "10px",
                                             border: "none",
                                             backgroundColor: selectedSubCategory === "All" ? "#3b82f6" : "#e2e8f0",
                                             color: selectedSubCategory === "All" ? "#fff" : "#334155",
@@ -514,14 +942,14 @@ function HomePage() {
                                         children: "All"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 326,
+                                        lineNumber: 401,
                                         columnNumber: 15
                                     }, this),
                                     subCategories.map((sub)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                             onClick: ()=>setSelectedSubCategory(sub.name),
                                             style: {
-                                                padding: "6px 14px",
-                                                borderRadius: "12px",
+                                                padding: "6px 12px",
+                                                borderRadius: "10px",
                                                 border: "none",
                                                 backgroundColor: selectedSubCategory === sub.name ? "#3b82f6" : "#e2e8f0",
                                                 color: selectedSubCategory === sub.name ? "#fff" : "#334155",
@@ -533,19 +961,41 @@ function HomePage() {
                                             children: sub.name
                                         }, sub._id, false, {
                                             fileName: "[project]/src/app/(customer)/page.js",
-                                            lineNumber: 343,
+                                            lineNumber: 418,
                                             columnNumber: 17
                                         }, this))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(customer)/page.js",
-                                lineNumber: 324,
+                                lineNumber: 399,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/(customer)/page.js",
-                        lineNumber: 224,
+                        lineNumber: 308,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        style: {
+                            marginBottom: "20px"
+                        },
+                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                            style: {
+                                fontSize: "20px",
+                                fontWeight: "800",
+                                color: "#0f172a",
+                                marginBottom: "20px"
+                            },
+                            children: "Best Sellers"
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/(customer)/page.js",
+                            lineNumber: 442,
+                            columnNumber: 11
+                        }, this)
+                    }, void 0, false, {
+                        fileName: "[project]/src/app/(customer)/page.js",
+                        lineNumber: 441,
                         columnNumber: 9
                     }, this),
                     loading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -559,16 +1009,15 @@ function HomePage() {
                         children: "Loading Products..."
                     }, void 0, false, {
                         fileName: "[project]/src/app/(customer)/page.js",
-                        lineNumber: 367,
+                        lineNumber: 446,
                         columnNumber: 11
                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         style: {
                             display: "grid",
-                            gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
+                            gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
                             gap: "24px"
                         },
                         children: filteredProducts.length > 0 ? filteredProducts.map((p)=>{
-                            // Discount Percentage Calculation
                             let discountPercent = 0;
                             if (p.originalPrice && p.originalPrice > p.offerPrice) {
                                 discountPercent = Math.round((p.originalPrice - p.offerPrice) / p.originalPrice * 100);
@@ -582,13 +1031,13 @@ function HomePage() {
                                     style: {
                                         backgroundColor: "#fff",
                                         border: "1px solid #f1f5f9",
-                                        borderRadius: "24px",
+                                        borderRadius: "20px",
                                         overflow: "hidden",
                                         display: "flex",
                                         flexDirection: "column",
                                         justifyContent: "space-between",
                                         height: "100%",
-                                        boxShadow: "0 10px 30px -5px rgba(0,0,0,0.04)",
+                                        boxShadow: "0 4px 15px -3px rgba(0,0,0,0.04)",
                                         transition: "all 0.3s ease",
                                         position: "relative"
                                     },
@@ -596,16 +1045,15 @@ function HomePage() {
                                         discountPercent > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             style: {
                                                 position: "absolute",
-                                                top: "20px",
-                                                left: "20px",
+                                                top: "16px",
+                                                left: "16px",
                                                 zIndex: 2,
                                                 background: "#ef4444",
                                                 color: "#fff",
-                                                borderRadius: "8px",
-                                                padding: "4px 10px",
+                                                borderRadius: "6px",
+                                                padding: "3px 8px",
                                                 fontSize: "11px",
-                                                fontWeight: "800",
-                                                boxShadow: "0 4px 10px rgba(239, 68, 68, 0.3)"
+                                                fontWeight: "800"
                                             },
                                             children: [
                                                 discountPercent,
@@ -613,29 +1061,28 @@ function HomePage() {
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/(customer)/page.js",
-                                            lineNumber: 397,
+                                            lineNumber: 474,
                                             columnNumber: 25
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             style: {
                                                 position: "absolute",
-                                                top: "20px",
-                                                right: "20px",
+                                                top: "16px",
+                                                right: "16px",
                                                 zIndex: 2,
                                                 background: "#fff",
                                                 borderRadius: "50%",
-                                                width: "36px",
-                                                height: "36px",
+                                                width: "32px",
+                                                height: "32px",
                                                 display: "flex",
                                                 alignItems: "center",
                                                 justifyContent: "center",
-                                                boxShadow: "0 4px 10px rgba(0,0,0,0.06)",
-                                                cursor: "pointer"
+                                                boxShadow: "0 2px 8px rgba(0,0,0,0.06)"
                                             },
                                             children: "🤍"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/(customer)/page.js",
-                                            lineNumber: 403,
+                                            lineNumber: 479,
                                             columnNumber: 23
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -643,12 +1090,11 @@ function HomePage() {
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                     style: {
                                                         backgroundColor: "#f8fafc",
-                                                        height: "220px",
+                                                        height: "200px",
                                                         display: "flex",
                                                         alignItems: "center",
                                                         justifyContent: "center",
-                                                        padding: "20px",
-                                                        position: "relative"
+                                                        padding: "20px"
                                                     },
                                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
                                                         src: p.images && p.images.length > 0 ? p.images[0] : p.imageUrl || "https://via.placeholder.com/150",
@@ -661,43 +1107,38 @@ function HomePage() {
                                                         }
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(customer)/page.js",
-                                                        lineNumber: 409,
+                                                        lineNumber: 485,
                                                         columnNumber: 27
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/(customer)/page.js",
-                                                    lineNumber: 408,
+                                                    lineNumber: 484,
                                                     columnNumber: 25
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                     style: {
-                                                        padding: "24px"
+                                                        padding: "20px"
                                                     },
                                                     children: [
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                             style: {
-                                                                fontSize: "12px",
+                                                                fontSize: "11px",
                                                                 color: "#6366f1",
                                                                 fontWeight: "700",
-                                                                textTransform: "uppercase",
-                                                                letterSpacing: "0.5px"
+                                                                textTransform: "uppercase"
                                                             },
-                                                            children: [
-                                                                p.category,
-                                                                " ",
-                                                                p.subCategory ? `> ${p.subCategory}` : ""
-                                                            ]
-                                                        }, void 0, true, {
+                                                            children: p.category
+                                                        }, void 0, false, {
                                                             fileName: "[project]/src/app/(customer)/page.js",
-                                                            lineNumber: 417,
+                                                            lineNumber: 493,
                                                             columnNumber: 27
                                                         }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
                                                             style: {
-                                                                fontSize: "17px",
+                                                                fontSize: "15px",
                                                                 fontWeight: "800",
                                                                 color: "#0f172a",
-                                                                margin: "8px 0 12px 0",
+                                                                margin: "6px 0 10px 0",
                                                                 lineHeight: "1.4",
                                                                 display: "-webkit-box",
                                                                 WebkitLineClamp: 2,
@@ -707,20 +1148,19 @@ function HomePage() {
                                                             children: p.title
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/app/(customer)/page.js",
-                                                            lineNumber: 420,
+                                                            lineNumber: 496,
                                                             columnNumber: 27
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                             style: {
                                                                 display: "flex",
                                                                 alignItems: "baseline",
-                                                                gap: "10px",
-                                                                marginTop: "16px"
+                                                                gap: "8px"
                                                             },
                                                             children: [
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                     style: {
-                                                                        fontSize: "22px",
+                                                                        fontSize: "18px",
                                                                         fontWeight: "900",
                                                                         color: "#059669"
                                                                     },
@@ -730,12 +1170,12 @@ function HomePage() {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/src/app/(customer)/page.js",
-                                                                    lineNumber: 425,
+                                                                    lineNumber: 501,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 p.originalPrice && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                     style: {
-                                                                        fontSize: "14px",
+                                                                        fontSize: "13px",
                                                                         color: "#94a3b8",
                                                                         textDecoration: "line-through",
                                                                         fontWeight: "600"
@@ -746,30 +1186,30 @@ function HomePage() {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/src/app/(customer)/page.js",
-                                                                    lineNumber: 427,
+                                                                    lineNumber: 503,
                                                                     columnNumber: 31
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/src/app/(customer)/page.js",
-                                                            lineNumber: 424,
+                                                            lineNumber: 500,
                                                             columnNumber: 27
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/app/(customer)/page.js",
-                                                    lineNumber: 416,
+                                                    lineNumber: 492,
                                                     columnNumber: 25
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/(customer)/page.js",
-                                            lineNumber: 407,
+                                            lineNumber: 483,
                                             columnNumber: 23
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             style: {
-                                                padding: "0 24px 24px 24px"
+                                                padding: "0 20px 20px 20px"
                                             },
                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                                 style: {
@@ -777,37 +1217,33 @@ function HomePage() {
                                                     backgroundColor: "#6366f1",
                                                     color: "#fff",
                                                     border: "none",
-                                                    padding: "14px",
-                                                    borderRadius: "14px",
+                                                    padding: "12px",
+                                                    borderRadius: "12px",
                                                     fontWeight: "700",
-                                                    fontSize: "14px",
+                                                    fontSize: "13px",
                                                     cursor: "pointer",
-                                                    boxShadow: "0 4px 14px rgba(99, 102, 241, 0.3)",
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    justifyContent: "center",
-                                                    gap: "8px"
+                                                    boxShadow: "0 4px 12px rgba(99, 102, 241, 0.2)"
                                                 },
-                                                children: "View Details →"
+                                                children: "Add to Cart"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(customer)/page.js",
-                                                lineNumber: 436,
+                                                lineNumber: 512,
                                                 columnNumber: 25
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/(customer)/page.js",
-                                            lineNumber: 435,
+                                            lineNumber: 511,
                                             columnNumber: 23
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/(customer)/page.js",
-                                    lineNumber: 380,
+                                    lineNumber: 458,
                                     columnNumber: 21
                                 }, this)
                             }, p._id, false, {
                                 fileName: "[project]/src/app/(customer)/page.js",
-                                lineNumber: 379,
+                                lineNumber: 457,
                                 columnNumber: 19
                             }, this);
                         }) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -818,286 +1254,31 @@ function HomePage() {
                                 color: "#64748b",
                                 fontSize: "15px"
                             },
-                            children: "No products found in this category!"
+                            children: "No products found!"
                         }, void 0, false, {
                             fileName: "[project]/src/app/(customer)/page.js",
-                            lineNumber: 462,
+                            lineNumber: 534,
                             columnNumber: 15
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/app/(customer)/page.js",
-                        lineNumber: 369,
+                        lineNumber: 448,
                         columnNumber: 11
-                    }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        style: {
-                            display: "grid",
-                            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                            gap: "20px",
-                            marginTop: "60px",
-                            backgroundColor: "#fff",
-                            padding: "30px",
-                            borderRadius: "24px",
-                            boxShadow: "0 4px 20px -2px rgba(0,0,0,0.03)",
-                            border: "1px solid #f1f5f9"
-                        },
-                        children: [
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                style: {
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "16px"
-                                },
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        style: {
-                                            background: "#eef2ff",
-                                            padding: "14px",
-                                            borderRadius: "16px",
-                                            fontSize: "20px"
-                                        },
-                                        children: "🛡️"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 484,
-                                        columnNumber: 13
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
-                                                style: {
-                                                    margin: "0 0 4px 0",
-                                                    fontSize: "14px",
-                                                    fontWeight: "800",
-                                                    color: "#0f172a"
-                                                },
-                                                children: "Secure Shopping"
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/app/(customer)/page.js",
-                                                lineNumber: 486,
-                                                columnNumber: 15
-                                            }, this),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                style: {
-                                                    margin: 0,
-                                                    fontSize: "12px",
-                                                    color: "#64748b"
-                                                },
-                                                children: "100% secure payments"
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/app/(customer)/page.js",
-                                                lineNumber: 487,
-                                                columnNumber: 15
-                                            }, this)
-                                        ]
-                                    }, void 0, true, {
-                                        fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 485,
-                                        columnNumber: 13
-                                    }, this)
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/src/app/(customer)/page.js",
-                                lineNumber: 483,
-                                columnNumber: 11
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                style: {
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "16px"
-                                },
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        style: {
-                                            background: "#f0fdf4",
-                                            padding: "14px",
-                                            borderRadius: "16px",
-                                            fontSize: "20px"
-                                        },
-                                        children: "🚚"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 492,
-                                        columnNumber: 13
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
-                                                style: {
-                                                    margin: "0 0 4px 0",
-                                                    fontSize: "14px",
-                                                    fontWeight: "800",
-                                                    color: "#0f172a"
-                                                },
-                                                children: "Fast Delivery"
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/app/(customer)/page.js",
-                                                lineNumber: 494,
-                                                columnNumber: 15
-                                            }, this),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                style: {
-                                                    margin: 0,
-                                                    fontSize: "12px",
-                                                    color: "#64748b"
-                                                },
-                                                children: "Quick delivery at your door"
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/app/(customer)/page.js",
-                                                lineNumber: 495,
-                                                columnNumber: 15
-                                            }, this)
-                                        ]
-                                    }, void 0, true, {
-                                        fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 493,
-                                        columnNumber: 13
-                                    }, this)
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/src/app/(customer)/page.js",
-                                lineNumber: 491,
-                                columnNumber: 11
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                style: {
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "16px"
-                                },
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        style: {
-                                            background: "#fff7ed",
-                                            padding: "14px",
-                                            borderRadius: "16px",
-                                            fontSize: "20px"
-                                        },
-                                        children: "⭐"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 500,
-                                        columnNumber: 13
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
-                                                style: {
-                                                    margin: "0 0 4px 0",
-                                                    fontSize: "14px",
-                                                    fontWeight: "800",
-                                                    color: "#0f172a"
-                                                },
-                                                children: "Best Quality"
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/app/(customer)/page.js",
-                                                lineNumber: 502,
-                                                columnNumber: 15
-                                            }, this),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                style: {
-                                                    margin: 0,
-                                                    fontSize: "12px",
-                                                    color: "#64748b"
-                                                },
-                                                children: "Genuine & trusted products"
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/app/(customer)/page.js",
-                                                lineNumber: 503,
-                                                columnNumber: 15
-                                            }, this)
-                                        ]
-                                    }, void 0, true, {
-                                        fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 501,
-                                        columnNumber: 13
-                                    }, this)
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/src/app/(customer)/page.js",
-                                lineNumber: 499,
-                                columnNumber: 11
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                style: {
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "16px"
-                                },
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        style: {
-                                            background: "#f0f9ff",
-                                            padding: "14px",
-                                            borderRadius: "16px",
-                                            fontSize: "20px"
-                                        },
-                                        children: "🎧"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 508,
-                                        columnNumber: 13
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
-                                                style: {
-                                                    margin: "0 0 4px 0",
-                                                    fontSize: "14px",
-                                                    fontWeight: "800",
-                                                    color: "#0f172a"
-                                                },
-                                                children: "24/7 Support"
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/app/(customer)/page.js",
-                                                lineNumber: 510,
-                                                columnNumber: 15
-                                            }, this),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                style: {
-                                                    margin: 0,
-                                                    fontSize: "12px",
-                                                    color: "#64748b"
-                                                },
-                                                children: "We're here to help"
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/app/(customer)/page.js",
-                                                lineNumber: 511,
-                                                columnNumber: 15
-                                            }, this)
-                                        ]
-                                    }, void 0, true, {
-                                        fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 509,
-                                        columnNumber: 13
-                                    }, this)
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/src/app/(customer)/page.js",
-                                lineNumber: 507,
-                                columnNumber: 11
-                            }, this)
-                        ]
-                    }, void 0, true, {
-                        fileName: "[project]/src/app/(customer)/page.js",
-                        lineNumber: 470,
-                        columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/(customer)/page.js",
-                lineNumber: 221,
+                lineNumber: 165,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/(customer)/page.js",
-        lineNumber: 141,
+        lineNumber: 115,
         columnNumber: 5
     }, this);
 }
-_s(HomePage, "RM003wwZMbRnQWog5rqc2PAVh6o=");
+_s(HomePage, "A9umGjvpq8pm7DczehsuOUq2gNo=");
 _c = HomePage;
 var _c;
 __turbopack_context__.k.register(_c, "HomePage");

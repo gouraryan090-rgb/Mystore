@@ -16,8 +16,6 @@ export default function HomePage() {
   // User & Auth State
   const [user, setUser] = useState(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const [authLoading, setAuthLoading] = useState(false);
-  const [authError, setAuthError] = useState("");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -41,30 +39,6 @@ export default function HomePage() {
       setIsCheckingAuth(false);
     }
   }, []);
-
-  const handleGoogleLogin = async () => {
-    setAuthError("");
-    setAuthLoading(true);
-    const provider = new GoogleAuthProvider();
-
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const loggedUser = {
-        name: result.user.displayName,
-        email: result.user.email,
-        photo: result.user.photoURL,
-      };
-
-      setUser(loggedUser);
-      localStorage.setItem("customer_user", JSON.stringify(loggedUser));
-      window.location.reload();
-    } catch (error) {
-      console.error("Login Error:", error);
-      setAuthError("Login failed! Please check Google Provider in Firebase Console.");
-    } finally {
-      setAuthLoading(false);
-    }
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -138,95 +112,205 @@ export default function HomePage() {
   }
 
   return (
-    <div style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}>
+    <div style={{ fontFamily: "system-ui, -apple-system, sans-serif", backgroundColor: "#f8fafc", minHeight: "100vh", paddingBottom: "60px" }}>
       
-      {/* MANDATORY LOGIN POPUP */}
-      {!user && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            backgroundColor: "rgba(0,0,0,0.75)",
-            backdropFilter: "blur(6px)",
-            zIndex: 99999,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "16px",
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "#fff",
-              width: "100%",
-              maxWidth: "400px",
-              borderRadius: "24px",
-              padding: "32px 24px",
-              textAlign: "center",
-              boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
-              border: "1px solid #f1f5f9",
-            }}
-          >
-            <div style={{ fontSize: "44px", marginBottom: "14px" }}>🛍️</div>
-            <h2 style={{ fontSize: "24px", fontWeight: "800", color: "#0f172a", margin: "0 0 8px 0" }}>
+      {/* Hero Section */}
+      <div style={{ maxWidth: "1280px", margin: "20px auto", padding: "0 20px" }}>
+        <div style={{ 
+          background: "linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%)", 
+          borderRadius: "28px", 
+          padding: "50px 40px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: "30px",
+          border: "1px solid #e2e8f0"
+        }}>
+          <div style={{ flex: "1", minWidth: "280px" }}>
+            <span style={{ backgroundColor: "#dbeafe", color: "#1e40af", padding: "6px 14px", borderRadius: "20px", fontSize: "12px", fontWeight: "800", textTransform: "uppercase" }}>
               Welcome to ZENTROBAZAAR
-            </h2>
-            <p style={{ fontSize: "14px", color: "#64748b", marginBottom: "24px" }}>
-              Please login with your Google account to start shopping.
+            </span>
+            <h1 style={{ fontSize: "42px", fontWeight: "900", color: "#0f172a", margin: "16px 0", lineHeight: "1.2" }}>
+              Everything You Need, <br />
+              <span style={{ color: "#6366f1" }}>All in One Place.</span>
+            </h1>
+            <p style={{ fontSize: "15px", color: "#475569", marginBottom: "24px", lineHeight: "1.6" }}>
+              Discover top quality products at best prices. Fast delivery, secure payments & hassle-free returns.
             </p>
-
-            {authError && (
-              <div style={{ backgroundColor: "#fef2f2", color: "#dc2626", fontSize: "12px", padding: "10px", borderRadius: "10px", marginBottom: "16px", border: "1px solid #fecaca" }}>
-                {authError}
-              </div>
-            )}
-
-            <button
-              onClick={handleGoogleLogin}
-              disabled={authLoading}
+            <button 
+              onClick={() => window.scrollTo({ top: 600, behavior: "smooth" })}
               style={{
-                width: "100%",
-                backgroundColor: "#fff",
-                border: "2px solid #e2e8f0",
-                color: "#1e293b",
-                fontWeight: "700",
-                padding: "12px 16px",
+                backgroundColor: "#6366f1",
+                color: "#fff",
+                border: "none",
+                padding: "14px 28px",
                 borderRadius: "14px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "12px",
-                cursor: "pointer",
+                fontWeight: "700",
                 fontSize: "15px",
-                boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
-                transition: "background-color 0.2s",
+                cursor: "pointer",
+                boxShadow: "0 4px 14px rgba(99, 102, 241, 0.4)"
               }}
             >
-              <svg style={{ width: "20px", height: "20px" }} viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-              </svg>
-              {authLoading ? "Logging in..." : "Continue with Google"}
+              Shop Now →
             </button>
           </div>
+          <div style={{ flex: "1", textAlign: "center", minWidth: "280px" }}>
+            <div style={{ fontSize: "80px" }}>🛍️✨</div>
+          </div>
         </div>
-      )}
+      </div>
 
       {/* Main Container */}
-      <div>
+      <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 20px" }}>
         
-        {/* Search & Filter Bar Box */}
+        {/* Trust Badges Bar */}
+        <div 
+          style={{ 
+            display: "grid", 
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", 
+            gap: "20px", 
+            margin: "30px 0",
+            backgroundColor: "#fff",
+            padding: "24px",
+            borderRadius: "20px",
+            boxShadow: "0 4px 20px -2px rgba(0,0,0,0.03)",
+            border: "1px solid #f1f5f9"
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <div style={{ background: "#eef2ff", padding: "12px", borderRadius: "14px", fontSize: "18px" }}>🛡️</div>
+            <div>
+              <h4 style={{ margin: "0 0 2px 0", fontSize: "13px", fontWeight: "800", color: "#0f172a" }}>100% Secure</h4>
+              <p style={{ margin: 0, fontSize: "11px", color: "#64748b" }}>Your payments are safe</p>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <div style={{ background: "#f0fdf4", padding: "12px", borderRadius: "14px", fontSize: "18px" }}>🚚</div>
+            <div>
+              <h4 style={{ margin: "0 0 2px 0", fontSize: "13px", fontWeight: "800", color: "#0f172a" }}>Fast Delivery</h4>
+              <p style={{ margin: 0, fontSize: "11px", color: "#64748b" }}>Delivered quickly</p>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <div style={{ background: "#fff7ed", padding: "12px", borderRadius: "14px", fontSize: "18px" }}>📦</div>
+            <div>
+              <h4 style={{ margin: "0 0 2px 0", fontSize: "13px", fontWeight: "800", color: "#0f172a" }}>Easy Returns</h4>
+              <p style={{ margin: 0, fontSize: "11px", color: "#64748b" }}>7 days return policy</p>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <div style={{ background: "#f0f9ff", padding: "12px", borderRadius: "14px", fontSize: "18px" }}>🎧</div>
+            <div>
+              <h4 style={{ margin: "0 0 2px 0", fontSize: "13px", fontWeight: "800", color: "#0f172a" }}>24/7 Support</h4>
+              <p style={{ margin: 0, fontSize: "11px", color: "#64748b" }}>Dedicated help</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Shop By Categories Section (Fixed with image & imageUrl support) */}
+        <div style={{ margin: "40px 0 20px 0" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+            <h2 style={{ fontSize: "20px", fontWeight: "800", color: "#0f172a", margin: 0 }}>Shop By Categories</h2>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "16px" }}>
+            {categories.map((cat) => {
+              const catImg = (cat.image && cat.image.trim() !== "") ? cat.image : cat.imageUrl;
+
+              return (
+                <div
+                  key={cat._id}
+                  onClick={() => {
+                    setSelectedCategory(cat.name);
+                    setSelectedSubCategory("All");
+                    window.scrollTo({ top: 600, behavior: "smooth" });
+                  }}
+                  style={{
+                    backgroundColor: "#fff",
+                    border: selectedCategory === cat.name ? "2px solid #6366f1" : "1px solid #f1f5f9",
+                    borderRadius: "20px",
+                    padding: "20px",
+                    textAlign: "center",
+                    cursor: "pointer",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.02)",
+                    transition: "all 0.2s ease"
+                  }}
+                >
+                  <div style={{ width: "70px", height: "70px", margin: "0 auto 12px auto", borderRadius: "50%", backgroundColor: "#f8fafc", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #e2e8f0" }}>
+                    {catImg ? (
+                      <img 
+                        src={catImg} 
+                        alt={cat.name} 
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }} 
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <span style={{ fontSize: "24px" }}>🏷️</span>
+                    )}
+                  </div>
+                  <div style={{ fontSize: "14px", fontWeight: "700", color: "#1e293b" }}>{cat.name}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Deals of the Day Banner */}
+        <div style={{ 
+          background: "linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)", 
+          borderRadius: "24px", 
+          padding: "30px 40px", 
+          color: "#fff", 
+          display: "flex", 
+          justifyContent: "space-between", 
+          alignItems: "center", 
+          flexWrap: "wrap",
+          gap: "20px",
+          margin: "40px 0",
+          boxShadow: "0 10px 25px -5px rgba(79, 70, 229, 0.4)"
+        }}>
+          <div>
+            <span style={{ backgroundColor: "rgba(255,255,255,0.2)", padding: "4px 12px", borderRadius: "20px", fontSize: "11px", fontWeight: "700", textTransform: "uppercase" }}>
+              Limited Time Offer
+            </span>
+            <h2 style={{ fontSize: "26px", fontWeight: "900", margin: "10px 0 6px 0" }}>Deals of the Day</h2>
+            <p style={{ margin: 0, fontSize: "14px", opacity: 0.9 }}>Huge discounts on top products. Don't miss out!</p>
+          </div>
+          <button 
+            onClick={() => {
+              setSelectedCategory("All");
+              setSelectedSubCategory("All");
+              window.scrollTo({ top: 600, behavior: "smooth" });
+            }}
+            style={{
+              backgroundColor: "#fff",
+              color: "#4f46e5",
+              border: "none",
+              padding: "12px 24px",
+              borderRadius: "14px",
+              fontWeight: "800",
+              fontSize: "14px",
+              cursor: "pointer",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+            }}
+          >
+            Explore Deals →
+          </button>
+        </div>
+
+        {/* Search & Filter Bar */}
         <div 
           style={{ 
             backgroundColor: "#fff", 
-            borderRadius: "24px", 
+            borderRadius: "20px", 
             padding: "20px", 
-            boxShadow: "0 4px 20px -2px rgba(0,0,0,0.05)", 
+            boxShadow: "0 4px 20px -2px rgba(0,0,0,0.03)", 
             border: "1px solid #f1f5f9",
             marginBottom: "30px",
             display: "flex",
@@ -234,22 +318,20 @@ export default function HomePage() {
             gap: "16px"
           }}
         >
-          {/* Search Bar with Search Button inside */}
           <div style={{ display: "flex", gap: "12px" }}>
             <input
               type="text"
-              placeholder="Search premium products..."
+              placeholder="Search products..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               style={{
                 flex: 1,
-                padding: "16px 20px",
+                padding: "14px 18px",
                 border: "1px solid #e2e8f0",
-                borderRadius: "16px",
-                fontSize: "15px",
+                borderRadius: "14px",
+                fontSize: "14px",
                 backgroundColor: "#fff",
                 outline: "none",
-                boxSizing: "border-box",
               }}
             />
             <button
@@ -257,77 +339,70 @@ export default function HomePage() {
                 backgroundColor: "#6366f1",
                 color: "#fff",
                 border: "none",
-                padding: "0 28px",
-                borderRadius: "16px",
+                padding: "0 24px",
+                borderRadius: "14px",
                 fontWeight: "700",
-                fontSize: "15px",
+                fontSize: "14px",
                 cursor: "pointer",
-                boxShadow: "0 4px 12px rgba(99, 102, 241, 0.3)"
               }}
             >
               Search
             </button>
           </div>
 
-          {/* Categories Pill Buttons */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
-            <div style={{ display: "flex", gap: "10px", overflowX: "auto", paddingBottom: "4px" }}>
+          <div style={{ display: "flex", gap: "10px", overflowX: "auto", paddingBottom: "4px" }}>
+            <button
+              onClick={() => {
+                setSelectedCategory("All");
+                setSelectedSubCategory("All");
+              }}
+              style={{
+                padding: "8px 18px",
+                borderRadius: "12px",
+                border: selectedCategory === "All" ? "none" : "1px solid #e2e8f0",
+                backgroundColor: selectedCategory === "All" ? "#6366f1" : "#fff",
+                color: selectedCategory === "All" ? "#fff" : "#475569",
+                cursor: "pointer",
+                fontWeight: "700",
+                fontSize: "13px",
+                whiteSpace: "nowrap",
+              }}
+            >
+              All Products
+            </button>
+
+            {categories.map((cat) => (
               <button
+                key={cat._id}
                 onClick={() => {
-                  setSelectedCategory("All");
+                  setSelectedCategory(cat.name);
                   setSelectedSubCategory("All");
                 }}
                 style={{
-                  padding: "10px 22px",
-                  borderRadius: "14px",
-                  border: selectedCategory === "All" ? "none" : "1px solid #e2e8f0",
-                  backgroundColor: selectedCategory === "All" ? "#6366f1" : "#fff",
-                  color: selectedCategory === "All" ? "#fff" : "#475569",
+                  padding: "8px 18px",
+                  borderRadius: "12px",
+                  border: selectedCategory === cat.name ? "none" : "1px solid #e2e8f0",
+                  backgroundColor: selectedCategory === cat.name ? "#6366f1" : "#fff",
+                  color: selectedCategory === cat.name ? "#fff" : "#475569",
                   cursor: "pointer",
                   fontWeight: "700",
                   fontSize: "13px",
                   whiteSpace: "nowrap",
-                  boxShadow: selectedCategory === "All" ? "0 4px 12px rgba(99, 102, 241, 0.2)" : "none"
                 }}
               >
-                All Products
+                {cat.name}
               </button>
-
-              {categories.map((cat) => (
-                <button
-                  key={cat._id}
-                  onClick={() => {
-                    setSelectedCategory(cat.name);
-                    setSelectedSubCategory("All");
-                  }}
-                  style={{
-                    padding: "10px 22px",
-                    borderRadius: "14px",
-                    border: selectedCategory === cat.name ? "none" : "1px solid #e2e8f0",
-                    backgroundColor: selectedCategory === cat.name ? "#6366f1" : "#fff",
-                    color: selectedCategory === cat.name ? "#fff" : "#475569",
-                    cursor: "pointer",
-                    fontWeight: "700",
-                    fontSize: "13px",
-                    whiteSpace: "nowrap",
-                    boxShadow: selectedCategory === cat.name ? "0 4px 12px rgba(99, 102, 241, 0.2)" : "none"
-                  }}
-                >
-                  {cat.name}
-                </button>
-              ))}
-            </div>
+            ))}
           </div>
 
-          {/* Sub-Categories Filter */}
           {subCategories.length > 0 && (
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", overflowX: "auto", backgroundColor: "#f8fafc", padding: "10px 14px", borderRadius: "14px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", overflowX: "auto", backgroundColor: "#f8fafc", padding: "8px 12px", borderRadius: "12px" }}>
               <span style={{ fontSize: "12px", fontWeight: "700", color: "#64748b", whiteSpace: "nowrap" }}>Sub:</span>
               <button
                 onClick={() => setSelectedSubCategory("All")}
                 style={{
-                  padding: "6px 14px",
-                  borderRadius: "12px",
+                  padding: "6px 12px",
+                  borderRadius: "10px",
                   border: "none",
                   backgroundColor: selectedSubCategory === "All" ? "#3b82f6" : "#e2e8f0",
                   color: selectedSubCategory === "All" ? "#fff" : "#334155",
@@ -344,8 +419,8 @@ export default function HomePage() {
                   key={sub._id}
                   onClick={() => setSelectedSubCategory(sub.name)}
                   style={{
-                    padding: "6px 14px",
-                    borderRadius: "12px",
+                    padding: "6px 12px",
+                    borderRadius: "10px",
                     border: "none",
                     backgroundColor: selectedSubCategory === sub.name ? "#3b82f6" : "#e2e8f0",
                     color: selectedSubCategory === sub.name ? "#fff" : "#334155",
@@ -362,14 +437,17 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* Products Grid */}
+        {/* Best Sellers Section / Products Grid */}
+        <div style={{ marginBottom: "20px" }}>
+          <h2 style={{ fontSize: "20px", fontWeight: "800", color: "#0f172a", marginBottom: "20px" }}>Best Sellers</h2>
+        </div>
+
         {loading ? (
           <div style={{ textAlign: "center", padding: "60px", color: "#64748b", fontSize: "15px", fontWeight: "600" }}>Loading Products...</div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "24px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "24px" }}>
             {filteredProducts.length > 0 ? (
               filteredProducts.map((p) => {
-                // Discount Percentage Calculation
                 let discountPercent = 0;
                 if (p.originalPrice && p.originalPrice > p.offerPrice) {
                   discountPercent = Math.round(((p.originalPrice - p.offerPrice) / p.originalPrice) * 100);
@@ -381,31 +459,29 @@ export default function HomePage() {
                       style={{
                         backgroundColor: "#fff",
                         border: "1px solid #f1f5f9",
-                        borderRadius: "24px",
+                        borderRadius: "20px",
                         overflow: "hidden",
                         display: "flex",
                         flexDirection: "column",
                         justifyContent: "space-between",
                         height: "100%",
-                        boxShadow: "0 10px 30px -5px rgba(0,0,0,0.04)",
+                        boxShadow: "0 4px 15px -3px rgba(0,0,0,0.04)",
                         transition: "all 0.3s ease",
                         position: "relative",
                       }}
                     >
-                      {/* Discount Badge */}
                       {discountPercent > 0 && (
-                        <div style={{ position: "absolute", top: "20px", left: "20px", zIndex: 2, background: "#ef4444", color: "#fff", borderRadius: "8px", padding: "4px 10px", fontSize: "11px", fontWeight: "800", boxShadow: "0 4px 10px rgba(239, 68, 68, 0.3)" }}>
+                        <div style={{ position: "absolute", top: "16px", left: "16px", zIndex: 2, background: "#ef4444", color: "#fff", borderRadius: "6px", padding: "3px 8px", fontSize: "11px", fontWeight: "800" }}>
                           {discountPercent}% OFF
                         </div>
                       )}
 
-                      {/* Wishlist Heart Icon */}
-                      <div style={{ position: "absolute", top: "20px", right: "20px", zIndex: 2, background: "#fff", borderRadius: "50%", width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 10px rgba(0,0,0,0.06)", cursor: "pointer" }}>
+                      <div style={{ position: "absolute", top: "16px", right: "16px", zIndex: 2, background: "#fff", borderRadius: "50%", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
                         🤍
                       </div>
 
                       <div>
-                        <div style={{ backgroundColor: "#f8fafc", height: "220px", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", position: "relative" }}>
+                        <div style={{ backgroundColor: "#f8fafc", height: "200px", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
                           <img
                             src={p.images && p.images.length > 0 ? p.images[0] : p.imageUrl || "https://via.placeholder.com/150"}
                             alt={p.title}
@@ -413,18 +489,18 @@ export default function HomePage() {
                           />
                         </div>
 
-                        <div style={{ padding: "24px" }}>
-                          <span style={{ fontSize: "12px", color: "#6366f1", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                            {p.category} {p.subCategory ? `> ${p.subCategory}` : ""}
+                        <div style={{ padding: "20px" }}>
+                          <span style={{ fontSize: "11px", color: "#6366f1", fontWeight: "700", textTransform: "uppercase" }}>
+                            {p.category}
                           </span>
-                          <h2 style={{ fontSize: "17px", fontWeight: "800", color: "#0f172a", margin: "8px 0 12px 0", lineHeight: "1.4", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                          <h3 style={{ fontSize: "15px", fontWeight: "800", color: "#0f172a", margin: "6px 0 10px 0", lineHeight: "1.4", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                             {p.title}
-                          </h2>
+                          </h3>
                           
-                          <div style={{ display: "flex", alignItems: "baseline", gap: "10px", marginTop: "16px" }}>
-                            <span style={{ fontSize: "22px", fontWeight: "900", color: "#059669" }}>₹{p.offerPrice}</span>
+                          <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
+                            <span style={{ fontSize: "18px", fontWeight: "900", color: "#059669" }}>₹{p.offerPrice}</span>
                             {p.originalPrice && (
-                              <span style={{ fontSize: "14px", color: "#94a3b8", textDecoration: "line-through", fontWeight: "600" }}>
+                              <span style={{ fontSize: "13px", color: "#94a3b8", textDecoration: "line-through", fontWeight: "600" }}>
                                 ₹{p.originalPrice}
                               </span>
                             )}
@@ -432,26 +508,22 @@ export default function HomePage() {
                         </div>
                       </div>
 
-                      <div style={{ padding: "0 24px 24px 24px" }}>
+                      <div style={{ padding: "0 20px 20px 20px" }}>
                         <button
                           style={{
                             width: "100%",
                             backgroundColor: "#6366f1",
                             color: "#fff",
                             border: "none",
-                            padding: "14px",
-                            borderRadius: "14px",
+                            padding: "12px",
+                            borderRadius: "12px",
                             fontWeight: "700",
-                            fontSize: "14px",
+                            fontSize: "13px",
                             cursor: "pointer",
-                            boxShadow: "0 4px 14px rgba(99, 102, 241, 0.3)",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            gap: "8px"
+                            boxShadow: "0 4px 12px rgba(99, 102, 241, 0.2)"
                           }}
                         >
-                          View Details →
+                          Add to Cart
                         </button>
                       </div>
                     </div>
@@ -460,58 +532,11 @@ export default function HomePage() {
               })
             ) : (
               <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "60px", color: "#64748b", fontSize: "15px" }}>
-                No products found in this category!
+                No products found!
               </div>
             )}
           </div>
         )}
-
-        {/* Trust Badges Footer */}
-        <div 
-          style={{ 
-            display: "grid", 
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", 
-            gap: "20px", 
-            marginTop: "60px",
-            backgroundColor: "#fff",
-            padding: "30px",
-            borderRadius: "24px",
-            boxShadow: "0 4px 20px -2px rgba(0,0,0,0.03)",
-            border: "1px solid #f1f5f9"
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <div style={{ background: "#eef2ff", padding: "14px", borderRadius: "16px", fontSize: "20px" }}>🛡️</div>
-            <div>
-              <h4 style={{ margin: "0 0 4px 0", fontSize: "14px", fontWeight: "800", color: "#0f172a" }}>Secure Shopping</h4>
-              <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>100% secure payments</p>
-            </div>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <div style={{ background: "#f0fdf4", padding: "14px", borderRadius: "16px", fontSize: "20px" }}>🚚</div>
-            <div>
-              <h4 style={{ margin: "0 0 4px 0", fontSize: "14px", fontWeight: "800", color: "#0f172a" }}>Fast Delivery</h4>
-              <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>Quick delivery at your door</p>
-            </div>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <div style={{ background: "#fff7ed", padding: "14px", borderRadius: "16px", fontSize: "20px" }}>⭐</div>
-            <div>
-              <h4 style={{ margin: "0 0 4px 0", fontSize: "14px", fontWeight: "800", color: "#0f172a" }}>Best Quality</h4>
-              <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>Genuine & trusted products</p>
-            </div>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <div style={{ background: "#f0f9ff", padding: "14px", borderRadius: "16px", fontSize: "20px" }}>🎧</div>
-            <div>
-              <h4 style={{ margin: "0 0 4px 0", fontSize: "14px", fontWeight: "800", color: "#0f172a" }}>24/7 Support</h4>
-              <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>We're here to help</p>
-            </div>
-          </div>
-        </div>
 
       </div>
     </div>
