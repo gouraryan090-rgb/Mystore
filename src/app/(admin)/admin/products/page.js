@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useAdminProtect } from "@/lib/protectedRoute";
 
 export default function ProductsPage() {
-  // Page security check aur lock modal
   const lockScreen = useAdminProtect();
 
   const [products, setProducts] = useState([]);
@@ -12,6 +11,7 @@ export default function ProductsPage() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [formData, setFormData] = useState({
     title: "",
@@ -78,6 +78,11 @@ export default function ProductsPage() {
   const mainCategories = categoriesList.filter((c) => c.type === "category");
   const availableSubCategories = categoriesList.filter(
     (c) => c.type === "subcategory" && c.parentCategory === formData.category
+  );
+
+  const filteredProducts = products.filter((p) =>
+    p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (p.category && p.category.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const handleSubmit = async (e) => {
@@ -176,147 +181,221 @@ export default function ProductsPage() {
     }
   };
 
-  // Agar user authenticated nahi hai, toh lock modal dikhega
   if (lockScreen) return lockScreen;
 
   return (
-    <div style={{ maxWidth: "1100px", margin: "32px auto", padding: "0 20px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-        <h1 style={{ fontSize: "24px", fontWeight: "bold", margin: 0 }}>📦 Manage Products</h1>
-        <Link href="/admin" style={{ backgroundColor: "#1f2937", color: "#fff", padding: "8px 16px", borderRadius: "8px", textDecoration: "none", fontWeight: "bold", fontSize: "14px" }}>
-          ← Back to Dashboard
-        </Link>
+    <div style={{ maxWidth: "1050px", margin: "30px auto", padding: "0 20px", fontFamily: "system-ui, -apple-system, sans-serif", paddingBottom: "60px" }}>
+      
+      {/* Top Navigation */}
+      <button
+        onClick={() => window.history.back()}
+        style={{ background: "#fff", border: "1px solid #cbd5e1", padding: "10px 18px", borderRadius: "12px", color: "#0f172a", cursor: "pointer", fontWeight: "700", fontSize: "13px", display: "inline-flex", alignItems: "center", gap: "8px", boxShadow: "0 2px 5px rgba(0,0,0,0.02)", marginBottom: "20px" }}
+      >
+        ← Back to Dashboard
+      </button>
+
+      {/* Header Info */}
+      <div style={{ backgroundColor: "#fff", padding: "32px", borderRadius: "24px", border: "1px solid #e2e8f0", boxShadow: "0 10px 30px rgba(0,0,0,0.04)", marginBottom: "32px" }}>
+        <span style={{ fontSize: "11px", fontWeight: "900", color: "#6366f1", textTransform: "uppercase", letterSpacing: "1px" }}>Catalog Management</span>
+        <h1 style={{ fontSize: "22px", fontWeight: "900", color: "#0f172a", margin: "4px 0 0 0" }}>📦 Manage Products</h1>
+        <p style={{ fontSize: "13px", color: "#64748b", margin: "4px 0 0 0", fontWeight: "600" }}>Naye products add karein aur existing products ki pricing aur details manage karein.</p>
       </div>
 
-      <form onSubmit={handleSubmit} style={{ backgroundColor: "#fff", padding: "24px", borderRadius: "12px", border: "1px solid #e5e7eb", marginBottom: "32px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-        <h2 style={{ fontSize: "16px", fontWeight: "bold", gridColumn: "span 2", margin: "0 0 4px 0", color: "#374151", textTransform: "uppercase" }}>Add New Product</h2>
+      {/* Add Product Form Card */}
+      <form onSubmit={handleSubmit} style={{ backgroundColor: "#fff", padding: "32px", borderRadius: "24px", border: "1px solid #e2e8f0", marginBottom: "40px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "18px", boxShadow: "0 10px 30px rgba(0,0,0,0.04)" }}>
+        <h2 style={{ fontSize: "16px", fontWeight: "900", gridColumn: "span 2", margin: "0 0 4px 0", color: "#0f172a" }}>Add New Product</h2>
         
-        <input name="title" placeholder="Product Title" value={formData.title} onChange={handleChange} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "14px", outline: "none" }} required />
-        
-        <select name="category" value={formData.category} onChange={handleChange} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "14px", outline: "none", backgroundColor: "#fff" }} required>
-          <option value="">-- Select Main Category --</option>
-          {mainCategories.map((cat) => (
-            <option key={cat._id} value={cat.name}>{cat.name}</option>
-          ))}
-        </select>
-
-        <select name="subCategory" value={formData.subCategory} onChange={handleChange} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "14px", outline: "none", backgroundColor: "#fff" }} disabled={!formData.category}>
-          <option value="">-- Select Sub-Category (Optional) --</option>
-          {availableSubCategories.map((sub) => (
-            <option key={sub._id} value={sub.name}>{sub.name}</option>
-          ))}
-        </select>
-
-        <input name="originalPrice" type="number" placeholder="Original Price / M.R.P" value={formData.originalPrice} onChange={handleChange} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "14px", outline: "none" }} required />
-        <input name="offerPrice" type="number" placeholder="Offer Price" value={formData.offerPrice} onChange={handleChange} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "14px", outline: "none" }} required />
-        
-        <textarea name="images" placeholder="Image URLs (Comma separated: url1, url2)" value={formData.images} onChange={handleChange} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "14px", outline: "none", gridColumn: "span 2", minHeight: "60px" }} required />
-
-        <div style={{ gridColumn: "span 2", display: "flex", flexDirection: "column", gap: "6px" }}>
-          <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
-            <span style={{ fontSize: "12px", fontWeight: "bold", color: "#4b5563" }}>Formatting:</span>
-            <button type="button" onClick={() => handleFormatText("bold")} style={{ padding: "2px 8px", fontWeight: "bold", background: "#f3f4f6", border: "1px solid #d1d5db", borderRadius: "4px", cursor: "pointer" }}>B</button>
-            <button type="button" onClick={() => handleFormatText("italic")} style={{ padding: "2px 8px", fontStyle: "italic", background: "#f3f4f6", border: "1px solid #d1d5db", borderRadius: "4px", cursor: "pointer" }}>I</button>
-            <button type="button" onClick={() => handleFormatText("underline")} style={{ padding: "2px 8px", textDecoration: "underline", background: "#f3f4f6", border: "1px solid #d1d5db", borderRadius: "4px", cursor: "pointer" }}>U</button>
-            <button type="button" onClick={() => handleFormatText("strike")} style={{ padding: "2px 8px", textDecoration: "line-through", background: "#f3f4f6", border: "1px solid #d1d5db", borderRadius: "4px", cursor: "pointer" }}>S</button>
-          </div>
-          <textarea name="description" placeholder="Description" value={formData.description} onChange={handleChange} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "14px", outline: "none", minHeight: "100px" }} required />
+        <div style={{ gridColumn: "span 1" }}>
+          <label style={{ display: "block", fontSize: "13px", fontWeight: "800", color: "#334155", marginBottom: "8px" }}>Product Title:</label>
+          <input name="title" placeholder="e.g. Wireless Headphones" value={formData.title} onChange={handleChange} style={{ width: "100%", padding: "12px 16px", borderRadius: "14px", border: "1px solid #cbd5e1", fontSize: "13px", backgroundColor: "#f8fafc", fontWeight: "600", outline: "none", boxSizing: "border-box" }} required />
         </div>
         
-        <button type="submit" disabled={loading} style={{ backgroundColor: "#2563eb", color: "#fff", padding: "12px", borderRadius: "8px", border: "none", fontWeight: "bold", fontSize: "15px", cursor: "pointer", gridColumn: "span 2" }}>
-          {loading ? "Adding Product..." : "Add Product"}
+        <div>
+          <label style={{ display: "block", fontSize: "13px", fontWeight: "800", color: "#334155", marginBottom: "8px" }}>Main Category:</label>
+          <select name="category" value={formData.category} onChange={handleChange} style={{ width: "100%", padding: "12px 16px", borderRadius: "14px", border: "1px solid #cbd5e1", fontSize: "13px", backgroundColor: "#f8fafc", fontWeight: "700", outline: "none" }} required>
+            <option value="">-- Choose Category --</option>
+            {mainCategories.map((cat) => (
+              <option key={cat._id} value={cat.name}>{cat.name}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label style={{ display: "block", fontSize: "13px", fontWeight: "800", color: "#334155", marginBottom: "8px" }}>Sub-Category:</label>
+          <select name="subCategory" value={formData.subCategory} onChange={handleChange} style={{ width: "100%", padding: "12px 16px", borderRadius: "14px", border: "1px solid #cbd5e1", fontSize: "13px", backgroundColor: "#f8fafc", fontWeight: "700", outline: "none" }} disabled={!formData.category}>
+            <option value="">-- Choose Sub-Category --</option>
+            {availableSubCategories.map((sub) => (
+              <option key={sub._id} value={sub.name}>{sub.name}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label style={{ display: "block", fontSize: "13px", fontWeight: "800", color: "#334155", marginBottom: "8px" }}>Original Price / MRP (₹):</label>
+          <input name="originalPrice" type="number" placeholder="e.g. 1999" value={formData.originalPrice} onChange={handleChange} style={{ width: "100%", padding: "12px 16px", borderRadius: "14px", border: "1px solid #cbd5e1", fontSize: "13px", backgroundColor: "#f8fafc", fontWeight: "600", outline: "none", boxSizing: "border-box" }} required />
+        </div>
+
+        <div>
+          <label style={{ display: "block", fontSize: "13px", fontWeight: "800", color: "#334155", marginBottom: "8px" }}>Offer Price (₹):</label>
+          <input name="offerPrice" type="number" placeholder="e.g. 999" value={formData.offerPrice} onChange={handleChange} style={{ width: "100%", padding: "12px 16px", borderRadius: "14px", border: "1px solid #cbd5e1", fontSize: "13px", backgroundColor: "#f8fafc", fontWeight: "600", outline: "none", boxSizing: "border-box" }} required />
+        </div>
+        
+        <div style={{ gridColumn: "span 2" }}>
+          <label style={{ display: "block", fontSize: "13px", fontWeight: "800", color: "#334155", marginBottom: "8px" }}>Image URLs (Comma separated):</label>
+          <textarea name="images" placeholder="https://image1.jpg, https://image2.jpg" value={formData.images} onChange={handleChange} style={{ width: "100%", padding: "12px 16px", borderRadius: "14px", border: "1px solid #cbd5e1", fontSize: "13px", backgroundColor: "#f8fafc", fontWeight: "600", outline: "none", minHeight: "60px", boxSizing: "border-box" }} required />
+        </div>
+
+        <div style={{ gridColumn: "span 2", display: "flex", flexDirection: "column", gap: "8px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <label style={{ fontSize: "13px", fontWeight: "800", color: "#334155" }}>Product Description:</label>
+            <div style={{ display: "flex", gap: "6px" }}>
+              <button type="button" onClick={() => handleFormatText("bold")} style={{ padding: "4px 10px", fontWeight: "800", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: "8px", cursor: "pointer", fontSize: "12px" }}>B</button>
+              <button type="button" onClick={() => handleFormatText("italic")} style={{ padding: "4px 10px", fontStyle: "italic", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: "8px", cursor: "pointer", fontSize: "12px" }}>I</button>
+              <button type="button" onClick={() => handleFormatText("underline")} style={{ padding: "4px 10px", textDecoration: "underline", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: "8px", cursor: "pointer", fontSize: "12px" }}>U</button>
+              <button type="button" onClick={() => handleFormatText("strike")} style={{ padding: "4px 10px", textDecoration: "line-through", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: "8px", cursor: "pointer", fontSize: "12px" }}>S</button>
+            </div>
+          </div>
+          <textarea name="description" placeholder="Write description with HTML formatting..." value={formData.description} onChange={handleChange} style={{ width: "100%", padding: "12px 16px", borderRadius: "14px", border: "1px solid #cbd5e1", fontSize: "13px", backgroundColor: "#f8fafc", fontWeight: "600", outline: "none", minHeight: "110px", boxSizing: "border-box" }} required />
+        </div>
+        
+        <button type="submit" disabled={loading} style={{ gridColumn: "span 2", backgroundColor: "#6366f1", color: "#fff", padding: "14px", borderRadius: "14px", border: "none", fontWeight: "800", fontSize: "14px", cursor: "pointer", boxShadow: "0 4px 12px rgba(99, 102, 241, 0.25)", marginTop: "6px" }}>
+          {loading ? "Publishing Product..." : "Publish Product"}
         </button>
       </form>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "20px" }}>
-        {products.map((p) => (
-          <div 
-            key={p._id} 
-            onClick={() => setSelectedProduct(p)} 
-            style={{ backgroundColor: "#fff", padding: "16px", borderRadius: "12px", border: "1px solid #e5e7eb", cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.05)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}
-          >
-            <div>
-              <img src={p.images?.[0] || p.imageUrl || "https://via.placeholder.com/200"} alt={p.title} style={{ width: "100%", height: "160px", objectFit: "cover", borderRadius: "8px", marginBottom: "12px" }} />
-              <h3 style={{ fontSize: "16px", fontWeight: "bold", margin: "0 0 4px 0", color: "#111827" }}>{p.title}</h3>
-              <p style={{ color: "#6b7280", fontSize: "13px", margin: "0 0 12px 0" }}>
-                {p.category} {p.subCategory ? `> ${p.subCategory}` : ""}
-              </p>
-              
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
-                <span style={{ fontSize: "18px", fontWeight: "bold", color: "#16a34a" }}>₹{p.offerPrice}</span>
-                {p.originalPrice && <span style={{ fontSize: "13px", color: "#9ca3af", textDecoration: "line-through" }}>₹{p.originalPrice}</span>}
-              </div>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
-              <button 
-                onClick={(e) => handleEditClick(e, p)} 
-                style={{ backgroundColor: "#eab308", color: "#fff", border: "none", padding: "8px", borderRadius: "6px", fontSize: "13px", fontWeight: "bold", cursor: "pointer" }}
-              >
-                Edit
-              </button>
-              <button 
-                onClick={(e) => handleDelete(e, p._id)} 
-                style={{ backgroundColor: "#ef4444", color: "#fff", border: "none", padding: "8px", borderRadius: "6px", fontSize: "13px", fontWeight: "bold", cursor: "pointer" }}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
+      {/* Products Catalog Filter Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "15px" }}>
+        <h2 style={{ fontSize: "18px", fontWeight: "900", color: "#0f172a", margin: 0 }}>
+          All Products Catalog ({filteredProducts.length})
+        </h2>
+        <input
+          type="text"
+          placeholder="Search products..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ padding: "11px 16px", borderRadius: "12px", border: "1px solid #cbd5e1", fontSize: "13px", outline: "none", backgroundColor: "#fff", fontWeight: "600", width: "250px" }}
+        />
       </div>
 
-      {editingProduct && (
-        <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
-          <div style={{ backgroundColor: "#fff", width: "100%", maxWidth: "600px", borderRadius: "16px", padding: "24px", position: "relative", maxHeight: "90vh", overflowY: "auto" }}>
-            <button onClick={() => setEditingProduct(null)} style={{ background: "none", border: "none", fontSize: "18px", cursor: "pointer", position: "absolute", top: "20px", right: "20px" }}>✕</button>
-            <h2 style={{ fontSize: "20px", fontWeight: "bold", marginBottom: "16px" }}>Edit Product Details</h2>
-            <form onSubmit={handleUpdateSubmit} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-              <input name="title" value={editingProduct.title} onChange={(e) => setEditingProduct({ ...editingProduct, title: e.target.value })} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db" }} required />
-              
-              <select 
-                name="category" 
-                value={editingProduct.category} 
-                onChange={(e) => setEditingProduct({ ...editingProduct, category: e.target.value, subCategory: "" })} 
-                style={{ padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db", backgroundColor: "#fff" }} 
-                required
-              >
-                <option value="">-- Select Main Category --</option>
-                {mainCategories.map((cat) => (
-                  <option key={cat._id} value={cat.name}>{cat.name}</option>
-                ))}
-              </select>
-
-              <select 
-                name="subCategory" 
-                value={editingProduct.subCategory} 
-                onChange={(e) => setEditingProduct({ ...editingProduct, subCategory: e.target.value })} 
-                style={{ padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db", backgroundColor: "#fff" }}
-                disabled={!editingProduct.category}
-              >
-                <option value="">-- Select Sub-Category (Optional) --</option>
-                {editingSubCategories.map((sub) => (
-                  <option key={sub._id} value={sub.name}>{sub.name}</option>
-                ))}
-              </select>
-
-              <input name="originalPrice" type="number" value={editingProduct.originalPrice} onChange={(e) => setEditingProduct({ ...editingProduct, originalPrice: e.target.value })} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db" }} required />
-              <input name="offerPrice" type="number" value={editingProduct.offerPrice} onChange={(e) => setEditingProduct({ ...editingProduct, offerPrice: e.target.value })} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db" }} required />
-              
-              <textarea name="images" value={editingProduct.images} onChange={(e) => setEditingProduct({ ...editingProduct, images: e.target.value })} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db", gridColumn: "span 2", minHeight: "60px" }} required />
-              
-              <div style={{ gridColumn: "span 2", display: "flex", flexDirection: "column", gap: "6px" }}>
-                <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
-                  <span style={{ fontSize: "12px", fontWeight: "bold", color: "#4b5563" }}>Formatting:</span>
-                  <button type="button" onClick={() => handleFormatText("bold", true)} style={{ padding: "2px 8px", fontWeight: "bold", background: "#f3f4f6", border: "1px solid #d1d5db", borderRadius: "4px", cursor: "pointer" }}>B</button>
-                  <button type="button" onClick={() => handleFormatText("italic", true)} style={{ padding: "2px 8px", fontStyle: "italic", background: "#f3f4f6", border: "1px solid #d1d5db", borderRadius: "4px", cursor: "pointer" }}>I</button>
-                  <button type="button" onClick={() => handleFormatText("underline", true)} style={{ padding: "2px 8px", textDecoration: "underline", background: "#f3f4f6", border: "1px solid #d1d5db", borderRadius: "4px", cursor: "pointer" }}>U</button>
-                  <button type="button" onClick={() => handleFormatText("strike", true)} style={{ padding: "2px 8px", textDecoration: "line-through", background: "#f3f4f6", border: "1px solid #d1d5db", borderRadius: "4px", cursor: "pointer" }}>S</button>
+      {/* Dynamic Products Grid */}
+      {filteredProducts.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "50px", color: "#64748b", fontSize: "14px", fontWeight: "600", backgroundColor: "#fff", borderRadius: "20px", border: "1px solid #e2e8f0" }}>
+          Koi product nahi mila!
+        </div>
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "20px" }}>
+          {filteredProducts.map((p) => (
+            <div 
+              key={p._id} 
+              onClick={() => setSelectedProduct(p)} 
+              style={{ backgroundColor: "#fcfcfd", padding: "16px", borderRadius: "20px", border: "1px solid #e2e8f0", cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.02)", display: "flex", flexDirection: "column", justifyContent: "space-between", transition: "transform 0.2s" }}
+            >
+              <div>
+                <img src={p.images?.[0] || p.imageUrl || "https://via.placeholder.com/200"} alt={p.title} style={{ width: "100%", height: "160px", objectFit: "cover", borderRadius: "14px", marginBottom: "12px", border: "1px solid #e2e8f0" }} />
+                <h3 style={{ fontSize: "15px", fontWeight: "900", margin: "0 0 4px 0", color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.title}</h3>
+                <p style={{ color: "#64748b", fontSize: "11px", fontWeight: "800", margin: "0 0 12px 0", textTransform: "uppercase" }}>
+                  {p.category} {p.subCategory ? `› ${p.subCategory}` : ""}
+                </p>
+                
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+                  <span style={{ fontSize: "18px", fontWeight: "900", color: "#16a34a" }}>₹{p.offerPrice}</span>
+                  {p.originalPrice && <span style={{ fontSize: "13px", color: "#94a3b8", fontWeight: "700", textDecoration: "line-through" }}>₹{p.originalPrice}</span>}
                 </div>
-                <textarea name="description" value={editingProduct.description} onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })} style={{ padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db", minHeight: "100px" }} required />
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", borderTop: "1px solid #f1f5f9", paddingTop: "12px" }}>
+                <button 
+                  onClick={(e) => handleEditClick(e, p)} 
+                  style={{ backgroundColor: "#fef3c7", color: "#d97706", border: "none", padding: "8px", borderRadius: "10px", fontSize: "12px", fontWeight: "800", cursor: "pointer" }}
+                >
+                  Edit
+                </button>
+                <button 
+                  onClick={(e) => handleDelete(e, p._id)} 
+                  style={{ backgroundColor: "#fee2e2", color: "#dc2626", border: "none", padding: "8px", borderRadius: "10px", fontSize: "12px", fontWeight: "800", cursor: "pointer" }}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Edit Product Modal */}
+      {editingProduct && (
+        <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "rgba(15, 23, 42, 0.6)", backdropFilter: "blur(4px)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
+          <div style={{ backgroundColor: "#fff", width: "100%", maxWidth: "650px", borderRadius: "24px", padding: "32px", position: "relative", maxHeight: "90vh", overflowY: "auto", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}>
+            <button onClick={() => setEditingProduct(null)} style={{ background: "#f1f5f9", border: "none", width: "32px", height: "32px", borderRadius: "50%", fontSize: "14px", fontWeight: "bold", cursor: "pointer", position: "absolute", top: "24px", right: "24px", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+            <h2 style={{ fontSize: "20px", fontWeight: "900", marginBottom: "20px", color: "#0f172a" }}>Edit Product Details</h2>
+            
+            <form onSubmit={handleUpdateSubmit} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
+              <div style={{ gridColumn: "span 2" }}>
+                <label style={{ display: "block", fontSize: "13px", fontWeight: "800", color: "#334155", marginBottom: "6px" }}>Product Title:</label>
+                <input name="title" value={editingProduct.title} onChange={(e) => setEditingProduct({ ...editingProduct, title: e.target.value })} style={{ width: "100%", padding: "12px 16px", borderRadius: "12px", border: "1px solid #cbd5e1", backgroundColor: "#f8fafc", fontWeight: "600", fontSize: "13px", boxSizing: "border-box" }} required />
               </div>
               
-              <button type="submit" style={{ backgroundColor: "#16a34a", color: "#fff", border: "none", padding: "12px", borderRadius: "8px", fontWeight: "bold", cursor: "pointer", gridColumn: "span 2" }}>
+              <div>
+                <label style={{ display: "block", fontSize: "13px", fontWeight: "800", color: "#334155", marginBottom: "6px" }}>Main Category:</label>
+                <select 
+                  name="category" 
+                  value={editingProduct.category} 
+                  onChange={(e) => setEditingProduct({ ...editingProduct, category: e.target.value, subCategory: "" })} 
+                  style={{ width: "100%", padding: "12px 16px", borderRadius: "12px", border: "1px solid #cbd5e1", backgroundColor: "#f8fafc", fontWeight: "700", fontSize: "13px" }} 
+                  required
+                >
+                  <option value="">-- Choose Category --</option>
+                  {mainCategories.map((cat) => (
+                    <option key={cat._id} value={cat.name}>{cat.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: "13px", fontWeight: "800", color: "#334155", marginBottom: "6px" }}>Sub-Category:</label>
+                <select 
+                  name="subCategory" 
+                  value={editingProduct.subCategory} 
+                  onChange={(e) => setEditingProduct({ ...editingProduct, subCategory: e.target.value })} 
+                  style={{ width: "100%", padding: "12px 16px", borderRadius: "12px", border: "1px solid #cbd5e1", backgroundColor: "#f8fafc", fontWeight: "700", fontSize: "13px" }}
+                  disabled={!editingProduct.category}
+                >
+                  <option value="">-- Choose Sub-Category --</option>
+                  {editingSubCategories.map((sub) => (
+                    <option key={sub._id} value={sub.name}>{sub.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: "13px", fontWeight: "800", color: "#334155", marginBottom: "6px" }}>Original Price (₹):</label>
+                <input name="originalPrice" type="number" value={editingProduct.originalPrice} onChange={(e) => setEditingProduct({ ...editingProduct, originalPrice: e.target.value })} style={{ width: "100%", padding: "12px 16px", borderRadius: "12px", border: "1px solid #cbd5e1", backgroundColor: "#f8fafc", fontWeight: "600", fontSize: "13px", boxSizing: "border-box" }} required />
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: "13px", fontWeight: "800", color: "#334155", marginBottom: "6px" }}>Offer Price (₹):</label>
+                <input name="offerPrice" type="number" value={editingProduct.offerPrice} onChange={(e) => setEditingProduct({ ...editingProduct, offerPrice: e.target.value })} style={{ width: "100%", padding: "12px 16px", borderRadius: "12px", border: "1px solid #cbd5e1", backgroundColor: "#f8fafc", fontWeight: "600", fontSize: "13px", boxSizing: "border-box" }} required />
+              </div>
+              
+              <div style={{ gridColumn: "span 2" }}>
+                <label style={{ display: "block", fontSize: "13px", fontWeight: "800", color: "#334155", marginBottom: "6px" }}>Image URLs:</label>
+                <textarea name="images" value={editingProduct.images} onChange={(e) => setEditingProduct({ ...editingProduct, images: e.target.value })} style={{ width: "100%", padding: "12px 16px", borderRadius: "12px", border: "1px solid #cbd5e1", backgroundColor: "#f8fafc", fontWeight: "600", fontSize: "13px", gridColumn: "span 2", minHeight: "60px", boxSizing: "border-box" }} required />
+              </div>
+              
+              <div style={{ gridColumn: "span 2", display: "flex", flexDirection: "column", gap: "8px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <label style={{ fontSize: "13px", fontWeight: "800", color: "#334155" }}>Description:</label>
+                  <div style={{ display: "flex", gap: "6px" }}>
+                    <button type="button" onClick={() => handleFormatText("bold", true)} style={{ padding: "4px 10px", fontWeight: "800", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: "8px", cursor: "pointer", fontSize: "12px" }}>B</button>
+                    <button type="button" onClick={() => handleFormatText("italic", true)} style={{ padding: "4px 10px", fontStyle: "italic", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: "8px", cursor: "pointer", fontSize: "12px" }}>I</button>
+                    <button type="button" onClick={() => handleFormatText("underline", true)} style={{ padding: "4px 10px", textDecoration: "underline", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: "8px", cursor: "pointer", fontSize: "12px" }}>U</button>
+                    <button type="button" onClick={() => handleFormatText("strike", true)} style={{ padding: "4px 10px", textDecoration: "line-through", background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: "8px", cursor: "pointer", fontSize: "12px" }}>S</button>
+                  </div>
+                </div>
+                <textarea name="description" value={editingProduct.description} onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })} style={{ width: "100%", padding: "12px 16px", borderRadius: "12px", border: "1px solid #cbd5e1", backgroundColor: "#f8fafc", fontWeight: "600", fontSize: "13px", minHeight: "100px", boxSizing: "border-box" }} required />
+              </div>
+              
+              <button type="submit" style={{ gridColumn: "span 2", backgroundColor: "#16a34a", color: "#fff", border: "none", padding: "14px", borderRadius: "14px", fontWeight: "800", fontSize: "14px", cursor: "pointer", boxShadow: "0 4px 12px rgba(22, 163, 74, 0.25)", marginTop: "10px" }}>
                 Update Product
               </button>
             </form>
@@ -324,16 +403,20 @@ export default function ProductsPage() {
         </div>
       )}
 
+      {/* View Product Details Modal */}
       {selectedProduct && !editingProduct && (
-        <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
-          <div style={{ backgroundColor: "#fff", width: "100%", maxWidth: "600px", borderRadius: "16px", padding: "24px", position: "relative", maxHeight: "90vh", overflowY: "auto" }}>
-            <button onClick={() => setSelectedProduct(null)} style={{ background: "none", border: "none", fontSize: "18px", cursor: "pointer", position: "absolute", top: "20px", right: "20px" }}>✕</button>
-            <h2 style={{ fontSize: "20px", fontWeight: "bold", marginBottom: "8px" }}>{selectedProduct.title}</h2>
-            <div dangerouslySetInnerHTML={{ __html: selectedProduct.description }} style={{ color: "#6b7280", fontSize: "14px", marginBottom: "16px" }} />
-            <h4 style={{ fontSize: "14px", fontWeight: "bold", marginBottom: "12px", textTransform: "uppercase" }}>All Product Images:</h4>
+        <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "rgba(15, 23, 42, 0.6)", backdropFilter: "blur(4px)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
+          <div style={{ backgroundColor: "#fff", width: "100%", maxWidth: "650px", borderRadius: "24px", padding: "32px", position: "relative", maxHeight: "90vh", overflowY: "auto", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}>
+            <button onClick={() => setSelectedProduct(null)} style={{ background: "#f1f5f9", border: "none", width: "32px", height: "32px", borderRadius: "50%", fontSize: "14px", fontWeight: "bold", cursor: "pointer", position: "absolute", top: "24px", right: "24px", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+            <h2 style={{ fontSize: "20px", fontWeight: "900", marginBottom: "6px", color: "#0f172a" }}>{selectedProduct.title}</h2>
+            <p style={{ fontSize: "12px", fontWeight: "800", color: "#6366f1", marginBottom: "16px", textTransform: "uppercase" }}>{selectedProduct.category} {selectedProduct.subCategory ? `› ${selectedProduct.subCategory}` : ""}</p>
+            
+            <div dangerouslySetInnerHTML={{ __html: selectedProduct.description }} style={{ color: "#475569", fontSize: "13px", lineHeight: "1.6", marginBottom: "20px", padding: "14px", backgroundColor: "#f8fafc", borderRadius: "12px", border: "1px solid #e2e8f0" }} />
+            
+            <h4 style={{ fontSize: "13px", fontWeight: "900", marginBottom: "12px", textTransform: "uppercase", color: "#334155" }}>All Product Images:</h4>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
               {(selectedProduct.images || [selectedProduct.imageUrl]).map((img, idx) => (
-                <img key={idx} src={img} alt="" style={{ width: "100%", height: "140px", objectFit: "cover", borderRadius: "8px", border: "1px solid #e5e7eb" }} />
+                <img key={idx} src={img} alt="" style={{ width: "100%", height: "140px", objectFit: "cover", borderRadius: "12px", border: "1px solid #e2e8f0" }} />
               ))}
             </div>
           </div>
