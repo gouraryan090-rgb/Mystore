@@ -1,0 +1,368 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { jsPDF } from "jspdf";
+
+const getCustomerStatus = (dbStatus) => {
+  switch (dbStatus) {
+    case "Pending": return "Placed";
+    case "Processing": return "Processing";
+    case "In Transit": return "Shipped";
+    case "Delivered": return "Delivered";
+    case "Cancelled": return "Cancelled";
+    default: return dbStatus || "Placed";
+  }
+};
+
+export default function OrderDetailsPage() {
+  const params = useParams();
+  const router = useRouter();
+  const orderId = params?.id;
+
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+
+  useEffect(() => {
+    if (orderId) {
+      fetchOrderDetails();
+    }
+  }, [orderId]);
+
+  async function fetchOrderDetails() {
+    try {
+      const res = await fetch(`/api/orders/${orderId}`);
+      const data = await res.json();
+      if (data.success) {
+        setOrder(data.data);
+      } else {
+        alert(data.message || "Order not found");
+      }
+    } catch (err) {
+      console.error("Fetch order detail error:", err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const isCancellable = (createdAt, orderStatus, dbStatus) => {
+    const currentStatus = (orderStatus || dbStatus || "Placed").toLowerCase();
+    if (["cancelled", "delivered", "in transit", "shipped", "processing"].includes(currentStatus)) {
+      return false;
+    }
+    if (!createdAt) return true;
+    const orderTime = new Date(createdAt).getTime();
+    const currentTime = new Date().getTime();
+    const hoursDiff = (currentTime - orderTime) / (1000 * 60 * 60);
+    return hoursDiff <= 24;
+  };
+
+  const handleCancelSubmit = async () => {
+    if (!cancelReason) {
+      alert("Please select a reason for cancellation.");
+      return;
+    }
+    setActionLoading(true);
+    try {
+      const res = await fetch("/api/orders/cancel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId, reason: cancelReason }),
+      });
+      const data = await res.json();
+      alert(data.message);
+      if (data.success) {
+        setShowCancelModal(false);
+        setCancelReason("");
+        fetchOrderDetails();
+      }
+    } catch (error) {
+      console.error("Cancel Order Error:", error);
+      alert("Unable to cancel the order.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const generateReceiptPDF = (order) => {
+    const doc = new jsPDF();
+    const primaryColor = [99, 102, 241]; 
+    const textColor = [15, 23, 42];      
+    const grayColor = [100, 116, 139];   
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.setTextColor(...primaryColor);
+    doc.text("ZENTROBAZAAR", 14, 20);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(...grayColor);
+    doc.text("Digital Tax Invoice / Receipt", 14, 26);
+
+    doc.setFontSize(9);
+    doc.text("Nawa City, Rajasthan - 341509", 200, 20, { align: "right" });
+    doc.text("Email: zentrobazaar.shop@gmail.com", 200, 25, { align: "right" });
+    doc.text("Mobile: +91 7378200781", 200, 30, { align: "right" });
+
+    doc.setDrawColor(226, 232, 240);
+    doc.setLineWidth(0.5);
+    doc.line(14, 42, 196, 42);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(...textColor);
+    doc.text("Order Details:", 14, 52);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text(`Order ID: #${order._id}`, 14, 59);
+    doc.text(`Date: ${order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "Recent"}`, 14, 66);
+    doc.text(`Payment Method: ${order.paymentMethod || "COD"}`, 14, 73);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Shipping Address:", 110, 52);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Name: ${order.shippingAddress?.name || "Customer"}`, 110, 59);
+    doc.text(`Phone: ${order.shippingAddress?.phone || "N/A"}`, 110, 66);
+    doc.text(`Address: ${order.shippingAddress?.address || "Nawa City"}`, 110, 73, { maxWidth: 85 });
+
+    doc.setFillColor(241, 245, 249);
+    doc.rect(14, 85, 182, 8, "F");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(...textColor);
+    doc.text("Item Description", 18, 91);
+    doc.text("Qty", 120, 91);
+    doc.text("Price", 145, 91);
+    doc.text("Total", 175, 91);
+
+    let startY = 99;
+    doc.setFont("helvetica", "normal");
+    const items = order.items || [];
+    items.forEach((item) => {
+      const title = item.title || "Product Item";
+      const qty = item.quantity || item.qty || 1;
+      const price = item.offerPrice || item.price || 0;
+      const itemTotal = qty * price;
+
+      doc.text(title, 18, startY, { maxWidth: 95 });
+      doc.text(String(qty), 120, startY);
+      doc.text(`Rs. ${price}`, 145, startY);
+      doc.text(`Rs. ${itemTotal}`, 175, startY);
+      startY += 10;
+    });
+
+    doc.line(14, startY + 2, 196, startY + 2);
+    startY += 10;
+
+    const subtotal = order.totalAmount || items.reduce((acc, item) => acc + (item.quantity || item.qty || 1) * (item.offerPrice || item.price || 0), 0);
+    const shipping = order.shippingFee || 0;
+    const grandTotal = subtotal + shipping;
+
+    doc.setFont("helvetica", "normal");
+    doc.text("Subtotal:", 130, startY);
+    doc.text(`Rs. ${subtotal}`, 175, startY);
+
+    startY += 7;
+    doc.text("Shipping Fee:", 130, startY);
+    doc.text(`Rs. ${shipping}`, 175, startY);
+
+    startY += 8;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(...primaryColor);
+    doc.text("Grand Total:", 130, startY);
+    doc.text(`Rs. ${grandTotal}`, 175, startY);
+
+    startY += 25;
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(9);
+    doc.setTextColor(...grayColor);
+    doc.text("Thank you for shopping with ZENTROBAZAAR! This is a computer-generated receipt.", 14, startY);
+
+    doc.save(`ZentroBazaar-Invoice-${order._id}.pdf`);
+  };
+
+  if (loading) {
+    return (
+      <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ color: "#64748b", fontWeight: "600", fontSize: "15px" }}>Loading order details...</div>
+      </div>
+    );
+  }
+
+  if (!order) {
+    return (
+      <div style={{ textAlign: "center", padding: "80px 20px" }}>
+        <h2 style={{ fontSize: "20px", fontWeight: "800", color: "#0f172a", marginBottom: "12px" }}>Order not found</h2>
+        <button onClick={() => router.push("/orders")} style={{ padding: "10px 20px", backgroundColor: "#4f46e5", color: "#fff", border: "none", borderRadius: "10px", fontWeight: "700", cursor: "pointer" }}>
+          Back to My Orders
+        </button>
+      </div>
+    );
+  }
+
+  const isCancelled = order.orderStatus === "Cancelled" || order.status === "Cancelled" || order.status === "cancelled";
+  const isDelivered = order.orderStatus === "Delivered" || order.status === "Delivered" || order.status === "delivered";
+  const isShipped = order.orderStatus === "In Transit" || order.status === "Shipped" || order.status === "in transit";
+  const cancellable = isCancellable(order.createdAt, order.orderStatus, order.status);
+  const customerStatusLabel = getCustomerStatus(order.status || order.orderStatus);
+  const formattedDate = order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : "Recent";
+
+  let badgeBg = "#fef3c7";
+  let badgeColor = "#d97706";
+  if (isDelivered) { badgeBg = "#dcfce7"; badgeColor = "#16a34a"; }
+  if (isShipped) { badgeBg = "#e0e7ff"; badgeColor = "#4f46e5"; }
+  if (isCancelled) { badgeBg = "#fee2e2"; badgeColor = "#dc2626"; }
+
+  return (
+    <div style={{ maxWidth: "1000px", margin: "0 auto", paddingBottom: "80px", fontFamily: "system-ui, -apple-system, sans-serif", paddingLeft: "24px", paddingRight: "24px" }}>
+      
+      {/* Breadcrumb & Header */}
+      <div style={{ margin: "24px 0", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
+        <div>
+          <div style={{ fontSize: "13px", color: "#64748b", fontWeight: "600", marginBottom: "8px" }}>
+            <span style={{ color: "#4f46e5", cursor: "pointer" }} onClick={() => router.push("/")}>Home</span> &gt; <span style={{ color: "#4f46e5", cursor: "pointer" }} onClick={() => router.push("/orders")}>My Orders</span> &gt; <span style={{ color: "#0f172a" }}>Details</span>
+          </div>
+          <h1 style={{ fontSize: "26px", fontWeight: "900", color: "#0f172a", margin: 0 }}>
+            Order Details
+          </h1>
+        </div>
+
+        <button
+          onClick={() => router.push("/orders")}
+          style={{ backgroundColor: "#f1f5f9", color: "#475569", border: "none", padding: "10px 18px", borderRadius: "12px", fontSize: "13px", fontWeight: "700", cursor: "pointer" }}
+        >
+          ← Back to Orders
+        </button>
+      </div>
+
+      {/* Order Meta Info Card */}
+      <div style={{ backgroundColor: "#fff", borderRadius: "20px", border: "1px solid #e2e8f0", padding: "24px", marginBottom: "24px", boxShadow: "0 4px 12px rgba(0,0,0,0.02)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px", borderBottom: "1px solid #f1f5f9", paddingBottom: "16px" }}>
+          <div>
+            <span style={{ fontSize: "13px", color: "#64748b", fontWeight: "600" }}>Order ID: </span>
+            <strong style={{ fontSize: "15px", color: "#0f172a" }}>#{order._id}</strong>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <span style={{ backgroundColor: badgeBg, color: badgeColor, padding: "6px 14px", borderRadius: "10px", fontSize: "12px", fontWeight: "700" }}>
+              {customerStatusLabel}
+            </span>
+            <span style={{ fontSize: "13px", color: "#64748b", fontWeight: "600" }}>📅 {formattedDate}</span>
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "20px", marginTop: "20px" }}>
+          <div>
+            <h4 style={{ fontSize: "13px", color: "#64748b", textTransform: "uppercase", marginBottom: "6px", fontWeight: "700" }}>Shipping Address</h4>
+            <p style={{ margin: "0 0 4px 0", fontWeight: "700", color: "#0f172a", fontSize: "14px" }}>{order.shippingAddress?.name}</p>
+            <p style={{ margin: "0 0 4px 0", color: "#475569", fontSize: "13px" }}>{order.shippingAddress?.address}</p>
+            <p style={{ margin: "0 0 4px 0", color: "#475569", fontSize: "13px" }}>Phone: {order.shippingAddress?.phone}</p>
+          </div>
+
+          <div>
+            <h4 style={{ fontSize: "13px", color: "#64748b", textTransform: "uppercase", marginBottom: "6px", fontWeight: "700" }}>Payment & Summary</h4>
+            <p style={{ margin: "0 0 4px 0", color: "#475569", fontSize: "13px" }}>Method: <strong style={{ color: "#0f172a" }}>{order.paymentMethod || "COD"}</strong></p>
+            <p style={{ margin: "0 0 4px 0", color: "#475569", fontSize: "13px" }}>Items Total: <strong style={{ color: "#0f172a" }}>₹{order.totalAmount}</strong></p>
+            <p style={{ margin: "0 0 4px 0", color: "#475569", fontSize: "13px" }}>Shipping Fee: <strong style={{ color: "#0f172a" }}>₹{order.shippingFee || 0}</strong></p>
+          </div>
+        </div>
+      </div>
+
+      {/* Items Section */}
+      <div style={{ backgroundColor: "#fff", borderRadius: "20px", border: "1px solid #e2e8f0", padding: "24px", marginBottom: "24px" }}>
+        <h3 style={{ fontSize: "16px", fontWeight: "800", color: "#0f172a", margin: "0 0 16px 0" }}>Ordered Items</h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          {order.items?.map((item, idx) => (
+            <div key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px", paddingBottom: "16px", borderBottom: idx < order.items.length - 1 ? "1px solid #f1f5f9" : "none" }}>
+              <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+                <div style={{ width: "75px", height: "75px", backgroundColor: "#f8fafc", borderRadius: "12px", border: "1px solid #f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", padding: "6px", flexShrink: 0 }}>
+                  <img src={item.images?.[0] || item.imageUrl || "https://via.placeholder.com/75"} alt="" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
+                </div>
+                <div>
+                  <h4 style={{ fontSize: "14px", fontWeight: "700", color: "#0f172a", margin: "0 0 4px 0", lineHeight: "1.4" }}>
+                    {item.title}
+                  </h4>
+                  <div style={{ fontSize: "12px", color: "#64748b", fontWeight: "500", display: "flex", gap: "12px" }}>
+                    <span>Qty: <strong style={{ color: "#0f172a" }}>{item.quantity || item.qty || 1}</strong></span>
+                    {item.variant && <span>Variant: <strong style={{ color: "#0f172a" }}>{item.variant}</strong></span>}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ textAlign: "right", flexShrink: 0 }}>
+                <div style={{ fontSize: "16px", fontWeight: "900", color: "#0f172a" }}>
+                  ₹{item.offerPrice || item.price}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Actions Footer */}
+      <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end", flexWrap: "wrap" }}>
+        <button
+          onClick={() => generateReceiptPDF(order)}
+          style={{ backgroundColor: "#1e293b", color: "#fff", border: "none", padding: "12px 20px", borderRadius: "12px", fontSize: "13px", fontWeight: "700", cursor: "pointer", boxShadow: "0 2px 8px rgba(15, 23, 42, 0.2)" }}
+        >
+          📄 Download Tax Invoice
+        </button>
+
+        {cancellable && (
+          <button
+            onClick={() => setShowCancelModal(true)}
+            style={{ backgroundColor: "#ef4444", color: "#fff", border: "none", padding: "12px 20px", borderRadius: "12px", fontSize: "13px", fontWeight: "700", cursor: "pointer", boxShadow: "0 2px 8px rgba(239, 68, 68, 0.25)" }}
+          >
+            Cancel Order
+          </button>
+        )}
+      </div>
+
+      {/* Cancel Modal */}
+      {showCancelModal && (
+        <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "rgba(0,0,0,0.5)", zIndex: 999, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
+          <div style={{ backgroundColor: "#fff", padding: "28px", borderRadius: "20px", width: "100%", maxWidth: "400px", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
+            <h3 style={{ margin: "0 0 6px 0", fontSize: "18px", fontWeight: "800", color: "#0f172a" }}>Cancel Order</h3>
+            <p style={{ fontSize: "14px", color: "#64748b", marginBottom: "16px" }}>Please select a reason for cancelling this order:</p>
+
+            <select
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid #cbd5e1", marginBottom: "20px", fontSize: "14px", outline: "none", backgroundColor: "#f8fafc", color: "#0f172a" }}
+            >
+              <option value="">-- Select Reason --</option>
+              <option value="Ordered by mistake">Ordered by mistake</option>
+              <option value="Delivery time is too long">Delivery time is too long</option>
+              <option value="Incorrect address entered">Incorrect address entered</option>
+              <option value="Found a better price elsewhere">Found a better price elsewhere</option>
+              <option value="Other Reason">Other Reason</option>
+            </select>
+
+            <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+              <button
+                onClick={() => setShowCancelModal(false)}
+                style={{ padding: "10px 16px", backgroundColor: "#f1f5f9", border: "none", borderRadius: "10px", cursor: "pointer", fontWeight: "600", color: "#475569", fontSize: "14px" }}
+              >
+                Close
+              </button>
+              <button
+                onClick={handleCancelSubmit}
+                disabled={actionLoading}
+                style={{ padding: "10px 16px", backgroundColor: "#ef4444", color: "#fff", border: "none", borderRadius: "10px", cursor: "pointer", fontWeight: "600", fontSize: "14px" }}
+              >
+                {actionLoading ? "Cancelling..." : "Confirm Cancel"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}

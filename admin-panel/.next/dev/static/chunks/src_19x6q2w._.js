@@ -1224,7 +1224,7 @@ function HomePage() {
                                                     cursor: "pointer",
                                                     boxShadow: "0 4px 12px rgba(99, 102, 241, 0.2)"
                                                 },
-                                                children: "Add to Cart"
+                                                children: "View details"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(customer)/page.js",
                                                 lineNumber: 512,
