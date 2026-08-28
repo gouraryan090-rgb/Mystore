@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { jsPDF } from "jspdf";
+import { generateReceiptPDF } from "@/lib/generateInvoice";
 
 const getCustomerStatus = (dbStatus) => {
   switch (dbStatus) {
@@ -32,7 +32,17 @@ export default function YourOrdersPage() {
 
   async function fetchOrders() {
     try {
-      const res = await fetch("/api/orders/my-orders");
+      // LocalStorage se logged-in user ka email nikalein
+      const savedUser = JSON.parse(localStorage.getItem("customer_user") || "{}");
+      const userEmail = savedUser?.email;
+
+      if (!userEmail) {
+        setLoading(false);
+        return;
+      }
+
+      // Email ko query parameter me pass karein
+      const res = await fetch(`/api/orders/my-orders?email=${encodeURIComponent(userEmail)}`);
       const data = await res.json();
       if (data.success) {
         setOrders(data.data || []);
@@ -87,107 +97,6 @@ export default function YourOrdersPage() {
   const handleCopyId = (id) => {
     navigator.clipboard.writeText(id);
     alert("Order ID copied to clipboard!");
-  };
-
-  const generateReceiptPDF = (order) => {
-    const doc = new jsPDF();
-    const primaryColor = [99, 102, 241]; 
-    const textColor = [15, 23, 42];      
-    const grayColor = [100, 116, 139];   
-
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(22);
-    doc.setTextColor(...primaryColor);
-    doc.text("ZENTROBAZAAR", 14, 20);
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    doc.setTextColor(...grayColor);
-    doc.text("Digital Tax Invoice / Receipt", 14, 26);
-
-    doc.setFontSize(9);
-    doc.text("Nawa City, Rajasthan - 341509", 200, 20, { align: "right" });
-    doc.text("Email: zentrobazaar.shop@gmail.com", 200, 25, { align: "right" });
-    doc.text("Mobile: +91 7378200781", 200, 30, { align: "right" });
-
-    doc.setDrawColor(226, 232, 240);
-    doc.setLineWidth(0.5);
-    doc.line(14, 42, 196, 42);
-
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
-    doc.setTextColor(...textColor);
-    doc.text("Order Details:", 14, 52);
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    doc.text(`Order ID: #${order._id}`, 14, 59);
-    doc.text(`Date: ${order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "Recent"}`, 14, 66);
-    doc.text(`Payment Method: ${order.paymentMethod || "COD"}`, 14, 73);
-
-    doc.setFont("helvetica", "bold");
-    doc.text("Shipping Address:", 110, 52);
-    doc.setFont("helvetica", "normal");
-    doc.text(`Name: ${order.shippingAddress?.name || "Customer"}`, 110, 59);
-    doc.text(`Phone: ${order.shippingAddress?.phone || "N/A"}`, 110, 66);
-    doc.text(`Address: ${order.shippingAddress?.address || "Nawa City"}`, 110, 73, { maxWidth: 85 });
-
-    doc.setFillColor(241, 245, 249);
-    doc.rect(14, 85, 182, 8, "F");
-
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.setTextColor(...textColor);
-    doc.text("Item Description", 18, 91);
-    doc.text("Qty", 120, 91);
-    doc.text("Price", 145, 91);
-    doc.text("Total", 175, 91);
-
-    let startY = 99;
-    doc.setFont("helvetica", "normal");
-    const items = order.items || [];
-    items.forEach((item) => {
-      const title = item.title || "Product Item";
-      const qty = item.quantity || item.qty || 1;
-      const price = item.offerPrice || item.price || 0;
-      const itemTotal = qty * price;
-
-      doc.text(title, 18, startY, { maxWidth: 95 });
-      doc.text(String(qty), 120, startY);
-      doc.text(`Rs. ${price}`, 145, startY);
-      doc.text(`Rs. ${itemTotal}`, 175, startY);
-      startY += 10;
-    });
-
-    doc.line(14, startY + 2, 196, startY + 2);
-    startY += 10;
-
-    const subtotal = order.totalAmount || items.reduce((acc, item) => acc + (item.quantity || item.qty || 1) * (item.offerPrice || item.price || 0), 0);
-    const shipping = order.shippingFee || 0;
-    const grandTotal = subtotal + shipping;
-
-    doc.setFont("helvetica", "normal");
-    doc.text("Subtotal:", 130, startY);
-    doc.text(`Rs. ${subtotal}`, 175, startY);
-
-    startY += 7;
-    doc.text("Shipping Fee:", 130, startY);
-    doc.text(`Rs. ${shipping}`, 175, startY);
-
-    startY += 8;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
-    doc.setTextColor(...primaryColor);
-    doc.text("Grand Total:", 130, startY);
-    doc.text(`Rs. ${grandTotal}`, 175, startY);
-
-    startY += 25;
-    doc.setFont("helvetica", "italic");
-    doc.setFontSize(9);
-    doc.setTextColor(...grayColor);
-    doc.text("Thank you for shopping with ZENTROBAZAAR! This is a computer-generated receipt.", 14, startY);
-
-    doc.save(`ZentroBazaar-Invoice-${order._id}.pdf`);
   };
 
   const totalOrdersCount = orders.length;

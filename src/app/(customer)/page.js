@@ -103,6 +103,26 @@ export default function HomePage() {
     setFilteredProducts(result);
   }, [search, selectedCategory, selectedSubCategory, products]);
 
+  // Google Login Handler
+  const handleGoogleLogin = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const loggedUser = result.user;
+      
+      const userData = {
+        name: loggedUser.displayName,
+        email: loggedUser.email,
+        photo: loggedUser.photoURL
+      };
+
+      setUser(userData);
+      localStorage.setItem("customer_user", JSON.stringify(userData));
+    } catch (error) {
+      console.error("Login Error:", error);
+    }
+  };
+
   if (isCheckingAuth) {
     return (
       <div style={{ padding: "60px", textAlign: "center", fontSize: "16px", fontWeight: "600", color: "#4b5563" }}>
@@ -112,8 +132,52 @@ export default function HomePage() {
   }
 
   return (
-    <div style={{ fontFamily: "system-ui, -apple-system, sans-serif", backgroundColor: "#f8fafc", minHeight: "100vh", paddingBottom: "60px" }}>
+    <div style={{ fontFamily: "system-ui, -apple-system, sans-serif", backgroundColor: "#f8fafc", minHeight: "100vh", paddingBottom: "60px", position: "relative" }}>
       
+      {/* Agar user logged-in nahi hai toh niche sundar Pop-up/Banner dikhega */}
+      {!user && (
+        <div style={{
+          position: "fixed",
+          bottom: "20px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          backgroundColor: "#ffffff",
+          padding: "16px 24px",
+          borderRadius: "20px",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
+          display: "flex",
+          alignItems: "center",
+          gap: "20px",
+          zIndex: 1000,
+          border: "1px solid #e2e8f0",
+          width: "90%",
+          maxWidth: "500px",
+          justifyContent: "space-between"
+        }}>
+          <div>
+            <h4 style={{ margin: "0 0 4px 0", fontSize: "14px", fontWeight: "800", color: "#0f172a" }}>Welcome to ZentroBazaar! 👋</h4>
+            <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>Sign in quickly with Google to manage your orders.</p>
+          </div>
+          <button
+            onClick={handleGoogleLogin}
+            style={{
+              backgroundColor: "#6366f1",
+              color: "#fff",
+              border: "none",
+              padding: "10px 18px",
+              borderRadius: "12px",
+              fontWeight: "700",
+              fontSize: "13px",
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+              boxShadow: "0 4px 12px rgba(99, 102, 241, 0.3)"
+            }}
+          >
+            Login with Google
+          </button>
+        </div>
+      )}
+
       {/* Hero Section */}
       <div style={{ maxWidth: "1280px", margin: "20px auto", padding: "0 20px" }}>
         <div style={{ 
@@ -211,7 +275,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Shop By Categories Section (Fixed with image & imageUrl support) */}
+        {/* Shop By Categories Section */}
         <div style={{ margin: "40px 0 20px 0" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
             <h2 style={{ fontSize: "20px", fontWeight: "800", color: "#0f172a", margin: 0 }}>Shop By Categories</h2>

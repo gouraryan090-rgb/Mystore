@@ -29,29 +29,37 @@ export default function UserProfilePage() {
         // 1. Fetch Logged-in User Data
         const savedUser = localStorage.getItem("customer_user");
         if (savedUser) {
-          setUser(JSON.parse(savedUser));
+          const parsedUser = JSON.parse(savedUser);
+          setUser(parsedUser);
+
+          const userEmail = parsedUser?.email;
+
+          // 2. Fetch Real Orders from Backend API with Email Filter
+          if (userEmail) {
+            const orderRes = await fetch(`/api/orders/my-orders?email=${encodeURIComponent(userEmail)}`);
+            const orderData = await orderRes.json();
+            if (orderData.success) {
+              setOrders(orderData.data || []);
+            } else {
+              setOrders([]);
+            }
+
+            // 3. Fetch Real Addresses specific to this user's email from localStorage
+            const savedAddresses = localStorage.getItem(`customer_addresses_${userEmail}`);
+            if (savedAddresses) {
+              setAddresses(JSON.parse(savedAddresses));
+            } else {
+              // Default fallback address only if none exists for this specific user
+              const defaultAddr = [
+                { id: 1, title: "Home", tag: "Default", name: parsedUser?.name || "User", street1: "242, Ram Laxman Colony", city: "Nawa City", pincode: "341509", phone: parsedUser?.phone || "7378200781", active: true }
+              ];
+              setAddresses(defaultAddr);
+              localStorage.setItem(`customer_addresses_${userEmail}`, JSON.stringify(defaultAddr));
+            }
+          }
         } else {
           router.push("/login");
           return;
-        }
-
-        // 2. Fetch Real Orders from Backend API
-        const orderRes = await fetch("/api/orders/my-orders");
-        const orderData = await orderRes.json();
-        if (orderData.success) {
-          setOrders(orderData.data || []);
-        } else {
-          setOrders([]);
-        }
-
-        // 3. Fetch Real Addresses from localStorage
-        const savedAddresses = localStorage.getItem("customer_addresses");
-        if (savedAddresses) {
-          setAddresses(JSON.parse(savedAddresses));
-        } else {
-          setAddresses([
-            { id: 1, title: "Home", tag: "Default", name: JSON.parse(savedUser)?.name || "User", address: "242, Ram Laxman Colony, Nawa City, Rajasthan - 341509", phone: "7378200781", active: true }
-          ]);
         }
 
       } catch (e) {
@@ -170,7 +178,7 @@ export default function UserProfilePage() {
           {/* 2. Quick Count Dynamic Cards */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "16px" }}>
             <StatCard icon="🛍️" count={orders.length} label="Total Orders" link="/orders" />
-            <StatCard icon="📍" count={addresses.length} label="Addresses" link="/addresses" />
+            <StatCard icon="📍" count={addresses.length} label="Addresses" link="/edit-address" />
           </div>
 
           {/* 3. Account Information & Recent Orders Grid */}
@@ -236,17 +244,22 @@ export default function UserProfilePage() {
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px" }}>
               {addresses.length > 0 ? (
-                addresses.slice(0, 3).map((addr, idx) => (
-                  <AddressBox 
-                    key={idx} 
-                    title={addr.title || "Address"} 
-                    tag={addr.tag || (idx === 0 ? "Default" : "")} 
-                    name={addr.name || user.name} 
-                    address={addr.address || addr.fullAddress || "Address details"} 
-                    phone={addr.phone || user.phone || "N/A"} 
-                    active={addr.active || idx === 0} 
-                  />
-                ))
+                addresses.slice(0, 3).map((addr, idx) => {
+                  // Format full address dynamically based on fields saved from EditAddressPage
+                  const fullFormattedAddress = addr.address || `${addr.street1 || ''}${addr.street2 ? ', ' + addr.street2 : ''}${addr.city ? ', ' + addr.city : ''} - ${addr.pincode || ''}`;
+                  
+                  return (
+                    <AddressBox 
+                      key={addr.id || idx} 
+                      title={addr.title || (idx === 0 ? "Home" : `Address ${idx + 1}`)} 
+                      tag={addr.tag || (idx === 0 ? "Default" : "")} 
+                      name={addr.name || user.name} 
+                      address={fullFormattedAddress} 
+                      phone={addr.phone || user.phone || "N/A"} 
+                      active={addr.active || idx === 0} 
+                    />
+                  );
+                })
               ) : (
                 <p style={{ fontSize: "13px", color: "#64748b" }}>No saved addresses found.</p>
               )}
@@ -332,15 +345,5 @@ function AddressBox({ title, tag, name, address, phone, active }) {
       <div style={{ fontSize: "10px", color: "#64748b", lineHeight: "1.3", marginBottom: "6px" }}>{address}</div>
       <div style={{ fontSize: "10px", color: "#475569" }}>📱 {phone}</div>
     </div>
-  );
-}
-
-function SettingCard({ icon, title, desc, link }) {
-  return (
-    <Link href={link} style={{ border: "1px solid #e2e8f0", borderRadius: "12px", padding: "14px", textDecoration: "none", backgroundColor: "#f8fafc", display: "flex", flexDirection: "column", gap: "6px" }}>
-      <div style={{ fontSize: "18px" }}>{icon}</div>
-      <div style={{ fontSize: "13px", fontWeight: "700", color: "#0f172a" }}>{title}</div>
-      <div style={{ fontSize: "11px", color: "#64748b", lineHeight: "1.3" }}>{desc}</div>
-    </Link>
   );
 }

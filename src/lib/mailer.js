@@ -1,7 +1,6 @@
 import nodemailer from "nodemailer";
 import PDFDocument from "pdfkit";
 
-// Nodemailer transporter setup
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -10,101 +9,86 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Function to generate PDF buffer dynamically matching your frontend invoice layout
-function generateInvoicePDFBuffer(order) {
+// Helper function to generate PDF Invoice Buffer
+async function generateInvoicePDF(orderData) {
   return new Promise((resolve, reject) => {
     try {
-      const doc = new PDFDocument({ margin: 40, size: "A4" });
-      const buffers = [];
+      const doc = new PDFDocument({ margin: 50, size: 'A4' });
+      let buffers = [];
 
       doc.on("data", (chunk) => buffers.push(chunk));
       doc.on("end", () => resolve(Buffer.concat(buffers)));
 
-      // Colors
-      const primaryColor = "#6366f1";
-      const textColor = "#0f172a";
-      const grayColor = "#64748b";
+      // --- Header ---
+      doc.fontSize(20).fillColor("#0f172a").text("ZENTROBAZAAR", { align: "right" });
+      doc.fontSize(10).fillColor("#64748b").text("Invoice / Receipt", { align: "right" });
+      doc.moveDown();
 
-      // Header - Brand & Title
-      doc.fillColor(primaryColor).fontSize(22).font("Helvetica-Bold").text("ZENTROBAZAAR", 40, 40);
-      doc.fillColor(grayColor).fontSize(10).font("Helvetica").text("Digital Tax Invoice / Receipt", 40, 68);
+      // --- Order & Customer Info ---
+      doc.fontSize(12).fillColor("#0f172a").text(`Order ID: #${orderData.orderId}`);
+      doc.text(`Date: ${new Date().toLocaleDateString()}`);
+      doc.text(`Status: ${orderData.type === "cancelled" ? "Cancelled" : "Confirmed"}`);
+      doc.moveDown();
 
-      // Company Info (Right aligned)
-      doc.fontSize(9).text("Nawa City, Rajasthan - 341509", 400, 40, { align: "right" });
-      doc.text("Email: zentrobazaar.shop@gmail.com", 400, 55, { align: "right" });
-      doc.text("Mobile: +91 7378200781", 400, 70, { align: "right" });
+      doc.text("Shipping Details:");
+      doc.fontSize(10).fillColor("#334155");
+      doc.text(`Name: ${orderData.customerName || "N/A"}`);
+      doc.text(`Phone: ${orderData.phone || "N/A"}`);
+      doc.text(`Address: ${orderData.address || "N/A"}`);
+      doc.moveDown(2);
 
-      // Divider Line
-      doc.strokeColor("#e2e8f0").lineWidth(1).moveTo(40, 95).stroke();
+      // --- Table Headers ---
+      doc.fontSize(12).fillColor("#0f172a").text("Order Items:", { underline: true });
+      doc.moveDown(0.5);
 
-      // Order Details & Shipping Info
-      doc.fillColor(textColor).fontSize(11).font("Helvetica-Bold").text("Order Details:", 40, 110);
-      doc.fontSize(10).font("Helvetica");
-      doc.text(`Order ID: #${order._id}`, 40, 128);
-      doc.text(`Date: ${order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "Recent"}`, 40, 145);
-      doc.text(`Payment Method: ${order.paymentMethod || "COD"}`, 40, 162);
+      // Table columns setup
+      const tableTop = doc.y;
+      doc.fontSize(10).fillColor("#64748b");
+      doc.text("Product", 50, tableTop);
+      doc.text("Qty", 350, tableTop, { width: 50, align: "right" });
+      doc.text("Price", 420, tableTop, { width: 100, align: "right" });
 
-      doc.font("Helvetica-Bold").text("Shipping Address:", 320, 110);
-      doc.font("Helvetica");
-      doc.text(`Name: ${order.shippingAddress?.name || "Customer"}`, 320, 128);
-      doc.text(`Phone: ${order.shippingAddress?.phone || "N/A"}`, 320, 145);
-      doc.text(`Address: ${order.shippingAddress?.address || "Nawa City"}`, 320, 162, { width: 235 });
+      doc.moveTo(50, tableTop + 15).lineTo(550, tableTop + 15).strokeColor("#cbd5e1").stroke();
 
-      // Table Header Background
-      doc.rect(40, 205, 515, 24).fill("#f1f5f9");
+      let position = tableTop + 25;
+      doc.fontSize(10).fillColor("#0f172a");
 
-      // Table Header Texts
-      doc.fillColor(textColor).fontSize(10).font("Helvetica-Bold");
-      doc.text("Item Description", 50, 212);
-      doc.text("Qty", 380, 212);
-      doc.text("Price", 435, 212);
-      doc.text("Total", 495, 212);
-
-      // Items Loop
-      let startY = 240;
-      doc.font("Helvetica");
-      const items = order.items || [];
+      // Loop through items
+      const items = orderData.items || [{ productTitle: orderData.productTitle || "Product", quantity: 1, price: orderData.amount }];
       
       items.forEach((item) => {
-        const title = item.title || "Product Item";
-        const qty = item.quantity || item.qty || 1;
-        const price = item.offerPrice || item.price || 0;
-        const itemTotal = qty * price;
-
-        doc.fillColor(textColor).text(title, 50, startY, { width: 310 });
-        doc.text(String(qty), 380, startY);
-        doc.text(`Rs. ${price}`, 435, startY);
-        doc.text(`Rs. ${itemTotal}`, 495, startY);
-        
-        startY += 25;
+        doc.text(item.productTitle || item.name || "Product", 50, position, { width: 280 });
+        doc.text(item.quantity || 1, 350, position, { width: 50, align: "right" });
+        doc.text(`₹${item.price || orderData.amount || 0}`, 420, position, { width: 100, align: "right" });
+        position += 20;
       });
 
-      // Divider Line below items
-      doc.strokeColor("#e2e8f0").lineWidth(1).moveTo(40, startY + 5).stroke();
-      startY += 20;
+      doc.moveTo(50, position + 5).lineTo(550, position + 5).strokeColor("#cbd5e1").stroke();
+      position += 15;
 
-      const subtotal = order.totalAmount || items.reduce((acc, item) => acc + (item.quantity || item.qty || 1) * (item.offerPrice || item.price || 0), 0);
-      const shipping = order.shippingFee || 0;
-      const grandTotal = subtotal + shipping;
+      // --- Amount Breakup ---
+      const subtotal = orderData.amount || items.reduce((acc, item) => acc + (item.price * (item.quantity || 1)), 0);
+      const shipping = orderData.shippingPrice || 0;
+      const tax = orderData.taxPrice || 0;
+      const total = subtotal + shipping + tax;
 
-      // Totals
-      doc.font("Helvetica");
-      doc.text("Subtotal:", 380, startY);
-      doc.text(`Rs. ${subtotal}`, 495, startY);
+      doc.text(`Subtotal: ₹${subtotal}`, 350, position, { width: 170, align: "right" });
+      position += 18;
+      if (shipping > 0) {
+        doc.text(`Shipping: ₹${shipping}`, 350, position, { width: 170, align: "right" });
+        position += 18;
+      }
+      if (tax > 0) {
+        doc.text(`Tax: ₹${tax}`, 350, position, { width: 170, align: "right" });
+        position += 18;
+      }
 
-      startY += 18;
-      doc.text("Shipping Fee:", 380, startY);
-      doc.text(`Rs. ${shipping}`, 495, startY);
+      doc.fontSize(12).fillColor("#0f172a");
+      doc.text(`Total Amount: ₹${total}`, 350, position + 5, { width: 170, align: "right" });
 
-      startY += 22;
-      doc.fillColor(primaryColor).font("Helvetica-Bold").fontSize(11);
-      doc.text("Grand Total:", 380, startY);
-      doc.text(`Rs. ${grandTotal}`, 495, startY);
-
-      // Footer Note
-      startY += 50;
-      doc.fillColor(grayColor).font("Helvetica-Oblique").fontSize(9);
-      doc.text("Thank you for shopping with ZENTROBAZAAR! This is a computer-generated receipt.", 40, startY);
+      // --- Footer ---
+      doc.moveDown(4);
+      doc.fontSize(10).fillColor("#64748b").text("Thank you for shopping with ZentroBazaar!", { align: "center" });
 
       doc.end();
     } catch (error) {
@@ -113,70 +97,108 @@ function generateInvoicePDFBuffer(order) {
   });
 }
 
-// Main Email Trigger Function
-export async function sendOrderEmail(toEmail, orderId, type = "created", orderDetails = {}) {
+export async function sendOrderEmail(toEmail, orderId, type, details = {}) {
+  let subject = "";
+  let htmlContent = "";
+
+  // Products HTML list formatting
+  const items = details.items || [{ productTitle: details.productTitle || "Product", quantity: 1, price: details.amount }];
+  let productsHtml = items.map(item => `
+    <tr>
+      <td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">${item.productTitle || item.name || "Product"}</td>
+      <td style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: center;">${item.quantity || 1}</td>
+      <td style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: right;">₹${item.price || details.amount || 0}</td>
+    </tr>
+  `).join("");
+
+  let subtotal = details.amount || items.reduce((acc, item) => acc + (item.price * (item.quantity || 1)), 0);
+
+  if (type === "created") {
+    subject = `Order Confirmed! #${orderId} - ZentroBazaar`;
+    htmlContent = `
+      <div style="font-family: Arial, sans-serif; padding: 20px; color: #0f172a; max-width: 600px; margin: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
+        <h2 style="color: #16a34a;">Thank you for your order!</h2>
+        <p>Your order <strong>#${orderId}</strong> has been successfully placed.</p>
+        
+        <h3 style="margin-top: 20px; border-bottom: 2px solid #cbd5e1; padding-bottom: 5px;">Order Summary</h3>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+          <thead>
+            <tr style="background-color: #f8fafc; text-align: left;">
+              <th style="padding: 8px;">Product</th>
+              <th style="padding: 8px; text-align: center;">Qty</th>
+              <th style="padding: 8px; text-align: right;">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${productsHtml}
+          </tbody>
+        </table>
+
+        <div style="text-align: right; font-size: 14px; margin-bottom: 20px;">
+          <p><strong>Subtotal:</strong> ₹${subtotal}</p>
+          ${details.shippingPrice ? `<p><strong>Shipping:</strong> ₹${details.shippingPrice}</p>` : ""}
+          ${details.taxPrice ? `<p><strong>Tax:</strong> ₹${details.taxPrice}</p>` : ""}
+          <p style="font-size: 16px; color: #0f172a;"><strong>Total Amount: ₹${details.totalAmount || subtotal}</strong></p>
+        </div>
+
+        <p>We have attached your official PDF invoice with this email.</p>
+        <p>We will notify you once it ships.</p>
+        <br/>
+        <p>Regards,<br/><strong>ZentroBazaar Team</strong></p>
+      </div>
+    `;
+  } else if (type === "cancelled") {
+    subject = `Order Cancelled #${orderId} - ZentroBazaar`;
+    htmlContent = `
+      <div style="font-family: Arial, sans-serif; padding: 20px; color: #0f172a; max-width: 600px; margin: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
+        <h2 style="color: #dc2626;">Order Cancelled</h2>
+        <p>Your order <strong>#${orderId}</strong> has been successfully cancelled.</p>
+        <p><strong>Reason:</strong> ${details.reason || "Customer request"}</p>
+        
+        <h3 style="margin-top: 20px; border-bottom: 2px solid #cbd5e1; padding-bottom: 5px;">Cancelled Order Details</h3>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+          <thead>
+            <tr style="background-color: #f8fafc; text-align: left;">
+              <th style="padding: 8px;">Product</th>
+              <th style="padding: 8px; text-align: center;">Qty</th>
+              <th style="padding: 8px; text-align: right;">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${productsHtml}
+          </tbody>
+        </table>
+
+        <div style="text-align: right; font-size: 14px; margin-bottom: 20px;">
+          <p style="font-size: 16px; color: #dc2626;"><strong>Total Refundable Amount: ₹${details.totalAmount || subtotal}</strong></p>
+        </div>
+
+        <p>Updated cancellation invoice is attached herewith.</p>
+        <br/>
+        <p>Regards,<br/><strong>ZentroBazaar Team</strong></p>
+      </div>
+    `;
+  }
+
   try {
-    // Agar orderDetails me items ya amount missing hain, toh database se fetch kar lo
-    let orderData = orderDetails;
-    if (!orderData.items || !orderData.totalAmount) {
-      const Order = (await import("@models/Order")).default;
-      const foundOrder = await Order.findById(orderId);
-      if (foundOrder) {
-        orderData = foundOrder.toObject();
-      }
-    }
+    // Generate PDF Buffer
+    const pdfBuffer = await generateInvoicePDF({ orderId, type, ...details });
 
-    // PDF Buffer generate karein jo exactly frontend invoice jaisa hoga
-    const pdfBuffer = await generateInvoicePDFBuffer({
-      _id: orderId,
-      ...orderData
-    });
-
-    const isCancelled = type === "cancelled";
-    const subject = isCancelled 
-      ? `Order Cancelled - #${orderId} | ZentroBazaar`
-      : `Order Confirmed! #${orderId} | ZentroBazaar`;
-
-    const htmlContent = isCancelled
-      ? `
-        <div style="font-family: Arial, sans-serif; padding: 20px; color: #0f172a;">
-          <h2 style="color: #ef4444;">Order Successfully Cancelled</h2>
-          <p>Hi <b>${orderData.shippingAddress?.name || "Customer"}</b>,</p>
-          <p>Your order <b>#${orderId}</b> has been successfully cancelled as requested.</p>
-          <p><b>Reason:</b> ${orderData.cancellationReason || "User request"}</p>
-          <p>Please find attached your updated cancellation receipt/invoice PDF.</p>
-          <br/>
-          <p>Thanks,<br/><b>Team ZentroBazaar</b></p>
-        </div>
-      `
-      : `
-        <div style="font-family: Arial, sans-serif; padding: 20px; color: #0f172a;">
-          <h2 style="color: #4f46e5;">Thank You for Your Order!</h2>
-          <p>Hi <b>${orderData.shippingAddress?.name || "Customer"}</b>,</p>
-          <p>Your order <b>#${orderId}</b> has been successfully placed and is currently being processed.</p>
-          <p>Please find attached your official digital tax invoice receipt PDF.</p>
-          <br/>
-          <p>Thanks for shopping with us!<br/><b>Team ZentroBazaar</b></p>
-        </div>
-      `;
-
-    const mailOptions = {
+    await transporter.sendMail({
       from: `"ZentroBazaar" <${process.env.EMAIL_USER}>`,
       to: toEmail,
       subject: subject,
       html: htmlContent,
       attachments: [
         {
-          filename: `ZentroBazaar-Invoice-${orderId}.pdf`,
+          filename: `Invoice-${orderId}.pdf`,
           content: pdfBuffer,
           contentType: "application/pdf",
         },
       ],
-    };
-
-    await transporter.sendMail(mailOptions);
-    console.log(`Receipt email sent successfully to ${toEmail}`);
+    });
+    console.log(`Email with PDF invoice sent successfully to ${toEmail}`);
   } catch (error) {
-    console.error("Error sending order email with PDF:", error);
+    console.error("Error sending email:", error);
   }
 }

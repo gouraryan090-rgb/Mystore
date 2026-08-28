@@ -24,17 +24,23 @@ export default function EditAddressPage() {
 
   useEffect(() => {
     try {
-      // User data to import profile details
+      // User data to import profile details & email key
       const savedUser = localStorage.getItem("customer_user");
       if (!savedUser) {
         router.push("/");
         return;
       }
+      const parsedUser = JSON.parse(savedUser);
+      const userEmail = parsedUser?.email;
 
-      // Load existing saved addresses
-      const savedAddresses = localStorage.getItem("customer_addresses");
-      if (savedAddresses) {
-        setAddresses(JSON.parse(savedAddresses));
+      // Load existing saved addresses specific to this email
+      if (userEmail) {
+        const savedAddresses = localStorage.getItem(`customer_addresses_${userEmail}`);
+        if (savedAddresses) {
+          setAddresses(JSON.parse(savedAddresses));
+        } else {
+          setAddresses([]);
+        }
       }
     } catch (err) {
       console.error(err);
@@ -70,6 +76,9 @@ export default function EditAddressPage() {
   const handleSaveAddress = (e) => {
     e.preventDefault();
 
+    const savedUser = JSON.parse(localStorage.getItem("customer_user") || "{}");
+    const userEmail = savedUser?.email;
+
     const newAddress = {
       id: Date.now(),
       ...formData,
@@ -77,15 +86,24 @@ export default function EditAddressPage() {
 
     const updatedAddresses = [...addresses, newAddress];
     setAddresses(updatedAddresses);
-    localStorage.setItem("customer_addresses", JSON.stringify(updatedAddresses));
+
+    if (userEmail) {
+      localStorage.setItem(`customer_addresses_${userEmail}`, JSON.stringify(updatedAddresses));
+    }
 
     setShowModal(false);
   };
 
   const handleDeleteAddress = (id) => {
+    const savedUser = JSON.parse(localStorage.getItem("customer_user") || "{}");
+    const userEmail = savedUser?.email;
+
     const updated = addresses.filter((addr) => addr.id !== id);
     setAddresses(updated);
-    localStorage.setItem("customer_addresses", JSON.stringify(updated));
+
+    if (userEmail) {
+      localStorage.setItem(`customer_addresses_${userEmail}`, JSON.stringify(updated));
+    }
   };
 
   if (loading) {
