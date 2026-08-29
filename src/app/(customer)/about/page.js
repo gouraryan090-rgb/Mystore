@@ -24,7 +24,7 @@ export default function AboutUsPage() {
       >
         <div>
           <span style={{ fontSize: "12px", fontWeight: "800", color: "#6366f1", backgroundColor: "#eef2ff", padding: "6px 14px", borderRadius: "20px", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-            About ZentroBazaar
+            About ZENTROBAZAAR
           </span>
           <h1 style={{ fontSize: "42px", fontWeight: "900", color: "#0f172a", margin: "16px 0", lineHeight: "1.2" }}>
             Shopping, Made <span style={{ color: "#6366f1" }}>Simple.</span>

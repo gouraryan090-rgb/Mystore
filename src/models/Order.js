@@ -12,6 +12,7 @@ const OrderSchema = new mongoose.Schema(
       default: "Pending" // Yeh admin ke "All" / unmarked orders ke liye hoga
     },
     totalAmount: Number,
+    cashfreeOrderId: { type: String, default: null }, // Yeh nayi field add kar di gayi hai
   },
   { timestamps: true }
 );

@@ -200,7 +200,7 @@ function HomePage() {
                                     fontWeight: "800",
                                     color: "#0f172a"
                                 },
-                                children: "Welcome to ZentroBazaar! 👋"
+                                children: "Welcome to ZENTROBAZAAR! 👋"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/(customer)/page.js",
                                 lineNumber: 158,

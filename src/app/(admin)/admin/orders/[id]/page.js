@@ -177,7 +177,7 @@ export default function AdminOrderDetailPage({ params }) {
     doc.text("ZENTROBAZAAR Admin Management Portal - Computer-generated invoice.", 14, startY);
 
     // Save PDF
-    doc.save(`ZentroBazaar-Invoice-${orderData.orderId || orderData._id}.pdf`);
+    doc.save(`ZENTROBAZAAR-Invoice-${orderData.orderId || orderData._id}.pdf`);
   };
 
   if (lockScreen) return lockScreen;

@@ -9,6 +9,7 @@ export default function PaymentPage() {
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [selectedPayment, setSelectedPayment] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isCashfreeLoaded, setIsCashfreeLoaded] = useState(false);
 
   // Coupon States
   const [couponCode, setCouponCode] = useState("");
@@ -17,12 +18,32 @@ export default function PaymentPage() {
   const [couponMessage, setCouponMessage] = useState("");
 
   useEffect(() => {
-    // LocalStorage se selected address aur checkout items load karein[cite: 5]
+    // Load Cashfree JS SDK and handle redirect verification
+    if (document.getElementById("cashfree-sdk")) {
+      setIsCashfreeLoaded(true);
+    } else {
+      const script = document.createElement("script");
+      script.id = "cashfree-sdk";
+      script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
+      script.async = true;
+      script.onload = () => setIsCashfreeLoaded(true);
+      document.body.appendChild(script);
+    }
+
+    // Check if the user returned from an online payment redirect
+    const queryParams = new URLSearchParams(window.location.search);
+    const orderIdParam = queryParams.get("order_id");
+
+    if (orderIdParam) {
+      verifyPaymentAfterRedirect(orderIdParam);
+      return;
+    }
+
+    // Load selected address and checkout items from LocalStorage
     const items = JSON.parse(localStorage.getItem("checkout_items") || "[]");
     const address = JSON.parse(localStorage.getItem("selected_address") || "null");
 
     if (!address) {
-      // Agar address selected nahi hai toh wapas address page par bhejein[cite: 5]
       router.push("/checkout/address");
       return;
     }
@@ -30,6 +51,32 @@ export default function PaymentPage() {
     setCartItems(items);
     setSelectedAddress(address);
   }, [router]);
+
+  const verifyPaymentAfterRedirect = async (orderId) => {
+    setLoading(true);
+    try {
+      const verifyRes = await fetch("/api/orders/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId }),
+      });
+
+      const verifyData = await verifyRes.json();
+      setLoading(false);
+
+      if (verifyData.success) {
+        localStorage.removeItem("checkout_items");
+        router.push(`/orders`);
+      } else {
+        alert("Payment verification failed: " + (verifyData.message || "Please check order status"));
+        router.push(`/checkout/payment`);
+      }
+    } catch (err) {
+      console.error("Verification network error:", err);
+      setLoading(false);
+      alert("An error occurred during payment verification.");
+    }
+  };
 
   const subtotal = cartItems.reduce(
     (acc, item) => acc + (item.offerPrice || item.price) * (item.quantity || 1),
@@ -41,7 +88,7 @@ export default function PaymentPage() {
   // Apply Coupon Handler
   const handleApplyCoupon = async () => {
     if (!couponCode) {
-      setCouponMessage("Kripya coupon code enter karein.");
+      setCouponMessage("Please enter a coupon code.");
       return;
     }
 
@@ -68,13 +115,13 @@ export default function PaymentPage() {
       }
     } catch (err) {
       console.error(err);
-      setCouponMessage("Coupon apply karne me error aayi.");
+      setCouponMessage("An error occurred while applying the coupon.");
     }
   };
 
   const handlePlaceOrder = async () => {
     if (!selectedPayment) {
-      alert("Kripya payment method select karein!");
+      alert("Please select a payment method!");
       return;
     }
 
@@ -82,7 +129,6 @@ export default function PaymentPage() {
 
     try {
       if (selectedPayment === "COD") {
-        // Cash on Delivery Order Creation API
         const res = await fetch("/api/orders/create", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -100,20 +146,57 @@ export default function PaymentPage() {
         const data = await res.json();
 
         if (data.success) {
-          // Checkout state clear karein[cite: 5]
           localStorage.removeItem("checkout_items");
-          router.push("/orders"); // Your Orders page[cite: 5]
+          router.push("/orders");
         } else {
-          alert(data.message || "Order place karne me error aaya.");
+          alert(data.message || "An error occurred while placing the order.");
+          setLoading(false);
         }
-      } else if (selectedPayment === "RAZORPAY") {
-        // Razorpay feature placeholder[cite: 5]
-        alert("Razorpay paymentGateway jald hi activate hoga. Abhi ke liye Cash on Delivery select karein.");
+      } else if (selectedPayment === "ONLINE") {
+        if (!window.Cashfree) {
+          alert("Payment SDK is still loading, please wait a moment.");
+          setLoading(false);
+          return;
+        }
+
+        // 1. Create order and fetch Cashfree Session ID
+        const res = await fetch("/api/orders/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            items: cartItems,
+            shippingAddress: selectedAddress,
+            paymentMethod: "Online",
+            paymentStatus: "Pending",
+            totalAmount: finalTotalAmount,
+            discountAmount,
+            couponCode: discountApplied ? couponCode : null,
+          }),
+        });
+
+        const data = await res.json();
+
+        if (!data.success || !data.payment_session_id) {
+          alert("Error initializing payment: " + (data.message || "Unknown error"));
+          setLoading(false);
+          return;
+        }
+
+        // 2. Initialize Cashfree SDK and redirect for stable verification
+        const cashfree = window.Cashfree({
+          mode: "sandbox"
+        });
+
+        let checkoutOptions = {
+          paymentSessionId: data.payment_session_id,
+          redirectTarget: "_modal"
+        };
+
+        cashfree.checkout(checkoutOptions);
       }
     } catch (error) {
       console.error("Order error:", error);
-      alert("Kuch galat ho gaya, kripya dobara try karein.");
-    } finally {
+      alert("Something went wrong, please try again.");
       setLoading(false);
     }
   };
@@ -165,7 +248,7 @@ export default function PaymentPage() {
         </div>
       </div>
 
-      {/* --- COUPON SECTION (Payment section se theek upar) --- */}
+      {/* COUPON SECTION */}
       <div style={{ border: "1px solid #e5e7eb", borderRadius: "8px", padding: "16px", marginBottom: "20px", backgroundColor: "#f9fafb" }}>
         <h2 style={{ fontSize: "16px", fontWeight: "600", marginBottom: "10px" }}>Apply Coupon</h2>
         <div style={{ display: "flex", gap: "10px" }}>
@@ -219,11 +302,11 @@ export default function PaymentPage() {
           <input
             type="radio"
             name="paymentMethod"
-            value="RAZORPAY"
-            checked={selectedPayment === "RAZORPAY"}
+            value="ONLINE"
+            checked={selectedPayment === "ONLINE"}
             onChange={(e) => setSelectedPayment(e.target.value)}
           />
-          <span>Online Payment (Razorpay / UPI / Cards)</span>
+          <span>Online Payment (UPI / Cards / NetBanking via Cashfree)</span>
         </label>
       </div>
 
@@ -243,7 +326,7 @@ export default function PaymentPage() {
           cursor: selectedPayment ? "pointer" : "not-allowed",
         }}
       >
-        {loading ? "Placing Order..." : `Pay ₹{finalTotalAmount.toLocaleString()} & Place Order`}
+        {loading ? "Processing..." : `Pay ₹${finalTotalAmount.toLocaleString()} & Place Order`}
       </button>
     </div>
   );
