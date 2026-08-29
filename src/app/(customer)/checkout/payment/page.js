@@ -182,7 +182,7 @@ export default function PaymentPage() {
           return;
         }
 
-        // 2. Initialize Cashfree SDK and redirect for stable verification
+        // 2. Initialize Cashfree SDK and handle modal response
         const cashfree = window.Cashfree({
           mode: "sandbox"
         });
@@ -192,7 +192,43 @@ export default function PaymentPage() {
           redirectTarget: "_modal"
         };
 
-        cashfree.checkout(checkoutOptions);
+        cashfree.checkout(checkoutOptions).then(async (result) => {
+          console.log("Cashfree modal closed with result:", result);
+
+          if (result && result.error) {
+            setLoading(false);
+            alert("Payment failed or cancelled: " + (result.error.message || "Unknown error"));
+            return;
+          }
+
+          // 3. Trigger server-side verification after modal closes
+          try {
+            const verifyRes = await fetch("/api/orders/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ orderId: data.orderId }),
+            });
+
+            const verifyData = await verifyRes.json();
+            console.log("Verification response:", verifyData);
+            setLoading(false);
+
+            if (verifyData.success) {
+              localStorage.removeItem("checkout_items");
+              router.push(`/orders`);
+            } else {
+              alert("Payment verification failed: " + (verifyData.message || "Please check order status"));
+            }
+          } catch (err) {
+            console.error("Verification error:", err);
+            setLoading(false);
+            alert("An error occurred during payment verification.");
+          }
+        }).catch((err) => {
+          console.error("Cashfree checkout error:", err);
+          setLoading(false);
+          alert("Payment gateway error occurred.");
+        });
       }
     } catch (error) {
       console.error("Order error:", error);
@@ -330,4 +366,4 @@ export default function PaymentPage() {
       </button>
     </div>
   );
-}
+}g
