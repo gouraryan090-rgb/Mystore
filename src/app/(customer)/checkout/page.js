@@ -4,14 +4,13 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "../context/CartContext";
 
-export default function CheckoutWizard() {
+export default function CheckoutPage() {
   const router = useRouter();
   const { clearCart } = useCart();
   
   const [currentStep, setCurrentStep] = useState(1);
   const [checkoutData, setCheckoutData] = useState(null);
   
-  // Address States
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [loadingAddresses, setLoadingAddresses] = useState(true);
@@ -41,7 +40,6 @@ export default function CheckoutWizard() {
       router.push("/");
     }
 
-    // Fetch user saved addresses from localStorage (customer_addresses)
     const localAddresses = localStorage.getItem("customer_addresses");
     if (localAddresses) {
       try {
@@ -138,14 +136,21 @@ export default function CheckoutWizard() {
     setLoading(true);
     const orderItems = checkoutData.cart ? checkoutData.cart : [checkoutData.product];
 
+    // LocalStorage se actual logged-in user ya selected address se email nikalna 
+    const loggedInUser = JSON.parse(localStorage.getItem("customer_user") || "{}");
+    const currentLogEmail = loggedInUser?.email || loggedInUser?.mail || selectedAddress?.email || "";
+    const currentUserId = loggedInUser?.id || loggedInUser?.userId || currentLogEmail || "guest_user";
+
     try {
       if (selectedPayment === "COD") {
-        const res = await fetch("/api/orders/create", {
+        const res = await fetch("/api/orders/create/cod", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             items: orderItems,
             shippingAddress: selectedAddress,
+            email: currentLogEmail, 
+            userId: currentUserId, // Explicitly pass userId so it doesn't default to guest_user
             paymentMethod: "COD",
             paymentStatus: "Pending",
             totalAmount: finalPayableAmount,
@@ -165,7 +170,7 @@ export default function CheckoutWizard() {
             localStorage.removeItem("user_cart");
           }
           setTimeout(() => {
-            router.push(`/order-success?order_id=${data.orderId}`);
+            router.push(`/orders/${data.orderId}`);
           }, 1500);
         } else {
           alert(data.message || "Error placing order");
@@ -173,12 +178,14 @@ export default function CheckoutWizard() {
         }
 
       } else if (selectedPayment === "ONLINE") {
-        const res = await fetch("/api/orders/create", {
+        const res = await fetch("/api/orders/create/online", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             items: orderItems,
             shippingAddress: selectedAddress,
+            email: currentLogEmail, 
+            userId: currentUserId, // Explicitly pass userId here too
             paymentMethod: "Online",
             paymentStatus: "Pending",
             totalAmount: finalPayableAmount,
@@ -211,7 +218,7 @@ export default function CheckoutWizard() {
               localStorage.removeItem("user_cart");
             }
             setTimeout(() => {
-              router.push(`/order-success?order_id=${data.orderId}`);
+              router.push(`/orders/${data.orderId}`);
             }, 1500);
           }
         });
@@ -235,13 +242,11 @@ export default function CheckoutWizard() {
 
       <div style={{ maxWidth: "560px", margin: "0 auto" }}>
         
-        {/* Header Title */}
         <div style={{ marginBottom: "24px" }}>
           <h1 style={{ fontSize: "22px", fontWeight: "700", letterSpacing: "-0.3px", margin: "0 0 4px 0" }}>Checkout</h1>
           <p style={{ fontSize: "14px", color: "#6b7280", margin: 0 }}>Select your saved delivery address and payment option.</p>
         </div>
 
-        {/* Minimal Progress Tabs */}
         <div style={{ display: "flex", borderBottom: "1px solid #e5e7eb", marginBottom: "24px" }}>
           <div style={{ padding: "0 0 12px 0", marginRight: "24px", fontSize: "14px", fontWeight: "600", borderBottom: currentStep === 1 ? "2px solid #111827" : "2px solid transparent", color: currentStep === 1 ? "#111827" : "#9ca3af" }}>
             1. Select Address
@@ -251,7 +256,6 @@ export default function CheckoutWizard() {
           </div>
         </div>
 
-        {/* STEP 1: SELECT ADDRESS FROM LOCALSTORAGE */}
         {currentStep === 1 && (
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             <div style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "20px" }}>
@@ -309,7 +313,7 @@ export default function CheckoutWizard() {
                           <div style={{ fontSize: "13px", color: "#4b5563", lineHeight: "1.4", marginBottom: "4px" }}>
                             {addr.street1}{addr.street2 ? `, ${addr.street2}` : ""}, {addr.city} - {addr.pincode}
                           </div>
-                          <div style={{ fontSize: "12px", color: "#6b7280" }}>Phone: {addr.phone}</div>
+                          <div style={{ fontSize: "12px", color: "#6b7280" }}>Phone: {addr.phone} | Email: {addr.email}</div>
                         </div>
                       </label>
                     );
@@ -333,7 +337,6 @@ export default function CheckoutWizard() {
           </div>
         )}
 
-        {/* STEP 2: SUMMARY & PAYMENT */}
         {currentStep === 2 && (
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             
@@ -341,7 +344,6 @@ export default function CheckoutWizard() {
               ← Change Address
             </button>
 
-            {/* Items List with Images */}
             <div style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "20px" }}>
               <div style={{ fontSize: "12px", fontWeight: "700", color: "#6b7280", textTransform: "uppercase", marginBottom: "16px", letterSpacing: "0.5px" }}>Items Summary</div>
               
@@ -387,7 +389,6 @@ export default function CheckoutWizard() {
               </div>
             </div>
 
-            {/* Coupon Box */}
             <div style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "20px" }}>
               <div style={{ fontSize: "12px", fontWeight: "700", color: "#6b7280", textTransform: "uppercase", marginBottom: "10px", letterSpacing: "0.5px" }}>Promo Code</div>
               <div style={{ display: "flex", gap: "8px" }}>
@@ -412,7 +413,6 @@ export default function CheckoutWizard() {
               {couponMessage && <div style={{ fontSize: "12px", marginTop: "8px", color: discountApplied ? "#10b981" : "#ef4444", fontWeight: "600" }}>{couponMessage}</div>}
             </div>
 
-            {/* Payment Method */}
             <div style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "20px" }}>
               <div style={{ fontSize: "12px", fontWeight: "700", color: "#6b7280", textTransform: "uppercase", marginBottom: "12px", letterSpacing: "0.5px" }}>Payment Option</div>
               
@@ -429,7 +429,6 @@ export default function CheckoutWizard() {
               </div>
             </div>
 
-            {/* Total Footer Banner */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px", background: "#f3f4f6", borderRadius: "12px", border: "1px solid #e5e7eb" }}>
               <span style={{ fontSize: "14px", fontWeight: "600", color: "#4b5563" }}>Total Payable</span>
               <span style={{ fontSize: "20px", fontWeight: "800", color: "#111827" }}>₹{finalPayableAmount}</span>

@@ -18,7 +18,7 @@ export async function POST(request) {
       );
     }
 
-    // Order find karke update karein
+    // Order find karke update karein, ensuring both root email and shippingAddress email are supported
     const updatedOrder = await Order.findByIdAndUpdate(
       orderId,
       {
@@ -35,12 +35,12 @@ export async function POST(request) {
       );
     }
 
-    // Payment successful hone par customer ko confirmation email bhej sakte hain
-    const customerEmail = updatedOrder.shippingAddress?.email;
-    if (customerEmail && paymentStatus === "Paid") {
+    // Payment successful hone par customer ko confirmation email bhejna (supporting both email fields)[cite: 6]
+    const customerEmail = updatedOrder.email || updatedOrder.shippingAddress?.email;
+    if (customerEmail && (paymentStatus === "Paid" || status === "Placed")) {
       sendOrderEmail(customerEmail, orderId, "created", {
         customerName: updatedOrder.shippingAddress?.name || "Customer",
-        phone: updatedOrder.shippingAddress?.phone || "N/A",
+        phone: updatedOrder.shippingAddress?.phone || "9999999999",
         address: updatedOrder.shippingAddress?.address || "N/A",
         items: updatedOrder.items,
         amount: updatedOrder.totalAmount,

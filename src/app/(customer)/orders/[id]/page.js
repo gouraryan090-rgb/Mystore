@@ -119,6 +119,9 @@ export default function OrderDetailsPage() {
   if (isShipped) { badgeBg = "#e0e7ff"; badgeColor = "#4f46e5"; }
   if (isCancelled) { badgeBg = "#fee2e2"; badgeColor = "#dc2626"; }
 
+  // Check if order is Prepaid/Online
+  const isOnline = order.paymentMethod === "Online" || order.paymentMethod === "ONLINE" || order.paymentMethod === "Cashfree";
+
   return (
     <div style={{ maxWidth: "1000px", margin: "0 auto", paddingBottom: "80px", fontFamily: "system-ui, -apple-system, sans-serif", paddingLeft: "24px", paddingRight: "24px" }}>
       
@@ -166,7 +169,20 @@ export default function OrderDetailsPage() {
 
           <div>
             <h4 style={{ fontSize: "13px", color: "#64748b", textTransform: "uppercase", marginBottom: "6px", fontWeight: "700" }}>Payment & Summary</h4>
-            <p style={{ margin: "0 0 4px 0", color: "#475569", fontSize: "13px" }}>Method: <strong style={{ color: "#0f172a" }}>{order.paymentMethod || "COD"}</strong></p>
+            <p style={{ margin: "0 0 4px 0", color: "#475569", fontSize: "13px" }}>
+              Type: <strong style={{ color: isOnline ? "#16a34a" : "#d97706" }}>{isOnline ? "Prepaid (Online)" : "Cash on Delivery (COD)"}</strong>
+            </p>
+            <p style={{ margin: "0 0 4px 0", color: "#475569", fontSize: "13px" }}>
+              Payment Status: <strong style={{ color: order.paymentStatus === "Paid" ? "#16a34a" : "#dc2626" }}>{order.paymentStatus || "Pending"}</strong>
+            </p>
+            
+            {/* Show Cashfree / Transaction ID if it's an online payment */}
+            {isOnline && order.cashfreeOrderId && (
+              <p style={{ margin: "0 0 4px 0", color: "#475569", fontSize: "13px" }}>
+                Transaction ID: <strong style={{ color: "#0f172a", wordBreak: "break-all" }}>{order.cashfreeOrderId}</strong>
+              </p>
+            )}
+
             <p style={{ margin: "0 0 4px 0", color: "#475569", fontSize: "13px" }}>Items Total: <strong style={{ color: "#0f172a" }}>₹{order.totalAmount}</strong></p>
             <p style={{ margin: "0 0 4px 0", color: "#475569", fontSize: "13px" }}>Shipping Fee: <strong style={{ color: "#0f172a" }}>₹{order.shippingFee || 0}</strong></p>
           </div>

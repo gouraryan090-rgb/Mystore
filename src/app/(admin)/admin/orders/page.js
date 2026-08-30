@@ -17,6 +17,11 @@ export default function AdminOrdersPage() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Bulk Selection and Status State
+  const [selectedOrders, setSelectedOrders] = useState([]);
+  const [bulkStatus, setBulkStatus] = useState("Processing");
+  const [bulkActionLoading, setBulkActionLoading] = useState(false);
+
   const tabs = ["All Orders", "Pending", "Processing", "In Transit", "Delivered", "Cancelled"];
 
   useEffect(() => {
@@ -30,6 +35,7 @@ export default function AdminOrdersPage() {
       const data = await res.json();
       if (data.success) {
         setOrders(data.data || []);
+        setSelectedOrders([]); // Clear selection on refresh
       }
     } catch (err) {
       console.error("Admin Orders Error:", err);
@@ -82,6 +88,62 @@ export default function AdminOrdersPage() {
   // Pagination calculation
   const totalPages = Math.ceil(filteredOrders.length / rowsPerPage) || 1;
   const paginatedOrders = filteredOrders.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+
+  // Bulk Selection Handlers
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      const currentPaginatedIds = paginatedOrders.map((order) => order._id);
+      // Combine with existing selected orders avoiding duplicates
+      const merged = Array.from(new Set([...selectedOrders, ...currentPaginatedIds]));
+      setSelectedOrders(merged);
+    } else {
+      // Unselect only current paginated ones or clear all? Let's unselect current page view
+      const currentPaginatedIds = paginatedOrders.map((order) => order._id);
+      setSelectedOrders(selectedOrders.filter(id => !currentPaginatedIds.includes(id)));
+    }
+  };
+
+  const handleSelectOrder = (orderId) => {
+    if (selectedOrders.includes(orderId)) {
+      setSelectedOrders(selectedOrders.filter((id) => id !== orderId));
+    } else {
+      setSelectedOrders([...selectedOrders, orderId]);
+    }
+  };
+
+  // Bulk Status Update API Call
+  const handleBulkStatusUpdate = async () => {
+    if (selectedOrders.length === 0) {
+      alert("Please select at least one order.");
+      return;
+    }
+
+    try {
+      setBulkActionLoading(true);
+      const res = await fetch("/api/admin/orders/bulk-update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderIds: selectedOrders,
+          status: bulkStatus,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        alert(data.message);
+        setSelectedOrders([]);
+        fetchAdminOrders(); 
+      } else {
+        alert(data.message || "Failed to update status");
+      }
+    } catch (err) {
+      console.error("Bulk update error:", err);
+      alert("Something went wrong.");
+    } finally {
+      setBulkActionLoading(false);
+    }
+  };
 
   if (lockScreen) return lockScreen;
 
@@ -222,6 +284,56 @@ export default function AdminOrdersPage() {
         ))}
       </div>
 
+      {/* BULK ACTIONS TOOLBAR (Appears when orders are selected) */}
+      {selectedOrders.length > 0 && (
+        <div style={{ 
+          backgroundColor: "#e0e7ff", 
+          border: "1px solid #c7d2fe", 
+          padding: "12px 20px", 
+          borderRadius: "16px", 
+          marginBottom: "20px", 
+          display: "flex", 
+          alignItems: "center", 
+          justifyContent: "space-between", 
+          flexWrap: "wrap", 
+          gap: "12px" 
+        }}>
+          <div style={{ fontWeight: "800", color: "#3730a3", fontSize: "14px" }}>
+            ✨ {selectedOrders.length} order(s) selected
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <select
+              value={bulkStatus}
+              onChange={(e) => setBulkStatus(e.target.value)}
+              style={{ padding: "8px 12px", borderRadius: "10px", border: "1px solid #818cf8", fontSize: "13px", fontWeight: "700", outline: "none", backgroundColor: "#fff", color: "#3730a3" }}
+            >
+              <option value="Pending">Pending</option>
+              <option value="Processing">Processing</option>
+              <option value="In Transit">In Transit</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+            <button
+              onClick={handleBulkStatusUpdate}
+              disabled={bulkActionLoading}
+              style={{
+                backgroundColor: "#4f46e5",
+                color: "#fff",
+                border: "none",
+                padding: "8px 16px",
+                borderRadius: "10px",
+                fontWeight: "800",
+                fontSize: "13px",
+                cursor: bulkActionLoading ? "not-allowed" : "pointer",
+                boxShadow: "0 2px 8px rgba(79, 70, 229, 0.3)"
+              }}
+            >
+              {bulkActionLoading ? "Updating..." : "Update Selected Status"}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ORDERS DATA TABLE CONTAINER */}
       <div style={{ backgroundColor: "#fff", borderRadius: "20px", border: "1px solid #f1f5f9", boxShadow: "0 4px 20px rgba(0,0,0,0.03)", overflow: "hidden" }}>
         
@@ -234,6 +346,17 @@ export default function AdminOrdersPage() {
             <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "13px" }}>
               <thead>
                 <tr style={{ backgroundColor: "#f8fafc", borderBottom: "1px solid #f1f5f9", color: "#64748b", fontSize: "11px", fontWeight: "800", letterSpacing: "0.5px" }}>
+                  <th style={{ padding: "16px 12px 16px 20px", width: "40px" }}>
+                    <input 
+                      type="checkbox"
+                      onChange={handleSelectAll}
+                      checked={
+                        paginatedOrders.length > 0 && 
+                        paginatedOrders.every(order => selectedOrders.includes(order._id))
+                      }
+                      style={{ cursor: "pointer", accentColor: "#6366f1" }}
+                    />
+                  </th>
                   <th style={{ padding: "16px 20px" }}>ORDER ID</th>
                   <th style={{ padding: "16px 20px" }}>CUSTOMER DETAILS</th>
                   <th style={{ padding: "16px 20px" }}>ORDER ITEMS</th>
@@ -251,16 +374,26 @@ export default function AdminOrdersPage() {
                   const formattedDate = order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : "Recent";
                   const formattedTime = order.createdAt ? new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "";
                   
-                  // Accurate Real Order ID presentation
                   const displayOrderId = order.orderId || order._id;
+                  const isChecked = selectedOrders.includes(order._id);
 
                   return (
                     <tr 
                       key={order._id}
-                      style={{ borderBottom: "1px solid #f8fafc", transition: "background 0.1s" }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#fcfdfd"}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
+                      style={{ borderBottom: "1px solid #f8fafc", transition: "background 0.1s", backgroundColor: isChecked ? "#f5f3ff" : "transparent" }}
+                      onMouseEnter={(e) => { if(!isChecked) e.currentTarget.style.backgroundColor = "#fcfdfd"; }}
+                      onMouseLeave={(e) => { if(!isChecked) e.currentTarget.style.backgroundColor = "transparent"; }}
                     >
+                      {/* Checkbox */}
+                      <td style={{ padding: "16px 12px 16px 20px" }}>
+                        <input 
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => handleSelectOrder(order._id)}
+                          style={{ cursor: "pointer", accentColor: "#6366f1" }}
+                        />
+                      </td>
+
                       {/* Order ID */}
                       <td style={{ padding: "16px 20px", fontWeight: "800", color: "#6366f1", whiteSpace: "nowrap" }}>
                         #{displayOrderId}

@@ -37,36 +37,59 @@ export const generateReceiptPDF = (order) => {
   // --- ORDER & SHIPPING INFO ---
   doc.setFillColor(255, 255, 255);
   doc.setDrawColor(226, 232, 240);
-  doc.roundedRect(14, currentY, 88, 34, 2, 2, "FD");
+  doc.roundedRect(14, currentY, 88, 38, 2, 2, "FD");
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9);
   doc.setTextColor(...darkBg);
   doc.text("ORDER METADATA", 20, currentY + 8);
 
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8.5);
-  doc.setTextColor(...textGray);
-  doc.text(`Order ID: #${order._id}`, 20, currentY + 16);
-  const orderDate = order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : "Recent";
-  doc.text(`Timestamp: ${orderDate}`, 20, currentY + 23);
-  doc.text(`Payment: ${order.paymentMethod || "COD"}`, 20, currentY + 30);
+  const isOnline = order.paymentMethod === "Online" || order.paymentMethod === "ONLINE" || order.paymentMethod === "Cashfree";
 
-  doc.roundedRect(108, currentY, 88, 34, 2, 2, "FD");
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(...textGray);
+  doc.text(`Order ID: #${order._id}`, 20, currentY + 15);
+  const orderDate = order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : "Recent";
+  doc.text(`Timestamp: ${orderDate}`, 20, currentY + 21);
+  doc.text(`Payment Type: ${isOnline ? "Prepaid (Online)" : "COD"}`, 20, currentY + 27);
+  doc.text(`Payment Status: ${order.paymentStatus || "Pending"}`, 20, currentY + 33);
+
+  doc.roundedRect(108, currentY, 88, 38, 2, 2, "FD");
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9);
   doc.setTextColor(...darkBg);
-  doc.text("DESTINATION ADDRESS", 114, currentY + 8);
+  doc.text("CUSTOMER & DESTINATION", 114, currentY + 8);
 
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(8.5);
+  doc.setFontSize(8);
   doc.setTextColor(...textGray);
-  doc.text(`Recipient: ${order.shippingAddress?.name || "Customer"}`, 114, currentY + 16);
-  doc.text(`Phone: ${order.shippingAddress?.phone || "N/A"}`, 114, currentY + 23);
-  doc.text(`Location: ${order.shippingAddress?.address || "Nawa City"}`, 114, currentY + 30, { maxWidth: 78 });
+  doc.text(`Name: ${order.shippingAddress?.name || "Customer"}`, 114, currentY + 15);
+  doc.text(`Phone: ${order.shippingAddress?.phone || "N/A"}`, 114, currentY + 21);
+  doc.text(`Email: ${order.shippingAddress?.email || order.email || "N/A"}`, 114, currentY + 27, { maxWidth: 78 });
+  doc.text(`Address: ${order.shippingAddress?.address || "Nawa City"}`, 114, currentY + 33, { maxWidth: 78 });
 
   currentY += 44;
+
+  // --- PREPAID TRANSACTION DETAILS BOX (If applicable) ---
+  if (isOnline && order.cashfreeOrderId) {
+    doc.setFillColor(240, 253, 244); // light green tint
+    doc.setDrawColor(187, 247, 208);
+    doc.roundedRect(14, currentY, 182, 16, 2, 2, "FD");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8.5);
+    doc.setTextColor(22, 101, 52);
+    doc.text("PREPAID TRANSACTION DETAILS", 18, currentY + 6);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(21, 128, 61);
+    doc.text(`Gateway: Cashfree | Ref / Transaction ID: ${order.cashfreeOrderId}`, 18, currentY + 12);
+
+    currentY += 22;
+  }
 
   // --- TABLE HEADER ---
   doc.setFillColor(...darkBg);

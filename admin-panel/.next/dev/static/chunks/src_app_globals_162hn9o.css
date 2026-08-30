@@ -87,6 +87,10 @@
   border-width: 1px;
 }
 
+.break-all {
+  word-break: break-all;
+}
+
 .uppercase {
   text-transform: uppercase;
 }
