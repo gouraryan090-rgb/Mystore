@@ -19,6 +19,8 @@ export default function ProductDetailPage({ params }) {
   const [added, setAdded] = useState(false);
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedSize, setSelectedSize] = useState(null);
 
   useEffect(() => {
     const saved = localStorage.getItem("customer_addresses");
@@ -30,7 +32,17 @@ export default function ProductDetailPage({ params }) {
       try {
         const res = await fetch(`/api/products/${productId}`);
         const data = await res.json();
-        if (data.success) setProduct(data.data);
+        if (data.success) {
+          const prodData = data.data;
+          setProduct(prodData);
+          
+          if (prodData.colorVariants && prodData.colorVariants.length > 0) {
+            setSelectedColor(prodData.colorVariants[0].color);
+          }
+          if (prodData.sizes && prodData.sizes.length > 0) {
+            setSelectedSize(prodData.sizes[0]);
+          }
+        }
       } catch (err) {
         console.error(err);
       } finally {
@@ -43,7 +55,31 @@ export default function ProductDetailPage({ params }) {
     }
   }, [productId]);
 
+  const getCurrentStock = () => {
+    if (!product) return 0;
+
+    if (product.sizeStockVariants && product.sizeStockVariants.length > 0) {
+      const match = product.sizeStockVariants.find(
+        (v) => (!v.size || v.size === selectedSize) && (!v.color || v.color === selectedColor)
+      );
+      if (match !== undefined) return match.stock;
+    }
+
+    if (selectedColor && product.colorVariants) {
+      const colorVar = product.colorVariants.find((v) => v.color === selectedColor);
+      if (colorVar && colorVar.stock !== undefined) {
+        return colorVar.stock;
+      }
+    }
+
+    return product.stock !== undefined ? product.stock : 10;
+  };
+
+  const currentStock = getCurrentStock();
+  const isOutOfStock = currentStock <= 0;
+
   const handleBuyNowClick = () => {
+    if (isOutOfStock) return;
     if (addresses.length === 0) {
       alert("Please go to the 'Edit Address' section and save at least one address!");
       router.push("/edit-address");
@@ -53,17 +89,31 @@ export default function ProductDetailPage({ params }) {
   };
 
   const handleAddToCart = () => {
-    addToCart(product);
+    if (isOutOfStock) return;
+    const productWithVariants = {
+      ...product,
+      quantity: 1, // Explicitly set starting quantity to 1
+      selectedColor,
+      selectedSize,
+      stock: currentStock,
+    };
+    addToCart(productWithVariants);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
 
   const handleProceedToCheckout = () => {
-    if (!selectedAddressId) return;
+    if (!selectedAddressId || isOutOfStock) return;
 
     const selectedAddr = addresses.find((a) => a.id === selectedAddressId);
     const checkoutPayload = {
-      product: product,
+      product: {
+        ...product,
+        quantity: 1,
+        selectedColor,
+        selectedSize,
+        stock: currentStock,
+      },
       deliveryAddress: selectedAddr,
       totalBill: product.offerPrice,
     };
@@ -75,13 +125,13 @@ export default function ProductDetailPage({ params }) {
   if (loading) return <div style={{ padding: "80px", textAlign: "center", color: "#64748b", fontWeight: "600" }}>Loading Product Details...</div>;
   if (!product) return <div style={{ padding: "80px", textAlign: "center", color: "#ef4444", fontWeight: "600" }}>Product Not Found!</div>;
 
-  const productImages = product.images?.length > 0 
-    ? product.images 
-    : [product.imageUrl || "https://via.placeholder.com/400"];
+  const activeVariant = product.colorVariants?.find((v) => v.color === selectedColor);
+  const productImages = activeVariant?.images?.length > 0
+    ? activeVariant.images
+    : (product.images?.length > 0 ? product.images : [product.imageUrl || "https://via.placeholder.com/400"]);
 
   const currentMainImage = productImages[selectedImageIndex] || productImages[0];
 
-  // Calculate Discount Percentage
   let discountPercent = 0;
   if (product.originalPrice && product.originalPrice > product.offerPrice) {
     discountPercent = Math.round(((product.originalPrice - product.offerPrice) / product.originalPrice) * 100);
@@ -89,8 +139,6 @@ export default function ProductDetailPage({ params }) {
 
   return (
     <div style={{ fontFamily: "system-ui, -apple-system, sans-serif", paddingBottom: "60px" }}>
-      
-      {/* Back Link */}
       <div style={{ marginBottom: "24px" }}>
         <button 
           onClick={() => router.back()} 
@@ -100,7 +148,6 @@ export default function ProductDetailPage({ params }) {
         </button>
       </div>
 
-      {/* Main Container */}
       <div 
         style={{ 
           backgroundColor: "#fff", 
@@ -114,8 +161,6 @@ export default function ProductDetailPage({ params }) {
           alignItems: "start"
         }}
       >
-        
-        {/* --- LEFT SIDE: Thumbnails Column + Main Featured Image --- */}
         <div style={{ display: "flex", gap: "20px" }}>
           {productImages.length > 1 && (
             <div style={{ display: "flex", flexDirection: "column", gap: "12px", width: "80px", maxHeight: "420px", overflowY: "auto" }}>
@@ -165,28 +210,17 @@ export default function ProductDetailPage({ params }) {
           </div>
         </div>
 
-        {/* --- RIGHT SIDE: Product Title, Pricing, Actions --- */}
         <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          
-          {/* Category Tag */}
           <div>
             <span style={{ fontSize: "12px", fontWeight: "800", color: "#6366f1", backgroundColor: "#eef2ff", padding: "6px 14px", borderRadius: "20px", textTransform: "uppercase", letterSpacing: "0.5px" }}>
               {product.category} {product.subCategory ? `> ${product.subCategory}` : ""}
             </span>
           </div>
 
-          {/* Product Title */}
           <h1 style={{ fontSize: "26px", fontWeight: "900", color: "#0f172a", margin: 0, lineHeight: "1.3" }}>
             {product.title}
           </h1>
 
-          {/* Description Box */}
-          <div style={{ fontSize: "14px", color: "#475569", lineHeight: "1.6", backgroundColor: "#f8fafc", padding: "16px 20px", borderRadius: "16px", border: "1px solid #f1f5f9" }}>
-            <strong style={{ display: "block", color: "#0f172a", marginBottom: "4px" }}>About this item:</strong>
-            {product.description || "High quality standard item guaranteed by ZentroBazaar."}
-          </div>
-
-          {/* Pricing & Discount Badge */}
           <div style={{ display: "flex", alignItems: "baseline", gap: "14px", marginTop: "4px" }}>
             <span style={{ fontSize: "32px", fontWeight: "900", color: "#059669" }}>₹{product.offerPrice}</span>
             {product.originalPrice && (
@@ -201,98 +235,123 @@ export default function ProductDetailPage({ params }) {
             )}
           </div>
 
-          {/* Action Buttons */}
+          <div>
+            {isOutOfStock ? (
+              <span style={{ fontSize: "13px", fontWeight: "800", color: "#ef4444", backgroundColor: "#fee2e2", padding: "4px 10px", borderRadius: "8px" }}>
+                Out of Stock
+              </span>
+            ) : (
+              <span style={{ fontSize: "13px", fontWeight: "800", color: "#16a34a", backgroundColor: "#dcfce7", padding: "4px 10px", borderRadius: "8px" }}>
+                Only {currentStock} left
+              </span>
+            )}
+          </div>
+
+          {product.colorVariants && product.colorVariants.length > 0 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <span style={{ fontSize: "13px", fontWeight: "800", color: "#334155" }}>
+                Color: <span style={{ color: "#6366f1" }}>{selectedColor}</span>
+              </span>
+              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                {product.colorVariants.map((variant, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      setSelectedColor(variant.color);
+                      setSelectedImageIndex(0);
+                    }}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: "10px",
+                      border: selectedColor === variant.color ? "2px solid #6366f1" : "1px solid #cbd5e1",
+                      backgroundColor: selectedColor === variant.color ? "#eef2ff" : "#fff",
+                      color: "#0f172a",
+                      fontWeight: "700",
+                      fontSize: "12px",
+                      cursor: "pointer"
+                    }}
+                  >
+                    {variant.color}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {product.sizes && product.sizes.length > 0 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <span style={{ fontSize: "13px", fontWeight: "800", color: "#334155" }}>
+                Size: <span style={{ color: "#6366f1" }}>{selectedSize}</span>
+              </span>
+              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                {product.sizes.map((size, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setSelectedSize(size)}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: "10px",
+                      border: selectedSize === size ? "2px solid #6366f1" : "1px solid #cbd5e1",
+                      backgroundColor: selectedSize === size ? "#eef2ff" : "#fff",
+                      color: "#0f172a",
+                      fontWeight: "700",
+                      fontSize: "12px",
+                      cursor: "pointer",
+                      minWidth: "45px"
+                    }}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div style={{ fontSize: "14px", color: "#475569", lineHeight: "1.6", backgroundColor: "#f8fafc", padding: "16px 20px", borderRadius: "16px", border: "1px solid #f1f5f9" }}>
+            <strong style={{ display: "block", color: "#0f172a", marginBottom: "4px" }}>About this item:</strong>
+            {product.description || "High quality standard item guaranteed."}
+          </div>
+
           <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "10px" }}>
             <button
               onClick={handleBuyNowClick}
+              disabled={isOutOfStock}
               style={{
                 width: "100%",
-                backgroundColor: "#6366f1",
+                backgroundColor: isOutOfStock ? "#94a3b8" : "#6366f1",
                 color: "#fff",
                 border: "none",
                 padding: "16px",
                 borderRadius: "16px",
                 fontWeight: "800",
                 fontSize: "16px",
-                cursor: "pointer",
-                boxShadow: "0 4px 20px rgba(99, 102, 241, 0.4)",
+                cursor: isOutOfStock ? "not-allowed" : "pointer",
               }}
             >
-              ⚡ Buy Now
+              {isOutOfStock ? "Out of Stock" : "⚡ Buy Now"}
             </button>
 
             <button
               onClick={handleAddToCart}
+              disabled={isOutOfStock}
               style={{
                 width: "100%",
-                backgroundColor: added ? "#22c55e" : "#fff",
-                color: added ? "#fff" : "#0f172a",
-                border: added ? "none" : "2px solid #e2e8f0",
+                backgroundColor: isOutOfStock ? "#f1f5f9" : (added ? "#22c55e" : "#fff"),
+                color: isOutOfStock ? "#94a3b8" : (added ? "#fff" : "#0f172a"),
+                border: isOutOfStock ? "1px solid #cbd5e1" : (added ? "none" : "2px solid #e2e8f0"),
                 padding: "16px",
                 borderRadius: "16px",
                 fontWeight: "800",
                 fontSize: "16px",
-                cursor: "pointer",
-                boxShadow: "0 2px 10px rgba(0,0,0,0.02)",
-                transition: "all 0.2s"
+                cursor: isOutOfStock ? "not-allowed" : "pointer",
               }}
             >
-              {added ? "✓ Added to Cart Successfully!" : "🛒 Add to Cart"}
+              {isOutOfStock ? "Unavailable" : (added ? "✓ Added to Cart Successfully!" : "🛒 Add to Cart")}
             </button>
           </div>
-
-        </div>
-
-      </div>
-
-      {/* Trust Badges Footer Grid */}
-      <div 
-        style={{ 
-          display: "grid", 
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", 
-          gap: "20px", 
-          marginTop: "40px",
-          backgroundColor: "#fff",
-          padding: "30px",
-          borderRadius: "24px",
-          boxShadow: "0 4px 20px -2px rgba(0,0,0,0.03)",
-          border: "1px solid #f1f5f9"
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <div style={{ background: "#eef2ff", padding: "14px", borderRadius: "16px", fontSize: "20px" }}>🛡️</div>
-          <div>
-            <h4 style={{ margin: "0 0 4px 0", fontSize: "14px", fontWeight: "800", color: "#0f172a" }}>1 Year Warranty</h4>
-            <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>Brand Warranty included</p>
-          </div>
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <div style={{ background: "#f0fdf4", padding: "14px", borderRadius: "16px", fontSize: "20px" }}>🚚</div>
-          <div>
-            <h4 style={{ margin: "0 0 4px 0", fontSize: "14px", fontWeight: "800", color: "#0f172a" }}>Fast Delivery</h4>
-            <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>Delivery in 2-4 days</p>
-          </div>
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <div style={{ background: "#fff7ed", padding: "14px", borderRadius: "16px", fontSize: "20px" }}>📦</div>
-          <div>
-            <h4 style={{ margin: "0 0 4px 0", fontSize: "14px", fontWeight: "800", color: "#0f172a" }}>7 Days Return</h4>
-            <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>Easy returns & refunds</p>
-          </div>
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <div style={{ background: "#f0f9ff", padding: "14px", borderRadius: "16px", fontSize: "20px" }}>⭐</div>
-          <div>
-            <h4 style={{ margin: "0 0 4px 0", fontSize: "14px", fontWeight: "800", color: "#0f172a" }}>100% Original</h4>
-            <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>Genuine Products</p>
-          </div>
         </div>
       </div>
 
-      {/* Address Selection Modal */}
       {showAddressModal && (
         <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)", zIndex: 1000, display: "flex", justifyContent: "center", alignItems: "center", padding: "20px" }}>
           <div style={{ backgroundColor: "#fff", width: "100%", maxWidth: "480px", borderRadius: "24px", padding: "28px", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)" }}>
@@ -330,11 +389,6 @@ export default function ProductDetailPage({ params }) {
               ))}
             </div>
 
-            <div style={{ padding: "14px", backgroundColor: "#f8fafc", borderRadius: "14px", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", border: "1px solid #e2e8f0" }}>
-              <span style={{ fontSize: "14px", fontWeight: "600", color: "#334155" }}>Total Bill:</span>
-              <span style={{ fontSize: "20px", fontWeight: "900", color: "#059669" }}>₹{product.offerPrice}</span>
-            </div>
-
             <button
               onClick={handleProceedToCheckout}
               disabled={!selectedAddressId}
@@ -355,7 +409,6 @@ export default function ProductDetailPage({ params }) {
           </div>
         </div>
       )}
-
     </div>
   );
 }

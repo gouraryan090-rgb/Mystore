@@ -1199,7 +1199,6 @@ function CartProvider({ children }) {
     _s();
     const [cart, setCart] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
     const [userEmail, setUserEmail] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
-    // 1. Fetch user email and load cart from database
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "CartProvider.useEffect": ()=>{
             try {
@@ -1208,7 +1207,6 @@ function CartProvider({ children }) {
                     const parsedUser = JSON.parse(savedUser);
                     if (parsedUser?.email) {
                         setUserEmail(parsedUser.email);
-                        // Fetch database cart from backend
                         fetch(`/api/user/cart?email=${parsedUser.email}`).then({
                             "CartProvider.useEffect": (res)=>res.json()
                         }["CartProvider.useEffect"]).then({
@@ -1224,7 +1222,6 @@ function CartProvider({ children }) {
                         return;
                     }
                 }
-                // If user is not logged in, load from localstorage
                 const savedCart = localStorage.getItem("user_cart");
                 if (savedCart) setCart(JSON.parse(savedCart));
             } catch (e) {
@@ -1232,7 +1229,6 @@ function CartProvider({ children }) {
             }
         }
     }["CartProvider.useEffect"], []);
-    // 2. Sync cart to both LocalStorage and Database upon update
     const syncCartToBackend = async (updatedCart)=>{
         localStorage.setItem("user_cart", JSON.stringify(updatedCart));
         if (userEmail) {
@@ -1252,29 +1248,53 @@ function CartProvider({ children }) {
             }
         }
     };
-    // Add product to cart (Safe duplicate check)
     const addToCart = (product)=>{
-        const isAlreadyInCart = cart.some((item)=>item._id === product._id);
-        if (isAlreadyInCart) {
-            alert("This product is already added to your cart!");
+        const existingIndex = cart.findIndex((item)=>item._id === product._id && item.selectedColor === product.selectedColor && item.selectedSize === product.selectedSize);
+        const maxStock = product.stock !== undefined ? product.stock : 10;
+        if (existingIndex > -1) {
+            const currentQty = cart[existingIndex].quantity || 1;
+            const newQty = currentQty + 1;
+            if (newQty > maxStock) {
+                alert(`Only ${maxStock} items available in stock!`);
+                return false;
+            }
+            const newCart = [
+                ...cart
+            ];
+            newCart[existingIndex] = {
+                ...newCart[existingIndex],
+                quantity: newQty
+            };
+            setCart(newCart);
+            syncCartToBackend(newCart);
+            return true;
+        }
+        if (maxStock < 1) {
+            alert("Item is out of stock!");
             return false;
         }
         const newCart = [
             ...cart,
             {
                 ...product,
-                quantity: 1
+                quantity: product.quantity || 1
             }
         ];
         setCart(newCart);
         syncCartToBackend(newCart);
         return true;
     };
-    // Increase/decrease quantity
-    const updateQuantity = (id, amount)=>{
+    const updateQuantity = (id, amount, selectedColor = null, selectedSize = null)=>{
         const newCart = cart.map((item)=>{
-            if (item._id === id) {
-                const newQty = item.quantity + amount;
+            const matches = item._id === id && item.selectedColor === selectedColor && item.selectedSize === selectedSize;
+            if (matches) {
+                const currentQty = item.quantity || 1;
+                const newQty = currentQty + amount;
+                const maxStock = item.stock !== undefined ? item.stock : 10;
+                if (amount > 0 && newQty > maxStock) {
+                    alert(`Only ${maxStock} items available in stock!`);
+                    return item;
+                }
                 return newQty > 0 ? {
                     ...item,
                     quantity: newQty
@@ -1283,9 +1303,8 @@ function CartProvider({ children }) {
             return item;
         }).filter(Boolean);
         setCart(newCart);
-        syncCartToBackend(newCart);
+        syncCartToBackend(newCart); // Yeh function name theek kar diya gaya hai
     };
-    // Clear cart
     const clearCart = ()=>{
         setCart([]);
         syncCartToBackend([]);
@@ -1300,7 +1319,7 @@ function CartProvider({ children }) {
         children: children
     }, void 0, false, {
         fileName: "[project]/src/app/(customer)/context/CartContext.js",
-        lineNumber: 95,
+        lineNumber: 124,
         columnNumber: 5
     }, this);
 }

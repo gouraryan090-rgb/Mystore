@@ -1,18 +1,23 @@
+// src/app/orders/[orderId]/page.js
 "use client";
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { generateReceiptPDF } from "@/lib/generateInvoice";
 
-const getCustomerStatus = (dbStatus) => {
-  switch (dbStatus) {
-    case "Pending": return "Placed";
-    case "Processing": return "Processing";
-    case "In Transit": return "Shipped";
-    case "Delivered": return "Delivered";
-    case "Cancelled": return "Cancelled";
-    default: return dbStatus || "Placed";
+const getCustomerStatus = (orderStatus, paymentStatus) => {
+  const currentStatus = (orderStatus || "Pending").toLowerCase();
+  
+  if (currentStatus === "cancelled") return "Cancelled";
+  if (currentStatus === "delivered") return "Delivered";
+  if (currentStatus === "in transit" || currentStatus === "shipped") return "Shipped";
+  if (currentStatus === "processing") return "Processing";
+
+  if (paymentStatus === "Paid") {
+    return "Order Placed";
   }
+
+  return "Placed";
 };
 
 export default function OrderDetailsPage() {
@@ -28,9 +33,60 @@ export default function OrderDetailsPage() {
 
   useEffect(() => {
     if (orderId) {
-      fetchOrderDetails();
+      const queryParams = new URLSearchParams(window.location.search);
+      const cashfreeOrderId = queryParams.get("order_id") || queryParams.get("cf_id");
+      const razorpayPaymentId = queryParams.get("razorpay_payment_id");
+
+      if (cashfreeOrderId) {
+        verifyCashfreePayment(orderId, cashfreeOrderId);
+      } else if (razorpayPaymentId) {
+        verifyRazorpayPayment(orderId, razorpayPaymentId, queryParams.get("razorpay_order_id"), queryParams.get("razorpay_signature"));
+      } else {
+        fetchOrderDetails();
+      }
     }
   }, [orderId]);
+
+  async function verifyCashfreePayment(id, cfOrderId) {
+    try {
+      const res = await fetch("/api/orders/verify/cashfree", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: id, cashfree_order_id: cfOrderId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    } catch (err) {
+      console.error("Cashfree verification error:", err);
+    } finally {
+      fetchOrderDetails();
+    }
+  }
+
+  async function verifyRazorpayPayment(id, razorpayPaymentId, razorpayOrderId, razorpaySignature) {
+    try {
+      const res = await fetch("/api/orders/verify/razorpay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId: id,
+          razorpay_payment_id: razorpayPaymentId,
+          razorpay_order_id: razorpayOrderId,
+          razorpay_signature: razorpaySignature,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    } catch (err) {
+      console.error("Razorpay verification error:", err);
+    } finally {
+      fetchOrderDetails();
+    }
+  }
 
   async function fetchOrderDetails() {
     try {
@@ -110,22 +166,23 @@ export default function OrderDetailsPage() {
   const isDelivered = order.orderStatus === "Delivered" || order.status === "Delivered" || order.status === "delivered";
   const isShipped = order.orderStatus === "In Transit" || order.status === "Shipped" || order.status === "in transit";
   const cancellable = isCancellable(order.createdAt, order.orderStatus, order.status);
-  const customerStatusLabel = getCustomerStatus(order.status || order.orderStatus);
+  const customerStatusLabel = getCustomerStatus(order.orderStatus || order.status, order.paymentStatus);
   const formattedDate = order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : "Recent";
 
   let badgeBg = "#fef3c7";
   let badgeColor = "#d97706";
+  if (order.paymentStatus === "Paid" && (!order.orderStatus || order.orderStatus === "Pending")) {
+    badgeBg = "#dcfce7";
+    badgeColor = "#16a34a";
+  }
   if (isDelivered) { badgeBg = "#dcfce7"; badgeColor = "#16a34a"; }
   if (isShipped) { badgeBg = "#e0e7ff"; badgeColor = "#4f46e5"; }
   if (isCancelled) { badgeBg = "#fee2e2"; badgeColor = "#dc2626"; }
 
-  // Check if order is Prepaid/Online
-  const isOnline = order.paymentMethod === "Online" || order.paymentMethod === "ONLINE" || order.paymentMethod === "Cashfree";
+  const isOnline = order.paymentMethod === "Online" || order.paymentMethod === "ONLINE" || order.paymentMethod === "Cashfree" || order.paymentMethod === "Razorpay";
 
   return (
     <div style={{ maxWidth: "1000px", margin: "0 auto", paddingBottom: "80px", fontFamily: "system-ui, -apple-system, sans-serif", paddingLeft: "24px", paddingRight: "24px" }}>
-      
-      {/* Breadcrumb & Header */}
       <div style={{ margin: "24px 0", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
         <div>
           <div style={{ fontSize: "13px", color: "#64748b", fontWeight: "600", marginBottom: "8px" }}>
@@ -144,7 +201,6 @@ export default function OrderDetailsPage() {
         </button>
       </div>
 
-      {/* Order Meta Info Card */}
       <div style={{ backgroundColor: "#fff", borderRadius: "20px", border: "1px solid #e2e8f0", padding: "24px", marginBottom: "24px", boxShadow: "0 4px 12px rgba(0,0,0,0.02)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px", borderBottom: "1px solid #f1f5f9", paddingBottom: "16px" }}>
           <div>
@@ -176,10 +232,9 @@ export default function OrderDetailsPage() {
               Payment Status: <strong style={{ color: order.paymentStatus === "Paid" ? "#16a34a" : "#dc2626" }}>{order.paymentStatus || "Pending"}</strong>
             </p>
             
-            {/* Show Cashfree / Transaction ID if it's an online payment */}
-            {isOnline && order.cashfreeOrderId && (
+            {order.paymentId && (
               <p style={{ margin: "0 0 4px 0", color: "#475569", fontSize: "13px" }}>
-                Transaction ID: <strong style={{ color: "#0f172a", wordBreak: "break-all" }}>{order.cashfreeOrderId}</strong>
+                Transaction ID: <strong style={{ color: "#0f172a", wordBreak: "break-all" }}>{order.paymentId}</strong>
               </p>
             )}
 
@@ -189,7 +244,6 @@ export default function OrderDetailsPage() {
         </div>
       </div>
 
-      {/* Items Section */}
       <div style={{ backgroundColor: "#fff", borderRadius: "20px", border: "1px solid #e2e8f0", padding: "24px", marginBottom: "24px" }}>
         <h3 style={{ fontSize: "16px", fontWeight: "800", color: "#0f172a", margin: "0 0 16px 0" }}>Ordered Items</h3>
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -220,7 +274,6 @@ export default function OrderDetailsPage() {
         </div>
       </div>
 
-      {/* Actions Footer */}
       <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end", flexWrap: "wrap" }}>
         <button
           onClick={() => generateReceiptPDF(order)}
@@ -239,7 +292,6 @@ export default function OrderDetailsPage() {
         )}
       </div>
 
-      {/* Cancel Modal */}
       {showCancelModal && (
         <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "rgba(0,0,0,0.5)", zIndex: 999, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
           <div style={{ backgroundColor: "#fff", padding: "28px", borderRadius: "20px", width: "100%", maxWidth: "400px", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)" }}>
@@ -277,7 +329,6 @@ export default function OrderDetailsPage() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

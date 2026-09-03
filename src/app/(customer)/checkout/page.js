@@ -28,11 +28,6 @@ export default function CheckoutPage() {
   const [couponMessage, setCouponMessage] = useState("");
 
   useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
-    script.async = true;
-    document.body.appendChild(script);
-
     const saved = localStorage.getItem("checkout_data");
     if (saved) {
       setCheckoutData(JSON.parse(saved));
@@ -63,10 +58,101 @@ export default function CheckoutPage() {
       .catch((err) => console.error("Extra charges fetch error:", err));
   }, [router]);
 
+  // Quantity change handler for checkout items with stock validation
+  const handleUpdateQuantity = (index, delta) => {
+    if (!checkoutData) return;
+
+    const updatedData = { ...checkoutData };
+    
+    if (updatedData.cart) {
+      const updatedCart = [...updatedData.cart];
+      const currentItem = updatedCart[index];
+      const currentQty = currentItem.quantity || 1;
+      const newQty = currentQty + delta;
+
+      // Determine max available stock for this item/variant
+      let maxStock = currentItem.stock !== undefined ? currentItem.stock : 10;
+      if (currentItem.selectedSize && currentItem.selectedColor && currentItem.sizeStockVariants) {
+        const variant = currentItem.sizeStockVariants.find(
+          (v) => v.size === currentItem.selectedSize && v.color === currentItem.selectedColor
+        );
+        if (variant) maxStock = variant.stock;
+      } else if (currentItem.selectedSize && currentItem.sizeStockVariants) {
+        const variant = currentItem.sizeStockVariants.find(
+          (v) => v.size === currentItem.selectedSize && (!v.color || v.color === "")
+        );
+        if (variant) maxStock = variant.stock;
+      }
+
+      if (delta > 0 && newQty > maxStock) {
+        alert(`Only ${maxStock} items available in stock!`);
+        return;
+      }
+
+      if (newQty <= 0) {
+        updatedCart.splice(index, 1);
+      } else {
+        updatedCart[index].quantity = newQty;
+      }
+      updatedData.cart = updatedCart;
+      
+      // Recalculate totalBill
+      updatedData.totalBill = updatedCart.reduce(
+        (sum, item) => sum + (item.offerPrice || item.price) * (item.quantity || 1), 
+        0
+      );
+      
+      if (updatedCart.length === 0) {
+        localStorage.removeItem("checkout_data");
+        router.push("/");
+        return;
+      }
+    } else if (updatedData.product) {
+      const prod = updatedData.product;
+      const currentQty = prod.quantity || 1;
+      const newQty = currentQty + delta;
+
+      let maxStock = prod.stock !== undefined ? prod.stock : 10;
+      if (prod.selectedSize && prod.selectedColor && prod.sizeStockVariants) {
+        const variant = prod.sizeStockVariants.find(
+          (v) => v.size === prod.selectedSize && v.color === prod.selectedColor
+        );
+        if (variant) maxStock = variant.stock;
+      } else if (prod.selectedSize && prod.sizeStockVariants) {
+        const variant = prod.sizeStockVariants.find(
+          (v) => v.size === prod.selectedSize && (!v.color || v.color === "")
+        );
+        if (variant) maxStock = variant.stock;
+      }
+
+      if (delta > 0 && newQty > maxStock) {
+        alert(`Only ${maxStock} items available in stock!`);
+        return;
+      }
+
+      if (newQty <= 0) {
+        localStorage.removeItem("checkout_data");
+        router.push("/");
+        return;
+      }
+      prod.quantity = newQty;
+      updatedData.totalBill = (prod.offerPrice || prod.price) * newQty;
+    }
+
+    setCheckoutData(updatedData);
+    localStorage.setItem("checkout_data", JSON.stringify(updatedData));
+    setDiscountApplied(false);
+    setDiscountAmount(0);
+    setCouponMessage("");
+  };
+
+  const { product, cart, totalBill } = checkoutData || {};
+  const itemsToDisplay = cart || (product ? [product] : []);
+
   useEffect(() => {
-    if (checkoutData?.totalBill && extraCharges.length > 0) {
+    if (totalBill && extraCharges.length > 0) {
       const applicable = extraCharges.filter((charge) => {
-        const matchesPrice = checkoutData.totalBill <= charge.maxOrderPrice;
+        const matchesPrice = totalBill <= charge.maxOrderPrice;
         const matchesPayment = charge.paymentMethod === "ALL" || charge.paymentMethod === selectedPayment;
         return matchesPrice && matchesPayment;
       });
@@ -74,7 +160,7 @@ export default function CheckoutPage() {
     } else {
       setAppliedExtraCharges([]);
     }
-  }, [checkoutData?.totalBill, selectedPayment, extraCharges]);
+  }, [totalBill, selectedPayment, extraCharges]);
 
   if (!checkoutData) {
     return (
@@ -83,9 +169,6 @@ export default function CheckoutPage() {
       </div>
     );
   }
-
-  const { product, cart, totalBill } = checkoutData;
-  const itemsToDisplay = cart || [product];
 
   const totalExtraCharges = appliedExtraCharges.reduce((sum, ch) => sum + ch.price, 0);
   const finalPayableAmount = Math.max(0, totalBill - discountAmount + totalExtraCharges);
@@ -136,7 +219,6 @@ export default function CheckoutPage() {
     setLoading(true);
     const orderItems = checkoutData.cart ? checkoutData.cart : [checkoutData.product];
 
-    // LocalStorage se actual logged-in user ya selected address se email nikalna 
     const loggedInUser = JSON.parse(localStorage.getItem("customer_user") || "{}");
     const currentLogEmail = loggedInUser?.email || loggedInUser?.mail || selectedAddress?.email || "";
     const currentUserId = loggedInUser?.id || loggedInUser?.userId || currentLogEmail || "guest_user";
@@ -150,7 +232,7 @@ export default function CheckoutPage() {
             items: orderItems,
             shippingAddress: selectedAddress,
             email: currentLogEmail, 
-            userId: currentUserId, // Explicitly pass userId so it doesn't default to guest_user
+            userId: currentUserId,
             paymentMethod: "COD",
             paymentStatus: "Pending",
             totalAmount: finalPayableAmount,
@@ -178,50 +260,22 @@ export default function CheckoutPage() {
         }
 
       } else if (selectedPayment === "ONLINE") {
-        const res = await fetch("/api/orders/create/online", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            items: orderItems,
-            shippingAddress: selectedAddress,
-            email: currentLogEmail, 
-            userId: currentUserId, // Explicitly pass userId here too
-            paymentMethod: "Online",
-            paymentStatus: "Pending",
-            totalAmount: finalPayableAmount,
-            subtotal: totalBill,
-            extraCharges: appliedExtraCharges,
-            discountAmount,
-            couponCode: discountApplied ? couponCode : null,
-          }),
-        });
+        const fullCheckoutPayload = {
+          ...checkoutData,
+          shippingAddress: selectedAddress,
+          email: currentLogEmail,
+          userId: currentUserId,
+          paymentMethod: "Online",
+          totalBill: finalPayableAmount,
+          subtotal: totalBill,
+          extraCharges: appliedExtraCharges,
+          discountAmount,
+          couponCode: discountApplied ? couponCode : null,
+        };
 
-        const data = await res.json();
-
-        if (!data.success || !data.payment_session_id) {
-          alert("Error initializing payment: " + (data.message || "Unknown error"));
-          setLoading(false);
-          return;
-        }
-
-        const cashfree = window.Cashfree({ mode: "sandbox" });
-        cashfree.checkout({ paymentSessionId: data.payment_session_id, redirectTarget: "_modal" }).then((result) => {
-          setLoading(false);
-          if (result.error) {
-            alert("Payment failed or cancelled: " + result.error.message);
-          }
-          if (result.order) {
-            setShowSuccessAnimation(true);
-            localStorage.removeItem("checkout_data");
-            if (checkoutData.cart) {
-              clearCart();
-              localStorage.removeItem("user_cart");
-            }
-            setTimeout(() => {
-              router.push(`/orders/${data.orderId}`);
-            }, 1500);
-          }
-        });
+        localStorage.setItem("checkout_data", JSON.stringify(fullCheckoutPayload));
+        setLoading(false);
+        router.push("/checkout/payment");
       }
     } catch (error) {
       console.error("Order Submit Error:", error);
@@ -350,15 +404,32 @@ export default function CheckoutPage() {
               <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
                 {itemsToDisplay.map((item, index) => {
                   const itemImg = item.images?.[0] || item.imageUrl || item.image || "https://via.placeholder.com/60";
+                  const itemQty = item.quantity || 1;
                   return (
                     <div key={index} style={{ display: "flex", alignItems: "center", gap: "12px", borderBottom: index < itemsToDisplay.length - 1 ? "1px solid #f3f4f6" : "none", paddingBottom: index < itemsToDisplay.length - 1 ? "14px" : "0" }}>
                       <img src={itemImg} alt={item.title || item.name} style={{ width: "50px", height: "50px", objectFit: "cover", borderRadius: "8px", border: "1px solid #e5e7eb" }} />
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: "14px", fontWeight: "600", color: "#111827" }}>{item.title || item.name}</div>
-                        <div style={{ fontSize: "12px", color: "#6b7280" }}>Qty: {item.quantity || 1}</div>
+                        
+                        {/* Quantity Controls (- / +) */}
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "6px" }}>
+                          <button 
+                            onClick={() => handleUpdateQuantity(index, -1)}
+                            style={{ width: "22px", height: "22px", background: "#f3f4f6", border: "1px solid #d1d5db", borderRadius: "4px", cursor: "pointer", fontSize: "12px", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center" }}
+                          >
+                            -
+                          </button>
+                          <span style={{ fontSize: "13px", fontWeight: "600", minWidth: "16px", textAlign: "center" }}>{itemQty}</span>
+                          <button 
+                            onClick={() => handleUpdateQuantity(index, 1)}
+                            style={{ width: "22px", height: "22px", background: "#f3f4f6", border: "1px solid #d1d5db", borderRadius: "4px", cursor: "pointer", fontSize: "12px", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center" }}
+                          >
+                            +
+                          </button>
+                        </div>
                       </div>
                       <div style={{ fontSize: "14px", fontWeight: "600", color: "#111827" }}>
-                        ₹{(item.offerPrice || item.price) * (item.quantity || 1)}
+                        ₹{(item.offerPrice || item.price) * itemQty}
                       </div>
                     </div>
                   );
@@ -424,7 +495,7 @@ export default function CheckoutPage() {
 
                 <label style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px", border: "1px solid", borderColor: selectedPayment === "ONLINE" ? "#111827" : "#e5e7eb", borderRadius: "8px", cursor: "pointer", backgroundColor: selectedPayment === "ONLINE" ? "#f9fafb" : "#fff" }}>
                   <input type="radio" name="paymentMethod" value="ONLINE" checked={selectedPayment === "ONLINE"} onChange={(e) => setSelectedPayment(e.target.value)} style={{ accentColor: "#111827" }} />
-                  <span style={{ fontSize: "14px", fontWeight: "600" }}>Online Payment (Cards / UPI via Cashfree)</span>
+                  <span style={{ fontSize: "14px", fontWeight: "600" }}>Online Payment (Choose Gateway on Next Step)</span>
                 </label>
               </div>
             </div>
@@ -449,7 +520,7 @@ export default function CheckoutPage() {
                 width: "100%"
               }}
             >
-              {loading ? "Processing..." : selectedPayment === "COD" ? "Place Order" : `Pay ₹{finalPayableAmount}`}
+              {loading ? "Processing..." : selectedPayment === "COD" ? "Place Order" : "Proceed to Payment Gateways"}
             </button>
 
           </div>

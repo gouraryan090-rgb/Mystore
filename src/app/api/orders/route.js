@@ -3,16 +3,34 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Order from "@/models/Order";
+import Product from "@/models/Product";
 
 export async function POST(req) {
   try {
     await dbConnect();
     const body = await req.json();
-    const { customerName, phone, address, productId, productTitle, amount, email, shippingAddress, items, totalAmount, paymentMethod } = body;
+    const { customerName, phone, address, productId, productTitle, amount, email, shippingAddress, items, totalAmount, paymentMethod, quantity = 1 } = body;
 
     const finalEmail = email || shippingAddress?.email;
     const finalAmount = amount || totalAmount;
+    const method = paymentMethod || "COD";
 
+    // Agar COD (offline) hai, toh order create hote hi stock minus kar do
+    if (productId && method === "COD") {
+      const product = await Product.findById(productId);
+      if (!product) {
+        return NextResponse.json({ success: false, error: "Product not found" }, { status: 404 });
+      }
+
+      if (product.stock < quantity) {
+        return NextResponse.json({ success: false, error: "Insufficient stock available" }, { status: 400 });
+      }
+
+      product.stock -= quantity;
+      await product.save();
+    }
+
+    // Order create karein (COD ke liye "Placed" aur Online ke liye "Pending Payment")
     const newOrder = await Order.create({
       customerName: customerName || shippingAddress?.name,
       phone: phone || shippingAddress?.phone,
@@ -23,9 +41,9 @@ export async function POST(req) {
       totalAmount: finalAmount,
       email: finalEmail,
       shippingAddress: shippingAddress || { name: customerName, phone, address, email: finalEmail },
-      items: items || [{ title: productTitle, price: finalAmount, quantity: 1 }],
-      paymentMethod: paymentMethod || "COD",
-      status: "Placed"
+      items: items || [{ title: productTitle, price: finalAmount, quantity }],
+      paymentMethod: method,
+      status: method === "COD" ? "Placed" : "Pending Payment"
     });
 
     return NextResponse.json({ success: true, data: newOrder }, { status: 201 });

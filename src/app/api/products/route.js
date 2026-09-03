@@ -29,9 +29,13 @@ export async function POST(request) {
       originalPrice: body.originalPrice,
       offerPrice: body.offerPrice,
       category: body.category,
-      subCategory: body.subCategory, // <-- subCategory is added here
+      subCategory: body.subCategory,
       images: body.images,
-      imageUrl: body.images?.[0] || "", // For fallback
+      imageUrl: body.images?.[0] || "",
+      sizes: body.sizes || [],
+      colorVariants: body.colorVariants || [],
+      sizeStockVariants: body.sizeStockVariants || [],
+      stock: body.stock !== undefined ? body.stock : 10, // Added general stock handling for single products
     });
 
     return NextResponse.json(

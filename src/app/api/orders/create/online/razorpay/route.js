@@ -4,7 +4,13 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
+import Razorpay from "razorpay";
 import { sendOrderEmail } from "@/lib/mailer";
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
 
 // Helper function to push order to Shiprocket
 async function createShiprocketOrder(newOrder, body) {
@@ -28,7 +34,7 @@ async function createShiprocketOrder(newOrder, body) {
       name: item.title || item.name || item.productName || "Product",
       sku: item.sku || item.productId || item._id || "SKUGO",
       units: item.quantity || item.qty || 1,
-      selling_price: item.offerPrice || item.price || 0,
+      selling_price: item.offerPrice !== undefined ? item.offerPrice : (item.price || 0),
       discount: 0,
       tax: 0,
       hsn: item.hsn || "",
@@ -43,7 +49,7 @@ async function createShiprocketOrder(newOrder, body) {
       order_date: new Date().toISOString().slice(0, 10) + " " + new Date().toTimeString().slice(0, 8),
       pickup_location: process.env.SHIPROCKET_PICKUP_LOCATION || "Primary",
       channel_id: process.env.SHIPROCKET_CHANNEL_ID || "",
-      comment: "Created automatically from Next.js store",
+      comment: "Created automatically from Next.js store (Razorpay)",
       billing_customer_name: body.shippingAddress?.name || "Customer",
       billing_last_name: "",
       billing_address: address1,
@@ -75,7 +81,7 @@ async function createShiprocketOrder(newOrder, body) {
 
     const srOrderData = await srOrderRes.json();
     if (srOrderRes.ok) {
-      console.log("Order successfully pushed to Shiprocket:", srOrderData.order_id);
+      console.log("Order successfully pushed to Shiprocket (Razorpay):", srOrderData.order_id);
     } else {
       console.error("Shiprocket Order Creation Error:", srOrderData);
     }
@@ -91,24 +97,23 @@ export async function POST(request) {
     const body = await request.json();
 
     const formattedItems = (body.items || []).map((item) => {
-      const itemPrice = item.offerPrice || item.price || 0;
+      const itemPrice = item.offerPrice !== undefined ? item.offerPrice : (item.price || 0);
       return {
         _id: item.productId || item._id,
         productId: item.productId || item._id,
         title: item.title || item.name || item.productName || "Product Item",
-        quantity: item.quantity || item.qty || 1,
-        price: itemPrice,
         offerPrice: itemPrice,
-        images: item.images || (item.imageUrl ? [item.imageUrl] : []),
+        price: itemPrice,
+        quantity: item.quantity || item.qty || 1,
         selectedColor: item.selectedColor || item.variant || null,
         selectedSize: item.selectedSize || null,
-        imageUrl: item.imageUrl || (item.images && item.images[0]) || "",
+        imageUrl: item.imageUrl || (item.images?.[0] || ""),
+        images: item.images || (item.imageUrl ? [item.imageUrl] : []),
       };
     });
 
     const customerEmail = body.email || body.shippingAddress?.email || "customer@example.com";
     const customerUserId = body.userId || customerEmail || "guest_user";
-    const customerPhone = body.shippingAddress?.phone || "9999999999";
     const orderAmount = Number(body.totalAmount);
 
     if (!orderAmount || orderAmount <= 0) {
@@ -198,7 +203,7 @@ export async function POST(request) {
       }
     }
 
-    // Step 3: Create order in MongoDB to get a permanent 24-character hex ObjectId
+    // Step 3: Create order in MongoDB first to obtain a valid 24-character hex ObjectId
     const newOrder = await Order.create({
       items: formattedItems,
       shippingAddress: body.shippingAddress,
@@ -212,7 +217,7 @@ export async function POST(request) {
 
     const mongoOrderId = newOrder._id.toString();
 
-    // Step 4: Push order to Shiprocket in background
+    // Step 4: Push order to Shiprocket immediately upon MongoDB creation
     createShiprocketOrder(newOrder, body);
 
     // Step 5: Send Email Notification with PDF Invoice in background
@@ -223,7 +228,7 @@ export async function POST(request) {
         "created",
         {
           customerName: newOrder.shippingAddress?.name || "Customer",
-          phone: customerPhone,
+          phone: newOrder.shippingAddress?.phone || "9999999999",
           address: newOrder.shippingAddress?.address || "N/A",
           items: newOrder.items,
           amount: newOrder.totalAmount,
@@ -231,47 +236,30 @@ export async function POST(request) {
           paymentMethod: "Prepaid"
         }
       ).catch((err) =>
-        console.error("Background Online email error:", err)
+        console.error("Background Razorpay email error:", err)
       );
     }
 
-    const cashfreeEnv = process.env.CASHFREE_ENVIRONMENT || "TEST";
-    const cashfreeBaseUrl = cashfreeEnv === "PRODUCTION" 
-      ? "https://api.cashfree.com/pg/orders" 
-      : "https://sandbox.cashfree.com/pg/orders";
-
-    const cashfreePayload = {
-      order_id: mongoOrderId,
-      order_amount: orderAmount,
-      order_currency: "INR",
-      customer_details: {
-        customer_id: customerEmail.replace(/[^a-zA-Z0-9]/g, "_"),
-        customer_email: customerEmail,
-        customer_phone: customerPhone,
-        customer_name: body.shippingAddress?.name || "Customer",
-      },
-      order_meta: {
-        return_url: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/orders/${mongoOrderId}?order_id=${mongoOrderId}`,
+    // Step 6: Create Razorpay order
+    const options = {
+      amount: Math.round(orderAmount * 100), // amount in paise
+      currency: "INR",
+      receipt: `receipt_${mongoOrderId}`,
+      notes: {
+        orderId: mongoOrderId,
+        email: customerEmail,
       },
     };
 
-    const cashfreeResponse = await fetch(cashfreeBaseUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-client-id": process.env.CASHFREE_CLIENT_ID || process.env.NEXT_PUBLIC_CASHFREE_CLIENT_ID,
-        "x-client-secret": process.env.CASHFREE_CLIENT_SECRET || process.env.NEXT_PUBLIC_CASHFREE_CLIENT_SECRET,
-        "x-api-version": process.env.CASHFREE_API_VERSION || "2022-09-01",
-      },
-      body: JSON.stringify(cashfreePayload),
-    });
+    let razorpayOrder;
+    try {
+      razorpayOrder = await razorpay.orders.create(options);
+    } catch (rzpErr) {
+      console.error("Razorpay API Exception:", rzpErr);
+    }
 
-    const cashfreeData = await cashfreeResponse.json();
-
-    if (!cashfreeResponse.ok || !cashfreeData.payment_session_id) {
-      console.error("Cashfree API Error:", cashfreeData);
-      
-      // Agar Cashfree session fail ho jaye, toh deducted stock wapas restore (`+`) kar do taaki inventory kharab na ho
+    if (!razorpayOrder || !razorpayOrder.id) {
+      // Clean up database document and restore stock if Razorpay gateway fails
       for (const item of formattedItems) {
         const prodId = item._id;
         const reqQty = item.quantity;
@@ -298,7 +286,7 @@ export async function POST(request) {
 
       await Order.findByIdAndDelete(mongoOrderId);
       return NextResponse.json(
-        { success: false, message: cashfreeData.message || "Failed to initialize payment gateway." },
+        { success: false, message: "Failed to initialize Razorpay order." },
         { status: 400 }
       );
     }
@@ -306,14 +294,16 @@ export async function POST(request) {
     return NextResponse.json(
       {
         success: true,
-        payment_session_id: cashfreeData.payment_session_id,
+        razorpay_order_id: razorpayOrder.id,
         orderId: mongoOrderId,
+        amount: razorpayOrder.amount,
+        currency: razorpayOrder.currency,
       },
       { status: 200 }
     );
 
   } catch (error) {
-    console.error("Online Order Creation Error:", error);
+    console.error("Razorpay Order Error:", error);
     return NextResponse.json(
       { success: false, message: error.message || "Server Error" },
       { status: 500 }

@@ -7,7 +7,6 @@ export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
   const [userEmail, setUserEmail] = useState(null);
 
-  // 1. Fetch user email and load cart from database
   useEffect(() => {
     try {
       const savedUser = localStorage.getItem("customer_user");
@@ -15,7 +14,6 @@ export function CartProvider({ children }) {
         const parsedUser = JSON.parse(savedUser);
         if (parsedUser?.email) {
           setUserEmail(parsedUser.email);
-          // Fetch database cart from backend
           fetch(`/api/user/cart?email=${parsedUser.email}`)
             .then((res) => res.json())
             .then((data) => {
@@ -29,7 +27,6 @@ export function CartProvider({ children }) {
         }
       }
       
-      // If user is not logged in, load from localstorage
       const savedCart = localStorage.getItem("user_cart");
       if (savedCart) setCart(JSON.parse(savedCart));
     } catch (e) {
@@ -37,7 +34,6 @@ export function CartProvider({ children }) {
     }
   }, []);
 
-  // 2. Sync cart to both LocalStorage and Database upon update
   const syncCartToBackend = async (updatedCart) => {
     localStorage.setItem("user_cart", JSON.stringify(updatedCart));
 
@@ -54,27 +50,61 @@ export function CartProvider({ children }) {
     }
   };
 
-  // Add product to cart (Safe duplicate check)
   const addToCart = (product) => {
-    const isAlreadyInCart = cart.some((item) => item._id === product._id);
+    const existingIndex = cart.findIndex(
+      (item) =>
+        item._id === product._id &&
+        item.selectedColor === product.selectedColor &&
+        item.selectedSize === product.selectedSize
+    );
 
-    if (isAlreadyInCart) {
-      alert("This product is already added to your cart!");
+    const maxStock = product.stock !== undefined ? product.stock : 10;
+
+    if (existingIndex > -1) {
+      const currentQty = cart[existingIndex].quantity || 1;
+      const newQty = currentQty + 1;
+
+      if (newQty > maxStock) {
+        alert(`Only ${maxStock} items available in stock!`);
+        return false;
+      }
+
+      const newCart = [...cart];
+      newCart[existingIndex] = { ...newCart[existingIndex], quantity: newQty };
+      setCart(newCart);
+      syncCartToBackend(newCart);
+      return true;
+    }
+
+    if (maxStock < 1) {
+      alert("Item is out of stock!");
       return false;
     }
 
-    const newCart = [...cart, { ...product, quantity: 1 }];
+    const newCart = [...cart, { ...product, quantity: product.quantity || 1 }];
     setCart(newCart);
     syncCartToBackend(newCart);
     return true;
   };
 
-  // Increase/decrease quantity
-  const updateQuantity = (id, amount) => {
+  const updateQuantity = (id, amount, selectedColor = null, selectedSize = null) => {
     const newCart = cart
       .map((item) => {
-        if (item._id === id) {
-          const newQty = item.quantity + amount;
+        const matches =
+          item._id === id &&
+          item.selectedColor === selectedColor &&
+          item.selectedSize === selectedSize;
+
+        if (matches) {
+          const currentQty = item.quantity || 1;
+          const newQty = currentQty + amount;
+          const maxStock = item.stock !== undefined ? item.stock : 10;
+
+          if (amount > 0 && newQty > maxStock) {
+            alert(`Only ${maxStock} items available in stock!`);
+            return item; 
+          }
+
           return newQty > 0 ? { ...item, quantity: newQty } : null;
         }
         return item;
@@ -82,10 +112,9 @@ export function CartProvider({ children }) {
       .filter(Boolean);
 
     setCart(newCart);
-    syncCartToBackend(newCart);
+    syncCartToBackend(newCart); // Yeh function name theek kar diya gaya hai
   };
 
-  // Clear cart
   const clearCart = () => {
     setCart([]);
     syncCartToBackend([]);
