@@ -47,10 +47,6 @@
   position: sticky;
 }
 
-.container {
-  width: 100%;
-}
-
 .block {
   display: block;
 }
@@ -89,10 +85,6 @@
 
 .resize {
   resize: both;
-}
-
-.flex-wrap {
-  flex-wrap: wrap;
 }
 
 :where(.divide-y > :not(:last-child)) {

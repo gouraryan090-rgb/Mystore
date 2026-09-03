@@ -1349,18 +1349,35 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/navigation.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f28$customer$292f$context$2f$CartContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/app/(customer)/context/CartContext.js [app-client] (ecmascript)");
 ;
-var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.signature();
+var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.signature(), _s2 = __turbopack_context__.k.signature();
 "use client";
 ;
 ;
 ;
 ;
-function HeaderContent({ user }) {
+// 👇 Service Worker Register karne ke liye function
+function ServiceWorkerRegister() {
     _s();
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "ServiceWorkerRegister.useEffect": ()=>{
+            if ("serviceWorker" in navigator) {
+                navigator.serviceWorker.register("/sw.js").then({
+                    "ServiceWorkerRegister.useEffect": (reg)=>console.log("Service Worker registered", reg)
+                }["ServiceWorkerRegister.useEffect"]).catch({
+                    "ServiceWorkerRegister.useEffect": (err)=>console.log("Service Worker registration failed", err)
+                }["ServiceWorkerRegister.useEffect"]);
+            }
+        }
+    }["ServiceWorkerRegister.useEffect"], []);
+    return null;
+}
+_s(ServiceWorkerRegister, "OD7bBpZva5O2jO+Puf00hKivP7c=");
+_c = ServiceWorkerRegister;
+function HeaderContent({ user }) {
+    _s1();
     const { cart } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f28$customer$292f$context$2f$CartContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCart"])();
     const pathname = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePathname"])();
     const totalItems = cart.reduce((sum, item)=>sum + item.quantity, 0);
-    // Helper function to check if a link is active
     const isActive = (path)=>pathname === path;
     const getLinkStyle = (path)=>({
             textDecoration: "none",
@@ -1410,13 +1427,13 @@ function HeaderContent({ user }) {
                             children: "BAZAAR"
                         }, void 0, false, {
                             fileName: "[project]/src/app/(customer)/layout.js",
-                            lineNumber: 60,
+                            lineNumber: 71,
                             columnNumber: 17
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/(customer)/layout.js",
-                    lineNumber: 50,
+                    lineNumber: 61,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1433,7 +1450,7 @@ function HeaderContent({ user }) {
                             children: "🏠 Home"
                         }, void 0, false, {
                             fileName: "[project]/src/app/(customer)/layout.js",
-                            lineNumber: 65,
+                            lineNumber: 75,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -1442,7 +1459,7 @@ function HeaderContent({ user }) {
                             children: "📑 Categories"
                         }, void 0, false, {
                             fileName: "[project]/src/app/(customer)/layout.js",
-                            lineNumber: 68,
+                            lineNumber: 76,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -1451,7 +1468,7 @@ function HeaderContent({ user }) {
                             children: "🏷️ Deals"
                         }, void 0, false, {
                             fileName: "[project]/src/app/(customer)/layout.js",
-                            lineNumber: 71,
+                            lineNumber: 77,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -1460,7 +1477,7 @@ function HeaderContent({ user }) {
                             children: "📦 Orders"
                         }, void 0, false, {
                             fileName: "[project]/src/app/(customer)/layout.js",
-                            lineNumber: 74,
+                            lineNumber: 78,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -1469,13 +1486,13 @@ function HeaderContent({ user }) {
                             children: "ℹ️ About Us"
                         }, void 0, false, {
                             fileName: "[project]/src/app/(customer)/layout.js",
-                            lineNumber: 77,
+                            lineNumber: 79,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/(customer)/layout.js",
-                    lineNumber: 64,
+                    lineNumber: 74,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1519,16 +1536,16 @@ function HeaderContent({ user }) {
                                     children: totalItems
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/(customer)/layout.js",
-                                    lineNumber: 100,
+                                    lineNumber: 99,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/(customer)/layout.js",
-                            lineNumber: 84,
+                            lineNumber: 83,
                             columnNumber: 11
                         }, this),
-                        user && /* 👇 Yeh direct Link /profile par redirect karega jo src/app/(customer)/profile/page.js ko open karega */ /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                        user && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                             href: "/profile",
                             style: {
                                 textDecoration: "none",
@@ -1566,12 +1583,12 @@ function HeaderContent({ user }) {
                                         }
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(customer)/layout.js",
-                                        lineNumber: 154,
+                                        lineNumber: 152,
                                         columnNumber: 19
                                     }, this) : user.name ? user.name.charAt(0).toUpperCase() : "U"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/(customer)/layout.js",
-                                    lineNumber: 138,
+                                    lineNumber: 136,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1586,42 +1603,42 @@ function HeaderContent({ user }) {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/(customer)/layout.js",
-                                    lineNumber: 165,
+                                    lineNumber: 163,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/(customer)/layout.js",
-                            lineNumber: 124,
+                            lineNumber: 122,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/(customer)/layout.js",
-                    lineNumber: 83,
+                    lineNumber: 82,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/app/(customer)/layout.js",
-            lineNumber: 37,
+            lineNumber: 49,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/app/(customer)/layout.js",
-        lineNumber: 27,
+        lineNumber: 39,
         columnNumber: 5
     }, this);
 }
-_s(HeaderContent, "HrhfNJGR0lO2jgrSxlYN75VrdZQ=", false, function() {
+_s1(HeaderContent, "HrhfNJGR0lO2jgrSxlYN75VrdZQ=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f28$customer$292f$context$2f$CartContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCart"],
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePathname"]
     ];
 });
-_c = HeaderContent;
+_c1 = HeaderContent;
 function CustomerLayout({ children }) {
-    _s1();
+    _s2();
     const [user, setUser] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "CustomerLayout.useEffect": ()=>{
@@ -1636,48 +1653,56 @@ function CustomerLayout({ children }) {
         }
     }["CustomerLayout.useEffect"], []);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f28$customer$292f$context$2f$CartContext$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CartProvider"], {
-        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            style: {
-                minHeight: "100vh",
-                backgroundColor: "#f8fafc"
-            },
-            children: [
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(HeaderContent, {
-                    user: user
-                }, void 0, false, {
-                    fileName: "[project]/src/app/(customer)/layout.js",
-                    lineNumber: 193,
-                    columnNumber: 9
-                }, this),
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
-                    style: {
-                        maxWidth: "1280px",
-                        margin: "0 auto",
-                        padding: "24px 20px"
-                    },
-                    children: children
-                }, void 0, false, {
-                    fileName: "[project]/src/app/(customer)/layout.js",
-                    lineNumber: 194,
-                    columnNumber: 9
-                }, this)
-            ]
-        }, void 0, true, {
-            fileName: "[project]/src/app/(customer)/layout.js",
-            lineNumber: 192,
-            columnNumber: 7
-        }, this)
-    }, void 0, false, {
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(ServiceWorkerRegister, {}, void 0, false, {
+                fileName: "[project]/src/app/(customer)/layout.js",
+                lineNumber: 191,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                style: {
+                    minHeight: "100vh",
+                    backgroundColor: "#f8fafc"
+                },
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(HeaderContent, {
+                        user: user
+                    }, void 0, false, {
+                        fileName: "[project]/src/app/(customer)/layout.js",
+                        lineNumber: 193,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
+                        style: {
+                            maxWidth: "1280px",
+                            margin: "0 auto",
+                            padding: "24px 20px"
+                        },
+                        children: children
+                    }, void 0, false, {
+                        fileName: "[project]/src/app/(customer)/layout.js",
+                        lineNumber: 194,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/app/(customer)/layout.js",
+                lineNumber: 192,
+                columnNumber: 7
+            }, this)
+        ]
+    }, void 0, true, {
         fileName: "[project]/src/app/(customer)/layout.js",
-        lineNumber: 191,
+        lineNumber: 189,
         columnNumber: 5
     }, this);
 }
-_s1(CustomerLayout, "5s2qRsV95gTJBmaaTh11GoxYeGE=");
-_c1 = CustomerLayout;
-var _c, _c1;
-__turbopack_context__.k.register(_c, "HeaderContent");
-__turbopack_context__.k.register(_c1, "CustomerLayout");
+_s2(CustomerLayout, "5s2qRsV95gTJBmaaTh11GoxYeGE=");
+_c2 = CustomerLayout;
+var _c, _c1, _c2;
+__turbopack_context__.k.register(_c, "ServiceWorkerRegister");
+__turbopack_context__.k.register(_c1, "HeaderContent");
+__turbopack_context__.k.register(_c2, "CustomerLayout");
 if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
     __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
 }

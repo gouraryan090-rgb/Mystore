@@ -5,12 +5,24 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CartProvider, useCart } from "./context/CartContext";
 
+// 👇 Service Worker Register karne ke liye function
+function ServiceWorkerRegister() {
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then((reg) => console.log("Service Worker registered", reg))
+        .catch((err) => console.log("Service Worker registration failed", err));
+    }
+  }, []);
+  return null;
+}
+
 function HeaderContent({ user }) {
   const { cart } = useCart();
   const pathname = usePathname();
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  // Helper function to check if a link is active
   const isActive = (path) => pathname === path;
 
   const getLinkStyle = (path) => ({
@@ -46,7 +58,6 @@ function HeaderContent({ user }) {
           gap: "16px",
         }}
       >
-        {/* Logo */}
         <Link
           href="/"
           style={{
@@ -60,26 +71,14 @@ function HeaderContent({ user }) {
           ZENTRO<span style={{ color: "#6366f1" }}>BAZAAR</span>
         </Link>
 
-        {/* Dynamic Nav Links */}
         <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
-          <Link href="/" style={getLinkStyle("/")}>
-            🏠 Home
-          </Link>
-          <Link href="/categories" style={getLinkStyle("/categories")}>
-            📑 Categories
-          </Link>
-          <Link href="/deals" style={getLinkStyle("/deals")}>
-            🏷️ Deals
-          </Link>
-          <Link href="/orders" style={getLinkStyle("/orders")}>
-            📦 Orders
-          </Link>
-          <Link href="/about" style={getLinkStyle("/about")}>
-            ℹ️ About Us
-          </Link>
+          <Link href="/" style={getLinkStyle("/")}>🏠 Home</Link>
+          <Link href="/categories" style={getLinkStyle("/categories")}>📑 Categories</Link>
+          <Link href="/deals" style={getLinkStyle("/deals")}>🏷️ Deals</Link>
+          <Link href="/orders" style={getLinkStyle("/orders")}>📦 Orders</Link>
+          <Link href="/about" style={getLinkStyle("/about")}>ℹ️ About Us</Link>
         </div>
 
-        {/* Right Section (Cart & Direct Profile Link) */}
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <Link
             href="/cart"
@@ -120,7 +119,6 @@ function HeaderContent({ user }) {
           </Link>
 
           {user && (
-            /* 👇 Yeh direct Link /profile par redirect karega jo src/app/(customer)/profile/page.js ko open karega */
             <Link
               href="/profile"
               style={{
@@ -189,6 +187,8 @@ export default function CustomerLayout({ children }) {
 
   return (
     <CartProvider>
+      {/* 👇 Service Worker yahan mount kar diya gaya hai */}
+      <ServiceWorkerRegister />
       <div style={{ minHeight: "100vh", backgroundColor: "#f8fafc" }}>
         <HeaderContent user={user} />
         <main style={{ maxWidth: "1280px", margin: "0 auto", padding: "24px 20px" }}>
