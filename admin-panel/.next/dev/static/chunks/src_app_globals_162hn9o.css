@@ -47,6 +47,10 @@
   position: sticky;
 }
 
+.container {
+  width: 100%;
+}
+
 .block {
   display: block;
 }
@@ -61,6 +65,10 @@
 
 .hidden {
   display: none;
+}
+
+.inline {
+  display: inline;
 }
 
 .inline-block {

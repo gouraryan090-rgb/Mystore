@@ -1,3 +1,4 @@
+// src/app/profile/page.js
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -245,7 +246,6 @@ export default function UserProfilePage() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px" }}>
               {addresses.length > 0 ? (
                 addresses.slice(0, 3).map((addr, idx) => {
-                  // Format full address dynamically based on fields saved from EditAddressPage
                   const fullFormattedAddress = addr.address || `${addr.street1 || ''}${addr.street2 ? ', ' + addr.street2 : ''}${addr.city ? ', ' + addr.city : ''} - ${addr.pincode || ''}`;
                   
                   return (

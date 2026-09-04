@@ -15,6 +15,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$auth$2f$dist$2f$esm$2f$index$2d$CvXU3_1x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__ai__as__signInWithPopup$3e$__ = __turbopack_context__.i("[project]/node_modules/@firebase/auth/dist/esm/index-CvXU3_1x.js [app-client] (ecmascript) <export ai as signInWithPopup>");
 ;
 var _s = __turbopack_context__.k.signature();
+// src/app/(customer)/page.js
 "use client";
 ;
 ;
@@ -32,6 +33,7 @@ function HomePage() {
     // User & Auth State
     const [user, setUser] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     const [isCheckingAuth, setIsCheckingAuth] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(true);
+    const [shareCopiedId, setShareCopiedId] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "HomePage.useEffect": ()=>{
             if ("TURBOPACK compile-time truthy", 1) {
@@ -146,6 +148,27 @@ function HomePage() {
             console.error("Login Error:", error);
         }
     };
+    const handleQuickShare = async (e, p)=>{
+        e.preventDefault();
+        e.stopPropagation();
+        const productUrl = `${window.location.origin}/product/${p._id}`;
+        const shareData = {
+            title: p.title,
+            text: `Check out this amazing product: ${p.title}`,
+            url: productUrl
+        };
+        if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+            } catch (err) {
+                console.log("Error sharing:", err);
+            }
+        } else {
+            navigator.clipboard.writeText(productUrl);
+            setShareCopiedId(p._id);
+            setTimeout(()=>setShareCopiedId(null), 2000);
+        }
+    };
     if (isCheckingAuth) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             style: {
@@ -158,7 +181,7 @@ function HomePage() {
             children: "Loading ZentoBazaar..."
         }, void 0, false, {
             fileName: "[project]/src/app/(customer)/page.js",
-            lineNumber: 128,
+            lineNumber: 153,
             columnNumber: 7
         }, this);
     }
@@ -203,7 +226,7 @@ function HomePage() {
                                 children: "Welcome to ZENTROBAZAAR! 👋"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/(customer)/page.js",
-                                lineNumber: 158,
+                                lineNumber: 183,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -215,13 +238,13 @@ function HomePage() {
                                 children: "Sign in quickly with Google to manage your orders."
                             }, void 0, false, {
                                 fileName: "[project]/src/app/(customer)/page.js",
-                                lineNumber: 159,
+                                lineNumber: 184,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/(customer)/page.js",
-                        lineNumber: 157,
+                        lineNumber: 182,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -241,13 +264,13 @@ function HomePage() {
                         children: "Login with Google"
                     }, void 0, false, {
                         fileName: "[project]/src/app/(customer)/page.js",
-                        lineNumber: 161,
+                        lineNumber: 186,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/(customer)/page.js",
-                lineNumber: 139,
+                lineNumber: 164,
                 columnNumber: 9
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -288,7 +311,7 @@ function HomePage() {
                                     children: "Welcome to ZENTROBAZAAR"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/(customer)/page.js",
-                                    lineNumber: 195,
+                                    lineNumber: 220,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
@@ -303,7 +326,7 @@ function HomePage() {
                                         "Everything You Need, ",
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
                                             fileName: "[project]/src/app/(customer)/page.js",
-                                            lineNumber: 199,
+                                            lineNumber: 224,
                                             columnNumber: 36
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -313,13 +336,13 @@ function HomePage() {
                                             children: "All in One Place."
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/(customer)/page.js",
-                                            lineNumber: 200,
+                                            lineNumber: 225,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/(customer)/page.js",
-                                    lineNumber: 198,
+                                    lineNumber: 223,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -332,7 +355,7 @@ function HomePage() {
                                     children: "Discover top quality products at best prices. Fast delivery, secure payments & hassle-free returns."
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/(customer)/page.js",
-                                    lineNumber: 202,
+                                    lineNumber: 227,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -354,13 +377,13 @@ function HomePage() {
                                     children: "Shop Now →"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/(customer)/page.js",
-                                    lineNumber: 205,
+                                    lineNumber: 230,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/(customer)/page.js",
-                            lineNumber: 194,
+                            lineNumber: 219,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -376,23 +399,23 @@ function HomePage() {
                                 children: "🛍️✨"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/(customer)/page.js",
-                                lineNumber: 223,
+                                lineNumber: 248,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/app/(customer)/page.js",
-                            lineNumber: 222,
+                            lineNumber: 247,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/(customer)/page.js",
-                    lineNumber: 183,
+                    lineNumber: 208,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/app/(customer)/page.js",
-                lineNumber: 182,
+                lineNumber: 207,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -432,7 +455,7 @@ function HomePage() {
                                         children: "🛡️"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 246,
+                                        lineNumber: 271,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -447,7 +470,7 @@ function HomePage() {
                                                 children: "100% Secure"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(customer)/page.js",
-                                                lineNumber: 248,
+                                                lineNumber: 273,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -459,19 +482,19 @@ function HomePage() {
                                                 children: "Your payments are safe"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(customer)/page.js",
-                                                lineNumber: 249,
+                                                lineNumber: 274,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 247,
+                                        lineNumber: 272,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(customer)/page.js",
-                                lineNumber: 245,
+                                lineNumber: 270,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -491,7 +514,7 @@ function HomePage() {
                                         children: "🚚"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 254,
+                                        lineNumber: 279,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -506,7 +529,7 @@ function HomePage() {
                                                 children: "Fast Delivery"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(customer)/page.js",
-                                                lineNumber: 256,
+                                                lineNumber: 281,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -518,19 +541,19 @@ function HomePage() {
                                                 children: "Delivered quickly"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(customer)/page.js",
-                                                lineNumber: 257,
+                                                lineNumber: 282,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 255,
+                                        lineNumber: 280,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(customer)/page.js",
-                                lineNumber: 253,
+                                lineNumber: 278,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -550,7 +573,7 @@ function HomePage() {
                                         children: "📦"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 262,
+                                        lineNumber: 287,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -565,7 +588,7 @@ function HomePage() {
                                                 children: "Easy Returns"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(customer)/page.js",
-                                                lineNumber: 264,
+                                                lineNumber: 289,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -577,19 +600,19 @@ function HomePage() {
                                                 children: "7 days return policy"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(customer)/page.js",
-                                                lineNumber: 265,
+                                                lineNumber: 290,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 263,
+                                        lineNumber: 288,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(customer)/page.js",
-                                lineNumber: 261,
+                                lineNumber: 286,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -609,7 +632,7 @@ function HomePage() {
                                         children: "🎧"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 270,
+                                        lineNumber: 295,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -624,7 +647,7 @@ function HomePage() {
                                                 children: "24/7 Support"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(customer)/page.js",
-                                                lineNumber: 272,
+                                                lineNumber: 297,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -636,25 +659,25 @@ function HomePage() {
                                                 children: "Dedicated help"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(customer)/page.js",
-                                                lineNumber: 273,
+                                                lineNumber: 298,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 271,
+                                        lineNumber: 296,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(customer)/page.js",
-                                lineNumber: 269,
+                                lineNumber: 294,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/(customer)/page.js",
-                        lineNumber: 232,
+                        lineNumber: 257,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -679,12 +702,12 @@ function HomePage() {
                                     children: "Shop By Categories"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/(customer)/page.js",
-                                    lineNumber: 281,
+                                    lineNumber: 306,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/src/app/(customer)/page.js",
-                                lineNumber: 280,
+                                lineNumber: 305,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -741,7 +764,7 @@ function HomePage() {
                                                     }
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/(customer)/page.js",
-                                                    lineNumber: 309,
+                                                    lineNumber: 334,
                                                     columnNumber: 23
                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                     style: {
@@ -750,12 +773,12 @@ function HomePage() {
                                                     children: "🏷️"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/(customer)/page.js",
-                                                    lineNumber: 318,
+                                                    lineNumber: 343,
                                                     columnNumber: 23
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(customer)/page.js",
-                                                lineNumber: 307,
+                                                lineNumber: 332,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -767,25 +790,25 @@ function HomePage() {
                                                 children: cat.name
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(customer)/page.js",
-                                                lineNumber: 321,
+                                                lineNumber: 346,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, cat._id, true, {
                                         fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 289,
+                                        lineNumber: 314,
                                         columnNumber: 17
                                     }, this);
                                 })
                             }, void 0, false, {
                                 fileName: "[project]/src/app/(customer)/page.js",
-                                lineNumber: 284,
+                                lineNumber: 309,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/(customer)/page.js",
-                        lineNumber: 279,
+                        lineNumber: 304,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -817,7 +840,7 @@ function HomePage() {
                                         children: "Limited Time Offer"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 343,
+                                        lineNumber: 368,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -829,7 +852,7 @@ function HomePage() {
                                         children: "Deals of the Day"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 346,
+                                        lineNumber: 371,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -841,13 +864,13 @@ function HomePage() {
                                         children: "Huge discounts on top products. Don't miss out!"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 347,
+                                        lineNumber: 372,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(customer)/page.js",
-                                lineNumber: 342,
+                                lineNumber: 367,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -873,13 +896,13 @@ function HomePage() {
                                 children: "Explore Deals →"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/(customer)/page.js",
-                                lineNumber: 349,
+                                lineNumber: 374,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/(customer)/page.js",
-                        lineNumber: 329,
+                        lineNumber: 354,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -917,7 +940,7 @@ function HomePage() {
                                         }
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 386,
+                                        lineNumber: 411,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -934,13 +957,13 @@ function HomePage() {
                                         children: "Search"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 401,
+                                        lineNumber: 426,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(customer)/page.js",
-                                lineNumber: 385,
+                                lineNumber: 410,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -970,7 +993,7 @@ function HomePage() {
                                         children: "All Products"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 418,
+                                        lineNumber: 443,
                                         columnNumber: 13
                                     }, this),
                                     categories.map((cat)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -992,13 +1015,13 @@ function HomePage() {
                                             children: cat.name
                                         }, cat._id, false, {
                                             fileName: "[project]/src/app/(customer)/page.js",
-                                            lineNumber: 439,
+                                            lineNumber: 464,
                                             columnNumber: 15
                                         }, this))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(customer)/page.js",
-                                lineNumber: 417,
+                                lineNumber: 442,
                                 columnNumber: 11
                             }, this),
                             subCategories.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1022,7 +1045,7 @@ function HomePage() {
                                         children: "Sub:"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 464,
+                                        lineNumber: 489,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1041,7 +1064,7 @@ function HomePage() {
                                         children: "All"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(customer)/page.js",
-                                        lineNumber: 465,
+                                        lineNumber: 490,
                                         columnNumber: 15
                                     }, this),
                                     subCategories.map((sub)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1060,19 +1083,19 @@ function HomePage() {
                                             children: sub.name
                                         }, sub._id, false, {
                                             fileName: "[project]/src/app/(customer)/page.js",
-                                            lineNumber: 482,
+                                            lineNumber: 507,
                                             columnNumber: 17
                                         }, this))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(customer)/page.js",
-                                lineNumber: 463,
+                                lineNumber: 488,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/(customer)/page.js",
-                        lineNumber: 372,
+                        lineNumber: 397,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1089,12 +1112,12 @@ function HomePage() {
                             children: "Best Sellers"
                         }, void 0, false, {
                             fileName: "[project]/src/app/(customer)/page.js",
-                            lineNumber: 506,
+                            lineNumber: 531,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/app/(customer)/page.js",
-                        lineNumber: 505,
+                        lineNumber: 530,
                         columnNumber: 9
                     }, this),
                     loading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1108,7 +1131,7 @@ function HomePage() {
                         children: "Loading Products..."
                     }, void 0, false, {
                         fileName: "[project]/src/app/(customer)/page.js",
-                        lineNumber: 510,
+                        lineNumber: 535,
                         columnNumber: 11
                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         style: {
@@ -1160,10 +1183,11 @@ function HomePage() {
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/(customer)/page.js",
-                                            lineNumber: 538,
+                                            lineNumber: 563,
                                             columnNumber: 25
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            onClick: (e)=>handleQuickShare(e, p),
                                             style: {
                                                 position: "absolute",
                                                 top: "16px",
@@ -1171,17 +1195,20 @@ function HomePage() {
                                                 zIndex: 2,
                                                 background: "#fff",
                                                 borderRadius: "50%",
-                                                width: "32px",
-                                                height: "32px",
+                                                width: "36px",
+                                                height: "36px",
                                                 display: "flex",
                                                 alignItems: "center",
                                                 justifyContent: "center",
-                                                boxShadow: "0 2px 8px rgba(0,0,0,0.06)"
+                                                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                                                cursor: "pointer",
+                                                border: "1px solid #f1f5f9"
                                             },
-                                            children: "🤍"
+                                            title: shareCopiedId === p._id ? "Link Copied!" : "Share Product",
+                                            children: "🔗"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/(customer)/page.js",
-                                            lineNumber: 543,
+                                            lineNumber: 569,
                                             columnNumber: 23
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1206,12 +1233,12 @@ function HomePage() {
                                                         }
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(customer)/page.js",
-                                                        lineNumber: 549,
+                                                        lineNumber: 594,
                                                         columnNumber: 27
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/(customer)/page.js",
-                                                    lineNumber: 548,
+                                                    lineNumber: 593,
                                                     columnNumber: 25
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1229,7 +1256,7 @@ function HomePage() {
                                                             children: p.category
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/app/(customer)/page.js",
-                                                            lineNumber: 557,
+                                                            lineNumber: 602,
                                                             columnNumber: 27
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -1247,7 +1274,7 @@ function HomePage() {
                                                             children: p.title
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/app/(customer)/page.js",
-                                                            lineNumber: 560,
+                                                            lineNumber: 605,
                                                             columnNumber: 27
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1269,7 +1296,7 @@ function HomePage() {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/src/app/(customer)/page.js",
-                                                                    lineNumber: 565,
+                                                                    lineNumber: 610,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 p.originalPrice && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1285,25 +1312,25 @@ function HomePage() {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/src/app/(customer)/page.js",
-                                                                    lineNumber: 567,
+                                                                    lineNumber: 612,
                                                                     columnNumber: 31
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/src/app/(customer)/page.js",
-                                                            lineNumber: 564,
+                                                            lineNumber: 609,
                                                             columnNumber: 27
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/app/(customer)/page.js",
-                                                    lineNumber: 556,
+                                                    lineNumber: 601,
                                                     columnNumber: 25
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/(customer)/page.js",
-                                            lineNumber: 547,
+                                            lineNumber: 592,
                                             columnNumber: 23
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1326,23 +1353,23 @@ function HomePage() {
                                                 children: "View details"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(customer)/page.js",
-                                                lineNumber: 576,
+                                                lineNumber: 621,
                                                 columnNumber: 25
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/(customer)/page.js",
-                                            lineNumber: 575,
+                                            lineNumber: 620,
                                             columnNumber: 23
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/(customer)/page.js",
-                                    lineNumber: 522,
+                                    lineNumber: 547,
                                     columnNumber: 21
                                 }, this)
                             }, p._id, false, {
                                 fileName: "[project]/src/app/(customer)/page.js",
-                                lineNumber: 521,
+                                lineNumber: 546,
                                 columnNumber: 19
                             }, this);
                         }) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1356,28 +1383,28 @@ function HomePage() {
                             children: "No products found!"
                         }, void 0, false, {
                             fileName: "[project]/src/app/(customer)/page.js",
-                            lineNumber: 598,
+                            lineNumber: 643,
                             columnNumber: 15
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/app/(customer)/page.js",
-                        lineNumber: 512,
+                        lineNumber: 537,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/(customer)/page.js",
-                lineNumber: 229,
+                lineNumber: 254,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/(customer)/page.js",
-        lineNumber: 135,
+        lineNumber: 160,
         columnNumber: 5
     }, this);
 }
-_s(HomePage, "A9umGjvpq8pm7DczehsuOUq2gNo=");
+_s(HomePage, "ZzSeYs5Yj3HquP6W1Kgra+k+FyQ=");
 _c = HomePage;
 var _c;
 __turbopack_context__.k.register(_c, "HomePage");

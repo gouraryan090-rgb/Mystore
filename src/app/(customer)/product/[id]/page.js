@@ -1,3 +1,4 @@
+// src/app/product/[id]/page.js
 "use client";
 
 import { useState, useEffect, use } from "react";
@@ -17,6 +18,7 @@ export default function ProductDetailPage({ params }) {
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [added, setAdded] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedColor, setSelectedColor] = useState(null);
@@ -28,7 +30,7 @@ export default function ProductDetailPage({ params }) {
       setAddresses(JSON.parse(saved));
     }
 
-    const fetchProduct = async () => {
+    const fetchProduct = async (isInitial = false) => {
       try {
         const res = await fetch(`/api/products/${productId}`);
         const data = await res.json();
@@ -36,22 +38,33 @@ export default function ProductDetailPage({ params }) {
           const prodData = data.data;
           setProduct(prodData);
           
-          if (prodData.colorVariants && prodData.colorVariants.length > 0) {
-            setSelectedColor(prodData.colorVariants[0].color);
-          }
-          if (prodData.sizes && prodData.sizes.length > 0) {
-            setSelectedSize(prodData.sizes[0]);
+          if (isInitial) {
+            if (prodData.colorVariants && prodData.colorVariants.length > 0) {
+              setSelectedColor(prodData.colorVariants[0].color);
+            }
+            if (prodData.sizes && prodData.sizes.length > 0) {
+              setSelectedSize(prodData.sizes[0]);
+            }
           }
         }
       } catch (err) {
         console.error(err);
       } finally {
-        setLoading(false);
+        if (isInitial) {
+          setLoading(false);
+        }
       }
     };
 
     if (productId) {
-      fetchProduct();
+      fetchProduct(true);
+
+      // Background polling every 3 seconds to sync live stock without full reload
+      const interval = setInterval(() => {
+        fetchProduct(false);
+      }, 3000);
+
+      return () => clearInterval(interval);
     }
   }, [productId]);
 
@@ -92,7 +105,7 @@ export default function ProductDetailPage({ params }) {
     if (isOutOfStock) return;
     const productWithVariants = {
       ...product,
-      quantity: 1, // Explicitly set starting quantity to 1
+      quantity: 1,
       selectedColor,
       selectedSize,
       stock: currentStock,
@@ -100,6 +113,28 @@ export default function ProductDetailPage({ params }) {
     addToCart(productWithVariants);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
+  };
+
+  const handleShare = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const shareData = {
+      title: product.title,
+      text: `Check out this amazing product: ${product.title}`,
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.log("Error sharing:", err);
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    }
   };
 
   const handleProceedToCheckout = () => {
@@ -202,6 +237,30 @@ export default function ProductDetailPage({ params }) {
               border: "1px solid #f1f5f9"
             }}
           >
+            {/* Quick Share Button positioned at the top-right of the product image container */}
+            <div 
+              onClick={handleShare}
+              style={{
+                position: "absolute",
+                top: "20px",
+                right: "20px",
+                zIndex: 10,
+                background: "#fff",
+                borderRadius: "50%",
+                width: "40px",
+                height: "40px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                cursor: "pointer",
+                border: "1px solid #f1f5f9"
+              }}
+              title={shareCopied ? "Link Copied!" : "Share Product"}
+            >
+              🔗
+            </div>
+
             <img
               src={currentMainImage}
               alt={product.title}
@@ -236,15 +295,19 @@ export default function ProductDetailPage({ params }) {
           </div>
 
           <div>
-            {isOutOfStock ? (
-              <span style={{ fontSize: "13px", fontWeight: "800", color: "#ef4444", backgroundColor: "#fee2e2", padding: "4px 10px", borderRadius: "8px" }}>
-                Out of Stock
-              </span>
-            ) : (
-              <span style={{ fontSize: "13px", fontWeight: "800", color: "#16a34a", backgroundColor: "#dcfce7", padding: "4px 10px", borderRadius: "8px" }}>
-                Only {currentStock} left
-              </span>
-            )}
+            {currentStock === 0 ? (
+              <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "13px", fontWeight: "800", color: "#ef4444", backgroundColor: "#fee2e2", padding: "6px 12px", borderRadius: "10px", border: "1px solid #fecaca" }}>
+                <span>🔴</span> Sold Out
+              </div>
+            ) : currentStock >= 1 && currentStock <= 5 ? (
+              <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "13px", fontWeight: "800", color: "#b91c1c", backgroundColor: "#fef2f2", padding: "6px 12px", borderRadius: "10px", border: "1px solid #fecaca" }}>
+                <span>🔥</span> Only {currentStock} left in stock - order soon!
+              </div>
+            ) : currentStock >= 6 && currentStock <= 10 ? (
+              <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "13px", fontWeight: "800", color: "#b45309", backgroundColor: "#fef3c7", padding: "6px 12px", borderRadius: "10px", border: "1px solid #fde68a" }}>
+                <span>⚡</span> Few left! Selling fast.
+              </div>
+            ) : null}
           </div>
 
           {product.colorVariants && product.colorVariants.length > 0 && (
@@ -328,7 +391,7 @@ export default function ProductDetailPage({ params }) {
                 cursor: isOutOfStock ? "not-allowed" : "pointer",
               }}
             >
-              {isOutOfStock ? "Out of Stock" : "⚡ Buy Now"}
+              {isOutOfStock ? "Sold Out" : "⚡ Buy Now"}
             </button>
 
             <button

@@ -162,9 +162,11 @@ export default function AdminDashboardPage() {
             
             <DashboardCard href="/admin/orders" icon="📦" title="Manage Orders" desc="View, track, download receipt, and update customer order status." />
             <DashboardCard href="/admin/products" icon="🏷️" title="Manage Products" desc="Add, edit, or delete store products and stock." />
+            <DashboardCard href="/admin/inventory" icon="📦" title="Inventory Management" desc="Track product stock variants and monitor inventory levels." />
             <DashboardCard href="/admin/categories" icon="📂" title="Manage Categories" desc="Create new main categories or sub-categories." />
             <DashboardCard href="/admin/customers" icon="👥" title="Manage Customers" desc="View customer lists and details." />
             <DashboardCard href="/admin/coupons" icon="🎟️" title="Make / Edit Coupons" desc="Create discount codes and edit coupon offers." />
+            <DashboardCard href="/admin/gift-coupons" icon="🎁" title="Gift & Target Coupons" desc="Assign targeted coupons for new, old, or specific user emails." />
             <DashboardCard href="/admin/finance" icon="📊" title="Finance & Analytics" desc="Track revenue, estimated profit, and monthly/category sales." />
             <DashboardCard href="/admin/messages" icon="📬" title="Customer Messages" desc="View and manage customer complaints and support queries." />
             <DashboardCard href="/admin/extra-charges" icon="⚡" title="Manage Extra Charges" desc="Add or remove extra fees like COD charges or packaging fee." />

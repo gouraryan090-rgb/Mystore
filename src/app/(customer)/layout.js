@@ -1,9 +1,11 @@
+// src/app/layout.js
 "use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CartProvider, useCart } from "./context/CartContext";
+import WhatsAppButton from "@/components/WhatsAppButton"; //[cite: 7]
 
 // 👇 Service Worker Register karne ke liye function
 function ServiceWorkerRegister() {
@@ -189,11 +191,13 @@ export default function CustomerLayout({ children }) {
     <CartProvider>
       {/* 👇 Service Worker yahan mount kar diya gaya hai */}
       <ServiceWorkerRegister />
-      <div style={{ minHeight: "100vh", backgroundColor: "#f8fafc" }}>
+      <div style={{ minHeight: "100vh", backgroundColor: "#f8fafc", position: "relative" }}>
         <HeaderContent user={user} />
         <main style={{ maxWidth: "1280px", margin: "0 auto", padding: "24px 20px" }}>
           {children}
         </main>
+        {/* 👇 WhatsApp & Call Floating Button ab sabhi pages par dikhega */}
+        <WhatsAppButton />
       </div>
     </CartProvider>
   );

@@ -45,6 +45,8 @@ export async function PUT(request, { params }) {
         imageUrl: body.imageUrl,
         sizes: body.sizes,
         colorVariants: body.colorVariants,
+        sizeStockVariants: body.sizeStockVariants, // Added here
+        stock: body.stock, // Added here
       },
       { new: true, runValidators: true }
     );

@@ -138,10 +138,12 @@ export default async function AdminLayout({ children }) {
 
               <span style={{ fontSize: "11px", fontWeight: "800", color: "#94a3b8", paddingLeft: "12px", marginTop: "16px", marginBottom: "4px", letterSpacing: "0.5px" }}>MANAGE</span>
               <SidebarLink href="/admin/products" icon="🏷️" label="Products" />
+              <SidebarLink href="/admin/inventory" icon="📦" label="Inventory" />
               <SidebarLink href="/admin/categories" icon="📂" label="Categories" />
-              <SidebarLink href="/admin/orders" icon="📦" label="Orders" active />
+              <SidebarLink href="/admin/orders" icon="📦" label="Orders" />
               <SidebarLink href="/admin/customers" icon="👥" label="Customers" />
               <SidebarLink href="/admin/coupons" icon="🎟️" label="Coupons" />
+              <SidebarLink href="/admin/gift-coupons" icon="🎁" label="Gift & Target Coupons" />
               <SidebarLink href="/admin/reviews" icon="⭐" label="Reviews" />
               <SidebarLink href="/admin/extra-charges" icon="⚡" label="Extra Charges" />
 

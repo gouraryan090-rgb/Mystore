@@ -27,6 +27,10 @@ export default function CheckoutPage() {
   const [discountApplied, setDiscountApplied] = useState(false);
   const [couponMessage, setCouponMessage] = useState("");
 
+  // Available coupons for horizontal slider
+  const [availableCoupons, setAvailableCoupons] = useState([]);
+  const [userOrderCount, setUserOrderCount] = useState(0);
+
   useEffect(() => {
     const saved = localStorage.getItem("checkout_data");
     if (saved) {
@@ -56,6 +60,16 @@ export default function CheckoutPage() {
         }
       })
       .catch((err) => console.error("Extra charges fetch error:", err));
+
+    // Fetch coupons for the horizontal slider
+    fetch("/api/coupons")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setAvailableCoupons(data.data);
+        }
+      })
+      .catch((err) => console.error("Coupons fetch error:", err));
   }, [router]);
 
   // Quantity change handler for checkout items with stock validation
@@ -70,7 +84,6 @@ export default function CheckoutPage() {
       const currentQty = currentItem.quantity || 1;
       const newQty = currentQty + delta;
 
-      // Determine max available stock for this item/variant
       let maxStock = currentItem.stock !== undefined ? currentItem.stock : 10;
       if (currentItem.selectedSize && currentItem.selectedColor && currentItem.sizeStockVariants) {
         const variant = currentItem.sizeStockVariants.find(
@@ -96,7 +109,6 @@ export default function CheckoutPage() {
       }
       updatedData.cart = updatedCart;
       
-      // Recalculate totalBill
       updatedData.totalBill = updatedCart.reduce(
         (sum, item) => sum + (item.offerPrice || item.price) * (item.quantity || 1), 
         0
@@ -205,6 +217,17 @@ export default function CheckoutPage() {
       setCouponMessage("Something went wrong.");
     }
   };
+
+  // Filter coupons for the horizontal slider based on user criteria
+  const userEmail = selectedAddress?.email || "";
+  const filteredCoupons = availableCoupons.filter((c) => {
+    if (!c.isActive) return false;
+    if (c.couponFor === "all") return true;
+    if (c.couponFor === "new" && userOrderCount === 0) return true;
+    if (c.couponFor === "old" && userOrderCount > 0) return true;
+    if (c.couponFor === "specific" && c.specificEmail && c.specificEmail.toLowerCase() === userEmail.toLowerCase()) return true;
+    return false;
+  });
 
   const handleFinalSubmit = async () => {
     if (!selectedAddress) {
@@ -460,6 +483,7 @@ export default function CheckoutPage() {
               </div>
             </div>
 
+            {/* Promo Code & Horizontal Slider Section */}
             <div style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "20px" }}>
               <div style={{ fontSize: "12px", fontWeight: "700", color: "#6b7280", textTransform: "uppercase", marginBottom: "10px", letterSpacing: "0.5px" }}>Promo Code</div>
               <div style={{ display: "flex", gap: "8px" }}>
@@ -482,6 +506,48 @@ export default function CheckoutPage() {
                 )}
               </div>
               {couponMessage && <div style={{ fontSize: "12px", marginTop: "8px", color: discountApplied ? "#10b981" : "#ef4444", fontWeight: "600" }}>{couponMessage}</div>}
+
+              {/* Horizontal Scrollable Slider for Available/Targeted Coupons */}
+              {filteredCoupons.length > 0 && !discountApplied && (
+                <div style={{ marginTop: "16px", borderTop: "1px solid #f3f4f6", paddingTop: "14px" }}>
+                  <div style={{ fontSize: "12px", fontWeight: "700", color: "#4f46e5", marginBottom: "8px" }}>
+                    🎁 Available Coupons For You:
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      overflowX: "auto",
+                      paddingBottom: "6px",
+                      scrollbarWidth: "thin",
+                    }}
+                  >
+                    {filteredCoupons.map((c) => (
+                      <div
+                        key={c._id}
+                        onClick={() => setCouponCode(c.code)}
+                        style={{
+                          minWidth: "140px",
+                          flexShrink: 0,
+                          backgroundColor: "#f8fafc",
+                          border: "1px dashed #6366f1",
+                          borderRadius: "8px",
+                          padding: "10px",
+                          cursor: "pointer",
+                          textAlign: "center",
+                          transition: "background 0.2s",
+                        }}
+                      >
+                        <div style={{ fontSize: "13px", fontWeight: "800", color: "#4f46e5" }}>{c.code}</div>
+                        <div style={{ fontSize: "11px", fontWeight: "600", color: "#059669", marginTop: "2px" }}>
+                          {c.discountPercentage}% OFF
+                        </div>
+                        <div style={{ fontSize: "9px", color: "#64748b", marginTop: "4px" }}>Min: ₹{c.minOrderAmount}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "20px" }}>

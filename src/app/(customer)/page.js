@@ -1,3 +1,4 @@
+// src/app/(customer)/page.js
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -16,6 +17,7 @@ export default function HomePage() {
   // User & Auth State
   const [user, setUser] = useState(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [shareCopiedId, setShareCopiedId] = useState(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -120,6 +122,29 @@ export default function HomePage() {
       localStorage.setItem("customer_user", JSON.stringify(userData));
     } catch (error) {
       console.error("Login Error:", error);
+    }
+  };
+
+  const handleQuickShare = async (e, p) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const productUrl = `${window.location.origin}/product/${p._id}`;
+    const shareData = {
+      title: p.title,
+      text: `Check out this amazing product: ${p.title}`,
+      url: productUrl,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.log("Error sharing:", err);
+      }
+    } else {
+      navigator.clipboard.writeText(productUrl);
+      setShareCopiedId(p._id);
+      setTimeout(() => setShareCopiedId(null), 2000);
     }
   };
 
@@ -540,8 +565,28 @@ export default function HomePage() {
                         </div>
                       )}
 
-                      <div style={{ position: "absolute", top: "16px", right: "16px", zIndex: 2, background: "#fff", borderRadius: "50%", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
-                        🤍
+                      {/* Quick Share Button */}
+                      <div 
+                        onClick={(e) => handleQuickShare(e, p)}
+                        style={{ 
+                          position: "absolute", 
+                          top: "16px", 
+                          right: "16px", 
+                          zIndex: 2, 
+                          background: "#fff", 
+                          borderRadius: "50%", 
+                          width: "36px", 
+                          height: "36px", 
+                          display: "flex", 
+                          alignItems: "center", 
+                          justifyContent: "center", 
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                          cursor: "pointer",
+                          border: "1px solid #f1f5f9"
+                        }}
+                        title={shareCopiedId === p._id ? "Link Copied!" : "Share Product"}
+                      >
+                        🔗
                       </div>
 
                       <div>

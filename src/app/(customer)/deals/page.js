@@ -1,3 +1,4 @@
+
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -40,6 +41,21 @@ export default function DealsPage() {
     };
 
     fetchData();
+
+    // Background refresh every 2 seconds
+    const interval = setInterval(async () => {
+      try {
+        const prodRes = await fetch("/api/products");
+        const prodData = await prodRes.json();
+        if (prodData.success) {
+          setProducts(prodData.data);
+        }
+      } catch (err) {
+        console.error("Background sync error:", err);
+      }
+    }, 2000);
+
+    return () => clearInterval(interval);
   }, []);
 
   // Corrected Filter logic for "Up to X% off" ranges

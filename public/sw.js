@@ -1,13 +1,26 @@
+const CACHE_NAME = "zentrobazaar-v1";
+const urlsToCache = [
+  "/",
+  "/categories",
+  "/deals",
+  "/orders",
+  "/about"
+];
+
+// Install Service Worker
 self.addEventListener("install", (event) => {
-  event.waitUntil(self.skipWaiting());
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(urlsToCache);
+    })
+  );
 });
 
-self.addEventListener("activate", (event) => {
-  event.waitUntil(self.clients.claim());
-});
-
+// Fetch & Cache Requests
 self.addEventListener("fetch", (event) => {
   event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request);
+    })
   );
 });

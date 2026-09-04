@@ -7,9 +7,10 @@ const CouponSchema = new mongoose.Schema(
     minOrderAmount: { type: Number, required: true },    // e.g., ₹500 ke upar hi lagega
     couponFor: { 
       type: String, 
-      enum: ["all", "new", "old"], 
+      enum: ["all", "new", "old", "specific"], 
       default: "all" 
-    }, // "all" = Every user, "new" = New users only, "old" = Existing users only
+    }, // "all" = Every user, "new" = New users only, "old" = Existing users only, "specific" = Specific email user
+    specificEmail: { type: String, default: "" }, // Jab couponFor "specific" ho toh yahan email aayega
     validTill: { type: Date, required: true },
     isActive: { type: Boolean, default: true },
   },
