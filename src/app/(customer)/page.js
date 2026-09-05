@@ -2,8 +2,9 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { auth } from "@/lib/firebase";
+import { auth, messaging } from "@/lib/firebase";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { getToken } from "firebase/messaging";
 
 export default function HomePage() {
   const [products, setProducts] = useState([]);
@@ -41,6 +42,38 @@ export default function HomePage() {
       setIsCheckingAuth(false);
     }
   }, []);
+
+  // Request Notification Permission and Save Token
+  useEffect(() => {
+    const requestNotificationToken = async () => {
+      if (typeof window !== "undefined" && "Notification" in window && messaging) {
+        try {
+          const permission = await Notification.requestPermission();
+          if (permission === "granted") {
+            // NOTE: Replace with your actual Firebase Cloud Messaging VAPID public key if generated in console
+            const token = await getToken(messaging, {
+              vapidKey: "YOUR_PUBLIC_VAPID_KEY_HERE" 
+            });
+            if (token) {
+              console.log("FCM Device Token:", token);
+              // Send token to backend database if user is logged in or anonymously
+              await fetch("/api/save-token", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token, email: user?.email || "guest" })
+              });
+            }
+          }
+        } catch (error) {
+          console.error("Error saving notification token:", error);
+        }
+      }
+    };
+
+    if (!isCheckingAuth) {
+      requestNotificationToken();
+    }
+  }, [isCheckingAuth, user]);
 
   useEffect(() => {
     const fetchData = async () => {
